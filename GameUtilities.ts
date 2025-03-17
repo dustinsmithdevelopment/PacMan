@@ -1,4 +1,4 @@
-import {LocalEvent, NetworkEvent, Player} from "horizon/core";
+import {Entity, LocalEvent, NetworkEvent, Player} from "horizon/core";
 
 export enum GameState {
   'Ready',
@@ -9,9 +9,11 @@ export enum GameState {
 
 
 export const Events = {
-  setPacman: new NetworkEvent<{ pacMan: Player }>("SetPacman"),
+  registerPowerPellet: new LocalEvent<{pellet: Entity}>('registerPowerPellet'),
+  setPacman: new LocalEvent<{ pacMan: Player }>("SetPacman"),
   collectFruit: new LocalEvent<{ fruitValue :number }>("collectFruit"),
-
+  pacmanDead: new LocalEvent<{}>("pacmanDead"),
+  touchedByPacman: new LocalEvent<{}>("touchedByPacman"),
 }
 export class PlayerList {
   players: Player[] = [];
@@ -36,11 +38,14 @@ export class PlayerList {
 
   }
   removePlayer(player: Player) {
-    this.players.splice(this.players.indexOf(player), 1);
+    if (this.players.includes(player)) {
+      this.players.splice(this.players.indexOf(player), 1);
+    }
+
   }
 }
 
-export class MatchPlayers {
+export class GamePlayers {
   all: PlayerList = new PlayerList();
   inWaitingArea: PlayerList = new PlayerList();
   pacman: Player | undefined;
@@ -68,21 +73,30 @@ export class MatchPlayers {
 
   }
   moveToWaitingArea(player: Player) {
+    this.all.addPlayer(player);
     if (this.pacman === player) {
       this.pacman = undefined;
     }
-    if (this.ghosts.hasPlayer(player)) {
-      this.ghosts.removePlayer(player);
-    }
+    this.ghosts.removePlayer(player);
+    this.inWaitingArea.addPlayer(player);
+
   }
   makePacman(player: Player) {
     this.inWaitingArea.removePlayer(player);
     this.pacman = player;
   }
   makeGhost(player: Player) {
-    this.inWaitingArea.removePlayer(player);
     if (this.ghosts.size() < 4){
+      this.inWaitingArea.removePlayer(player);
       this.ghosts.addPlayer(player);
+    }
+  }
+  removePlayer(player: Player) {
+    this.all.removePlayer(player);
+    this.inWaitingArea.removePlayer(player);
+    this.ghosts.removePlayer(player);
+    if (this.pacman === player) {
+      this.pacman = undefined;
     }
   }
 }
