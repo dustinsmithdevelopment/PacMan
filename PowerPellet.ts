@@ -1,9 +1,16 @@
 import {Component} from "horizon/core";
+import {Events} from "./GameUtilities";
 
 class PowerPellet extends Component<typeof PowerPellet> {
   static propsDefinition = {};
+  preStart() {
+    this.connectLocalEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
+  }
 
   start() {
+
+  }
+  collected() {
 
   }
 }

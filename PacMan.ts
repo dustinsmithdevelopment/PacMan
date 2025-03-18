@@ -1,4 +1,4 @@
-import {CodeBlockEvents, Component, Entity, Player} from "horizon/core";
+import {CodeBlockEvents, Component, Entity} from "horizon/core";
 import {Events} from "./GameUtilities";
 
 class PacMan extends Component<typeof PacMan> {

@@ -7,7 +7,7 @@ class PacDot extends Component<typeof PacDot> {
     GameManager: {type: PropTypes.Entity}
   };
   preStart() {
-
+    this.connectLocalEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
   }
 
   start() {
