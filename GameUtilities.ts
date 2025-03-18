@@ -19,6 +19,8 @@ export const Events = {
   touchedByPacman: new LocalEvent<{}>("touchedByPacman"),
   startConstantMotion: new LocalEvent<{}>("startConstantMotion"),
   stopConstantMotion: new LocalEvent<{}>("stopConstantMotion"),
+  assignPlayer: new LocalEvent<{ player:Player }>("assignPlayer"),
+  unassignPlayer: new LocalEvent<{}>("unassignPlayer"),
 }
 export class PlayerList {
   players: Player[] = [];
