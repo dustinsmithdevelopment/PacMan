@@ -1,7 +1,10 @@
-import {Entity, LocalEvent, NetworkEvent, Player} from "horizon/core";
+import {AttachablePlayerAnchor, Entity, LocalEvent, Player} from "horizon/core";
+
+export const movementSpeed = 4.5
+export const anchorBodyPart = AttachablePlayerAnchor.Torso;
 
 export enum GameState {
-  'Ready',
+  'Waiting',
   'Starting',
   'Playing',
   'Ending'
@@ -14,6 +17,8 @@ export const Events = {
   collectFruit: new LocalEvent<{ fruitValue :number }>("collectFruit"),
   pacmanDead: new LocalEvent<{}>("pacmanDead"),
   touchedByPacman: new LocalEvent<{}>("touchedByPacman"),
+  startConstantMotion: new LocalEvent<{}>("startConstantMotion"),
+  stopConstantMotion: new LocalEvent<{}>("stopConstantMotion"),
 }
 export class PlayerList {
   players: Player[] = [];
