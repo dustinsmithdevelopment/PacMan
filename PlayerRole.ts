@@ -11,20 +11,24 @@ export abstract class PlayerRole extends Component {
         this.connectNetworkEvent(this.entity, Events.assignPlayer, (data: {player: Player})=>{this.assignToPlayer(data.player)});
         this.connectNetworkEvent(this.entity, Events.unassignPlayer, (data: {player: Player})=>{this.removeFromPlayer(data.player)});
     }
-    private worldUpdate: EventSubscription|undefined;
+    private worldUpdate:number|null = null;
     private startConstantMotion() {
         this.motionActive = true;
         console.log("Starting Constant Motion");
-        this.worldUpdate = this.connectLocalBroadcastEvent(World.onUpdate, this.enactMotion.bind(this));
+        this.worldUpdate = this.async.setInterval(this.enactMotion.bind(this), 16);
     }
     private stopConstantMotion() {
         this.motionActive = false;
         console.log("Stopping Constant Motion");
-        this.worldUpdate?.disconnect();
+        if (this.worldUpdate) {
+            this.async.clearInterval(this.worldUpdate);
+            this.worldUpdate = null;
+        }
     }
     private enactMotion(){
+        console.log("Calling Enact Motion: " + this.attachedPlayer?.name.get());
         if (this.motionActive) {
-            if (this.attachedPlayer != null) {
+            if (this.attachedPlayer !== null) {
                 console.log("Moving " + this.attachedPlayer.name.get());
                 this.attachedPlayer.velocity.set(this.attachedPlayer.torso.forward.get().mul(movementSpeed));
             }
