@@ -11,6 +11,7 @@ class SetPacman extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
+      console.log("Sending assignPlayer with ", player + ". Name: " + player.name.get(), " ID: " + player.id.valueOf());
       this.sendLocalEvent(this.props.pacman!, Events.assignPlayer, {player: player});
     });
   }
@@ -26,7 +27,7 @@ class RemovePacman extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
-      this.sendLocalEvent(this.props.pacman!, Events.unassignPlayer, {player: player});
+      this.sendNetworkEvent(this.props.pacman!, Events.unassignPlayer, {player: player});
     });
   }
 }
@@ -41,7 +42,7 @@ class SetGhost extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
-      this.sendLocalEvent(this.props.ghost!, Events.assignPlayer, {player: player});
+      this.sendNetworkEvent(this.props.ghost!, Events.assignPlayer, {player: player});
     });
   }
 }
@@ -56,7 +57,7 @@ class RemoveGhost extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
-      this.sendLocalEvent(this.props.ghost!, Events.unassignPlayer, {player: player});
+      this.sendNetworkEvent(this.props.ghost!, Events.unassignPlayer, {player: player});
     });
   }
 }
@@ -70,7 +71,7 @@ class StartConstantMotion extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnEntityEnterTrigger, (item: Entity)=>{
-      this.sendLocalEvent(item, Events.startConstantMotion, {});
+      this.sendNetworkEvent(item, Events.startConstantMotion, {});
     });
   }
 }
@@ -84,7 +85,7 @@ class StopConstantMotion extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnEntityEnterTrigger, (item: Entity)=>{
-      this.sendLocalEvent(item, Events.stopConstantMotion, {});
+      this.sendNetworkEvent(item, Events.stopConstantMotion, {});
     });
   }
 }

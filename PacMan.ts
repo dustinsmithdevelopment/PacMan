@@ -18,11 +18,11 @@ class PacMan extends Component {
   private motionActive = false;
 
   preStart() {
-    this.connectLocalEvent(this.entity, Events.startConstantMotion, this.startConstantMotion.bind(this));
-    this.connectLocalEvent(this.entity, Events.stopConstantMotion, this.stopConstantMotion.bind(this));
+    this.connectNetworkEvent(this.entity, Events.startConstantMotion, this.startConstantMotion.bind(this));
+    this.connectNetworkEvent(this.entity, Events.stopConstantMotion, this.stopConstantMotion.bind(this));
     this.connectLocalBroadcastEvent(World.onUpdate, this.enactMotion.bind(this));
-    this.connectLocalEvent(this.entity, Events.assignPlayer, (player: Player)=>{this.assignToPlayer(player)});
-    this.connectLocalEvent(this.entity, Events.unassignPlayer, (player: Player)=>{this.removeFromPlayer(player)});
+    this.connectNetworkEvent(this.entity, Events.assignPlayer, (data: {player: Player})=>{this.assignToPlayer(data.player)});
+    this.connectNetworkEvent(this.entity, Events.unassignPlayer, (data: {player: Player})=>{this.removeFromPlayer(data.player)});
   }
 
   start() {
@@ -46,6 +46,7 @@ class PacMan extends Component {
     }
   }
   assignToPlayer(player: Player) {
+    console.log("received assignPlayer with ", player + ". Name: " + player.name.get(), " ID: " + player.id.valueOf());
     this.attachedPlayer = player;
     this.entity.as(AttachableEntity).attachToPlayer(player, anchorBodyPart);
     this.entity.owner.set(player);

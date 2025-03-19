@@ -7,7 +7,7 @@ class Fruit extends Component<typeof Fruit> {
     pointValue: { type: PropTypes.Number },
   };
   preStart() {
-    this.connectLocalEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
+    this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
   }
 
   start() {

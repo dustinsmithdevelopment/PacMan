@@ -7,7 +7,7 @@ class PacDot extends Component<typeof PacDot> {
     GameManager: {type: PropTypes.Entity}
   };
   preStart() {
-    this.connectLocalEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
+    this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
   }
 
   start() {
@@ -15,7 +15,7 @@ class PacDot extends Component<typeof PacDot> {
     this.registerComponent();
   }
   registerComponent() {
-    this.sendLocalEvent(this.gameManager!, Events.registerPowerPellet, {pellet: this.entity});
+    this.sendNetworkBroadcastEvent(Events.registerPowerPellet, {pellet: this.entity});
   }
   collected(){
 

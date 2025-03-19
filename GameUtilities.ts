@@ -1,4 +1,4 @@
-import {AttachablePlayerAnchor, Entity, LocalEvent, Player} from "horizon/core";
+import {AttachablePlayerAnchor, Entity, LocalEvent, NetworkEvent, Player} from "horizon/core";
 
 export const movementSpeed = 4.5
 export const anchorBodyPart = AttachablePlayerAnchor.Torso;
@@ -12,15 +12,15 @@ export enum GameState {
 
 
 export const Events = {
-  registerPowerPellet: new LocalEvent<{pellet: Entity}>('registerPowerPellet'),
-  setPacman: new LocalEvent<{ pacMan: Player }>("SetPacman"),
-  collectFruit: new LocalEvent<{ fruitValue :number }>("collectFruit"),
-  pacmanDead: new LocalEvent<{}>("pacmanDead"),
-  touchedByPacman: new LocalEvent<{}>("touchedByPacman"),
-  startConstantMotion: new LocalEvent<{}>("startConstantMotion"),
-  stopConstantMotion: new LocalEvent<{}>("stopConstantMotion"),
-  assignPlayer: new LocalEvent<{ player:Player }>("assignPlayer"),
-  unassignPlayer: new LocalEvent<{}>("unassignPlayer"),
+  registerPowerPellet: new NetworkEvent<{pellet: Entity}>('registerPowerPellet'),
+  setPacman: new NetworkEvent<{ pacMan: Player }>("SetPacman"),
+  collectFruit: new NetworkEvent<{ fruitValue :number }>("collectFruit"),
+  pacmanDead: new NetworkEvent<{}>("pacmanDead"),
+  touchedByPacman: new NetworkEvent<{}>("touchedByPacman"),
+  startConstantMotion: new NetworkEvent<{}>("startConstantMotion"),
+  stopConstantMotion: new NetworkEvent<{}>("stopConstantMotion"),
+  assignPlayer: new NetworkEvent<{ player:Player }>("assignPlayer"),
+  unassignPlayer: new NetworkEvent<{}>("unassignPlayer"),
 }
 export class PlayerList {
   players: Player[] = [];

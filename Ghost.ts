@@ -8,12 +8,12 @@ class Ghost extends Component {
   private motionActive = false;
 
   preStart() {
-    this.connectLocalEvent(this.entity, Events.touchedByPacman, this.touchedByPacman.bind(this));
-    this.connectLocalEvent(this.entity, Events.startConstantMotion, this.startConstantMotion.bind(this));
-    this.connectLocalEvent(this.entity, Events.stopConstantMotion, this.stopConstantMotion.bind(this));
+    this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.touchedByPacman.bind(this));
+    this.connectNetworkEvent(this.entity, Events.startConstantMotion, this.startConstantMotion.bind(this));
+    this.connectNetworkEvent(this.entity, Events.stopConstantMotion, this.stopConstantMotion.bind(this));
     this.connectLocalBroadcastEvent(World.onUpdate, this.enactMotion.bind(this));
-    this.connectLocalEvent(this.entity, Events.assignPlayer, (player: Player)=>{this.assignToPlayer(player)});
-    this.connectLocalEvent(this.entity, Events.unassignPlayer, (player: Player)=>{this.removeFromPlayer(player)});
+    this.connectNetworkEvent(this.entity, Events.assignPlayer, (data: {player: Player})=>{this.assignToPlayer(data.player)});
+    this.connectNetworkEvent(this.entity, Events.unassignPlayer, (data: {player: Player})=>{this.removeFromPlayer(data.player)});
   }
   start() {
 
