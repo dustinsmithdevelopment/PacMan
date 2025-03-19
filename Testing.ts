@@ -63,32 +63,28 @@ class RemoveGhost extends Component{
 Component.register(RemoveGhost);
 
 class StartConstantMotion extends Component{
-  static propsDefinition = {
-    target: {type: PropTypes.Entity}
-  };
+  static propsDefinition = {};
   preStart() {
 
   }
 
   start() {
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
-      this.sendLocalEvent(this.props.target!, Events.startConstantMotion, {player: Player});
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnEntityEnterTrigger, (item: Entity)=>{
+      this.sendLocalEvent(item, Events.startConstantMotion, {});
     });
   }
 }
 Component.register(StartConstantMotion);
 
 class StopConstantMotion extends Component{
-  static propsDefinition = {
-    target: {type: PropTypes.Entity}
-  };
+  static propsDefinition = {};
   preStart() {
 
   }
 
   start() {
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
-      this.sendLocalEvent(this.props.target!, Events.stopConstantMotion, {player: Player});
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnEntityEnterTrigger, (item: Entity)=>{
+      this.sendLocalEvent(item, Events.stopConstantMotion, {});
     });
   }
 }
