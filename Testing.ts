@@ -12,7 +12,7 @@ class SetPacman extends Component{
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
       console.log("Sending assignPlayer with ", player + ". Name: " + player.name.get(), " ID: " + player.id.valueOf());
-      this.sendLocalEvent(this.props.pacman!, Events.assignPlayer, {player: player});
+      this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: player});
     });
   }
 }
@@ -71,6 +71,7 @@ class StartConstantMotion extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnEntityEnterTrigger, (item: Entity)=>{
+      console.log("sending startConstantMotion");
       this.sendNetworkEvent(item, Events.startConstantMotion, {});
     });
   }
@@ -85,6 +86,7 @@ class StopConstantMotion extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnEntityEnterTrigger, (item: Entity)=>{
+      console.log("sending stopConstantMotion");
       this.sendNetworkEvent(item, Events.stopConstantMotion, {});
     });
   }
