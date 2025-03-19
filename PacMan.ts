@@ -4,14 +4,14 @@ import {
   CodeBlockEvents,
   Component,
   Entity, PhysicalEntity,
-  Player,
+  Player, PropTypes,
   World
 } from "horizon/core";
 import {anchorBodyPart, Events, movementSpeed} from "./GameUtilities";
 
 class PacMan extends Component {
   static propsDefinition = {
-    CollectionTrigger: {type: Entity},
+    CollectionTrigger: {type: PropTypes.Entity},
   };
 
   private attachedPlayer: Player|null = null;
