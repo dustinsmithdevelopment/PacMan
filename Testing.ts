@@ -1,4 +1,4 @@
-import {CodeBlockEvents, Component, Entity, Player, PropTypes} from "horizon/core";
+import {CodeBlockEvents, Component, Entity, PhysicalEntity, Player, PropTypes} from "horizon/core";
 import {Events} from "./GameUtilities";
 
 class SetPacman extends Component{
@@ -10,8 +10,9 @@ class SetPacman extends Component{
   }
 
   start() {
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
-      console.log("Sending assignPlayer with ", player + ". Name: " + player.name.get(), " ID: " + player.id.valueOf());
+    this.entity.as(PhysicalEntity).locked.set(true);
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
+      console.log("sending assignPacman with ", player);
       this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: player});
     });
   }
@@ -26,7 +27,8 @@ class RemovePacman extends Component{
   }
 
   start() {
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
+    this.entity.as(PhysicalEntity).locked.set(true);
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
       this.sendNetworkEvent(this.props.pacman!, Events.unassignPlayer, {player: player});
     });
   }
@@ -41,7 +43,8 @@ class SetGhost extends Component{
   }
 
   start() {
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
+    this.entity.as(PhysicalEntity).locked.set(true);
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
       console.log("sending assignGhost with ", player);
       this.sendNetworkEvent(this.props.ghost!, Events.assignPlayer, {player: player});
     });
@@ -57,7 +60,8 @@ class RemoveGhost extends Component{
   }
 
   start() {
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
+    this.entity.as(PhysicalEntity).locked.set(true);
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
       this.sendNetworkEvent(this.props.ghost!, Events.unassignPlayer, {player: player});
     });
   }
@@ -71,6 +75,7 @@ class StartConstantMotion extends Component{
   }
 
   start() {
+    this.entity.as(PhysicalEntity).locked.set(true);
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnEntityEnterTrigger, (item: Entity)=>{
       console.log("sending startConstantMotion");
       this.sendNetworkEvent(item, Events.startConstantMotion, {});

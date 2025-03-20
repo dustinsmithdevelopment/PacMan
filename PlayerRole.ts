@@ -2,7 +2,7 @@ import {AttachableEntity, Component, EventSubscription, Player, SerializableStat
 import {anchorBodyPart, Events, movementSpeed} from "./GameUtilities";
 
 export abstract class PlayerRole extends Component {
-    protected attachedPlayer: Player|null = null;
+    private attachedPlayer: Player|null = null;
     private motionActive = false;
 
     preStart() {
