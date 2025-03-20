@@ -1,8 +1,17 @@
-import {AttachableEntity, Component, EventSubscription, Player, SerializableState, Vec3, World} from "horizon/core";
+import {
+    AttachableEntity,
+    Component,
+    EventSubscription,
+    Player,
+    PropTypes,
+    SerializableState,
+    Vec3,
+    World
+} from "horizon/core";
 import {anchorBodyPart, Events, movementSpeed} from "./GameUtilities";
 
 export abstract class PlayerRole extends Component {
-    private attachedPlayer: Player|null = null;
+    protected attachedPlayer: Player|null = null;
     private motionActive = false;
 
     preStart() {
@@ -12,12 +21,12 @@ export abstract class PlayerRole extends Component {
         this.connectNetworkEvent(this.entity, Events.unassignPlayer, (data: {player: Player})=>{this.removeFromPlayer(data.player)});
     }
     private worldUpdate:number|null = null;
-    private startConstantMotion() {
+    protected startConstantMotion() {
         this.motionActive = true;
         console.log("Starting Constant Motion");
         this.worldUpdate = this.async.setInterval(this.enactMotion.bind(this), 16);
     }
-    private stopConstantMotion() {
+    protected stopConstantMotion() {
         this.motionActive = false;
         console.log("Stopping Constant Motion");
         if (this.worldUpdate) {
@@ -26,10 +35,8 @@ export abstract class PlayerRole extends Component {
         }
     }
     private enactMotion(){
-        console.log("Calling Enact Motion: " + this.attachedPlayer?.name.get());
         if (this.motionActive) {
             if (this.attachedPlayer !== null) {
-                console.log("Moving " + this.attachedPlayer.name.get());
                 const playerTorsoDirection = this.attachedPlayer.torso.forward;
                 this.attachedPlayer.velocity.set(new Vec3(playerTorsoDirection.get().x, 0, playerTorsoDirection.get().z).mul(movementSpeed));
             }
@@ -37,19 +44,22 @@ export abstract class PlayerRole extends Component {
     }
     private assignToPlayer(player: Player) {
         this.attachedPlayer = player;
-        this.attachedPlayer?.locomotionSpeed.set(0);
-        this.attachedPlayer.gravity.set(0);
+        // this.attachedPlayer?.locomotionSpeed.set(0);
+        // this.attachedPlayer.gravity.set(0);
         this.entity.as(AttachableEntity).attachToPlayer(player, anchorBodyPart);
         this.entity.owner.set(player);
     }
     private removeFromPlayer(player: Player) {
         this.stopConstantMotion();
-        this.attachedPlayer?.locomotionSpeed.set(4.5);
-        this.attachedPlayer?.gravity.set(9.81);
+        // this.attachedPlayer?.locomotionSpeed.set(4.5);
+        // this.attachedPlayer?.gravity.set(9.81);
         this.entity.as(AttachableEntity).detach();
         this.attachedPlayer = null;
         this.entity.owner.set(this.world.getServerPlayer());
 
+    }
+    protected getAttachedPlayer(): Player | null {
+        return this.attachedPlayer ?? null;
     }
     transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
         return {attachedPlayer: this.attachedPlayer, motionActive: this.motionActive};

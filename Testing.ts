@@ -14,7 +14,7 @@ class SetPacman extends Component{
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
       console.log("sending assignPacman with ", player);
       this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: player});
-      this.async.setTimeout(()=>{player.position.set(new Vec3(4,4,6))}, 1000);
+      // this.async.setTimeout(()=>{player.position.set(new Vec3(4,4,6))}, 1000);
     });
   }
 }
