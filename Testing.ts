@@ -42,6 +42,7 @@ class SetGhost extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterTrigger, (player: Player)=>{
+      console.log("sending assignGhost with ", player);
       this.sendNetworkEvent(this.props.ghost!, Events.assignPlayer, {player: player});
     });
   }

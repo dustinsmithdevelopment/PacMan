@@ -1,7 +1,7 @@
 import {AttachablePlayerAnchor, Entity, LocalEvent, NetworkEvent, Player} from "horizon/core";
 
 export const movementSpeed = 4.5
-export const anchorBodyPart = AttachablePlayerAnchor.Torso;
+export const anchorBodyPart = AttachablePlayerAnchor.Head;
 
 export enum GameState {
   'Waiting',

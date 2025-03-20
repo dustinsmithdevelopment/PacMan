@@ -1,8 +1,8 @@
-import {AttachableEntity, Component, EventSubscription, Player, World} from "horizon/core";
+import {AttachableEntity, Component, EventSubscription, Player, SerializableState, World} from "horizon/core";
 import {anchorBodyPart, Events, movementSpeed} from "./GameUtilities";
 
 export abstract class PlayerRole extends Component {
-    private attachedPlayer: Player|null = null;
+    protected attachedPlayer: Player|null = null;
     private motionActive = false;
 
     preStart() {
@@ -45,6 +45,13 @@ export abstract class PlayerRole extends Component {
         this.attachedPlayer = null;
         this.entity.owner.set(this.world.getServerPlayer());
 
+    }
+    transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
+        return {attachedPlayer: this.attachedPlayer, motionActive: this.motionActive};
+    }
+    receiveOwnership( state: {attachedPlayer: Player, motionActive: boolean}, _oldOwner: Player, _newOwner: Player) {
+        this.attachedPlayer = state?.attachedPlayer;
+        this.motionActive = state?.motionActive;
     }
 
 }
