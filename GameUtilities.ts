@@ -21,6 +21,7 @@ export const Events = {
   stopConstantMotion: new NetworkEvent<{}>("stopConstantMotion"),
   assignPlayer: new NetworkEvent<{ player:Player }>("assignPlayer"),
   unassignPlayer: new NetworkEvent<{}>("unassignPlayer"),
+  pelletCollected: new NetworkEvent<{ pellet: Entity }>("pelletCollected"),
 }
 export class PlayerList {
   players: Player[] = [];

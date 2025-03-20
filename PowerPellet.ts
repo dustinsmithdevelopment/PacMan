@@ -1,4 +1,4 @@
-import {Component} from "horizon/core";
+import {Component, PhysicalEntity} from "horizon/core";
 import {Events} from "./GameUtilities";
 
 class PowerPellet extends Component<typeof PowerPellet> {
@@ -8,7 +8,7 @@ class PowerPellet extends Component<typeof PowerPellet> {
   }
 
   start() {
-
+    
   }
   collected() {
 

@@ -25,7 +25,8 @@ class PacMan extends PlayerRole {
     })
   }
   itemTouched(item: Entity){
-    this.sendLocalEvent(item, Events.touchedByPacman, {});
+    console.log("itemTouched", item.name.get());
+    this.sendNetworkEvent(item, Events.touchedByPacman, {});
   }
 
 }
