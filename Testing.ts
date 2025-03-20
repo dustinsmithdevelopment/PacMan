@@ -1,4 +1,4 @@
-import {CodeBlockEvents, Component, Entity, PhysicalEntity, Player, PropTypes} from "horizon/core";
+import {CodeBlockEvents, Component, Entity, PhysicalEntity, Player, PropTypes, Vec3} from "horizon/core";
 import {Events} from "./GameUtilities";
 
 class SetPacman extends Component{
@@ -14,6 +14,7 @@ class SetPacman extends Component{
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
       console.log("sending assignPacman with ", player);
       this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: player});
+      this.async.setTimeout(()=>{player.position.set(new Vec3(4,4,6))}, 1000);
     });
   }
 }

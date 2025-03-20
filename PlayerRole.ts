@@ -1,4 +1,4 @@
-import {AttachableEntity, Component, EventSubscription, Player, SerializableState, World} from "horizon/core";
+import {AttachableEntity, Component, EventSubscription, Player, SerializableState, Vec3, World} from "horizon/core";
 import {anchorBodyPart, Events, movementSpeed} from "./GameUtilities";
 
 export abstract class PlayerRole extends Component {
@@ -30,17 +30,22 @@ export abstract class PlayerRole extends Component {
         if (this.motionActive) {
             if (this.attachedPlayer !== null) {
                 console.log("Moving " + this.attachedPlayer.name.get());
-                this.attachedPlayer.velocity.set(this.attachedPlayer.torso.forward.get().mul(movementSpeed));
+                const playerTorsoDirection = this.attachedPlayer.torso.forward;
+                this.attachedPlayer.velocity.set(new Vec3(playerTorsoDirection.get().x, 0, playerTorsoDirection.get().z).mul(movementSpeed));
             }
         }
     }
     private assignToPlayer(player: Player) {
         this.attachedPlayer = player;
+        this.attachedPlayer?.locomotionSpeed.set(0);
+        this.attachedPlayer.gravity.set(0);
         this.entity.as(AttachableEntity).attachToPlayer(player, anchorBodyPart);
         this.entity.owner.set(player);
     }
     private removeFromPlayer(player: Player) {
         this.stopConstantMotion();
+        this.attachedPlayer?.locomotionSpeed.set(4.5);
+        this.attachedPlayer?.gravity.set(9.81);
         this.entity.as(AttachableEntity).detach();
         this.attachedPlayer = null;
         this.entity.owner.set(this.world.getServerPlayer());
