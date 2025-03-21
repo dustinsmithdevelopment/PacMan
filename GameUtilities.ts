@@ -12,7 +12,7 @@ export enum GameState {
 
 
 export const Events = {
-  registerPacDot: new NetworkEvent<{pellet: Entity}>('registerPacDot'),
+  registerPacDot: new NetworkEvent<{pacDot: Entity}>('registerPacDot'),
   setPacman: new NetworkEvent<{ pacMan: Player }>("SetPacman"),
   collectFruit: new NetworkEvent<{}>("collectFruit"),
   pacmanDead: new NetworkEvent<{}>("pacmanDead"),
