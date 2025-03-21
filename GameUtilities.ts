@@ -26,7 +26,7 @@ export const Events = {
   ghostCaughtPacman: new NetworkEvent<{}>("ghostCaughtPacman"),
   resetGame: new NetworkEvent<{}>("resetGame"),
   setQueue1ReadyState: new NetworkEvent<{ready: boolean}>("setQueue1ReadyState"),
-  setQueue2ReadyState: new NetworkEvent<{ready: boolean}>("setQueue1ReadyState"),
+  setQueue2ReadyState: new NetworkEvent<{ready: boolean}>("setQueue2ReadyState"),
   joinQueue1: new NetworkEvent<{player: Player}>("joinQueue1"),
   joinQueue2: new NetworkEvent<{player: Player}>("joinQueue2"),
 }

@@ -84,7 +84,21 @@ class GameManager extends Component<typeof GameManager> {
       // TODO end the game as a win
     }
   }
-  updateQueue1ReadyState(isReady: boolean) {this.queue1Ready = isReady;}
-  updateQueue2ReadyState(isReady: boolean) {this.queue2Ready = isReady;}
+  updateQueue1ReadyState(isReady: boolean) {
+    this.queue1Ready = isReady;
+    if (isReady) {
+      console.log("Queue 1 is ready");
+    }else {
+      console.log("Queue 1 is not ready");
+    }
+  }
+  updateQueue2ReadyState(isReady: boolean) {
+    this.queue2Ready = isReady;
+    if (isReady) {
+      console.log("Queue 2 is ready");
+    }else {
+      console.log("Queue 2 is not ready");
+    }
+  }
 }
 Component.register(GameManager);
