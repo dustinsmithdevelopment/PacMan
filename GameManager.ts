@@ -11,17 +11,17 @@ class GameManager extends Component<typeof GameManager> {
   };
   private points = 0;
   private lives = 3;
-  private allPellets: Map<bigint, Entity> = new Map<bigint, Entity>();
-  private remainingPellets: Map<bigint, Entity> = new Map();
+  private allPacDots: Map<bigint, Entity> = new Map<bigint, Entity>();
+  private remainingPacDots: Map<bigint, Entity> = new Map();
   preStart() {
-    this.connectLocalEvent(this.entity, Events.registerPowerPellet, (pellet: Entity)=>{this.registerPowerPellet(pellet);})
+    this.connectLocalEvent(this.entity, Events.registerPacDot, (pacDot: Entity)=>{this.registerPowerPellet(pacDot);})
   }
 
   start() {
 
   }
   registerPowerPellet(pellet: Entity) {
-    this.allPellets.set(pellet.id, pellet);
+    this.allPacDots.set(pellet.id, pellet);
   }
 }
 Component.register(GameManager);

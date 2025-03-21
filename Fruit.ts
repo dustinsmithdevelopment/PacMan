@@ -17,6 +17,7 @@ class Fruit extends Component<typeof Fruit> {
     }
   }
   collected() {
+    console.log("Fruit Collected");
     this.entity.visible.set(false);
     this.entity.collidable.set(false);
     this.sendNetworkEvent(this.props.manager!, Events.collectFruit, {});
