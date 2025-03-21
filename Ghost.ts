@@ -40,6 +40,7 @@ class Ghost extends PlayerRole {
     this.homeRotation = this.props.homePositionRef!.rotation.get();
   }
   touchedByPacman() {
+    console.log("I'm a ghost and pacman touched me.")
     switch (this.ghostState){
       case GhostState.enemy:
         this.attackPacman();
