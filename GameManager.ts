@@ -1,5 +1,5 @@
 import {Component, Entity, PropTypes} from "horizon/core";
-import {Events} from "./GameUtilities";
+import {Events, GameState} from "./GameUtilities";
 
 class GameManager extends Component<typeof GameManager> {
   static propsDefinition = {
@@ -9,6 +9,7 @@ class GameManager extends Component<typeof GameManager> {
     ghost3: {type: PropTypes.Entity},
     ghost4: {type: PropTypes.Entity},
   };
+  private currentGameState: GameState = GameState.Waiting;
   private points = 0;
   private lives = 3;
   private allPacDots: Map<bigint, Entity> = new Map<bigint, Entity>();
@@ -18,8 +19,42 @@ class GameManager extends Component<typeof GameManager> {
   }
 
   start() {
-
+    this.currentGameState = GameState.Waiting;
   }
+  changeGameState(newGameState: GameState) {
+    if(this.currentGameState !== newGameState) {
+      switch (newGameState) {
+        case GameState.Waiting:
+          this.resetGame();
+          break;
+        case GameState.Starting:
+          if (this.currentGameState === GameState.Waiting){
+            this.prepareGame();
+          }
+          break;
+        case GameState.Playing:
+        if (this.currentGameState === GameState.Waiting){
+          this.startGame();
+        }
+          break;
+        case GameState.Ending:
+          if (this.currentGameState === GameState.Playing){
+            this.endGame();
+          }
+      }
+    }
+  }
+
+  prepareGame() {
+    this.remainingPacDots = new Map(this.allPacDots);
+  }
+  startGame() {}
+  endGame() {}
+  resetGame(){
+    this.currentGameState = GameState.Waiting;
+    this.sendNetworkBroadcastEvent(Events.resetGame, {});
+  }
+
   registerPowerPellet(pellet: Entity) {
     this.allPacDots.set(pellet.id, pellet);
   }

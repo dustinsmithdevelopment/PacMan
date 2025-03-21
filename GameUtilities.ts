@@ -24,6 +24,11 @@ export const Events = {
   pacDotCollected: new NetworkEvent<{ pacDot: Entity }>("pacDotCollected"),
   powerPelletCollected: new NetworkEvent<{}>("powerPelletCollected"),
   ghostCaughtPacman: new NetworkEvent<{}>("ghostCaughtPacman"),
+  resetGame: new NetworkEvent<{}>("resetGame"),
+  setQueue1ReadyState: new NetworkEvent<{ready: boolean}>("setQueue1ReadyState"),
+  setQueue2ReadyState: new NetworkEvent<{ready: boolean}>("setQueue1ReadyState"),
+  joinQueue1: new NetworkEvent<{player: Player}>("joinQueue1"),
+  joinQueue2: new NetworkEvent<{player: Player}>("joinQueue2"),
 }
 export class PlayerList {
   players: Player[] = [];
@@ -57,13 +62,29 @@ export class PlayerList {
 
 export class GamePlayers {
   all: PlayerList = new PlayerList();
-  inWaitingArea: PlayerList = new PlayerList();
+  inLobby: PlayerList = new PlayerList();
+  queue1: PlayerList = new PlayerList();
+  queue2: PlayerList = new PlayerList();
   pacman: Player | undefined;
   ghosts: PlayerList = new PlayerList();
 
-
-  isInWaitingArea(player: Player) {
-    return this.inWaitingArea.hasPlayer(player);
+  moveToQueue1(player: Player) {
+    if (!this.queueIsFull(this.queue1)){
+      this.unassignPlayer(player);
+      this.queue1.addPlayer(player);
+    }
+  }
+  moveToQueue2(player: Player) {
+    if (!this.queueIsFull(this.queue2)){
+      this.unassignPlayer(player);
+      this.queue2.addPlayer(player);
+    }
+  }
+  queueIsFull(queue: PlayerList) {
+    return queue.size() == 5;
+  }
+  isInLobby(player: Player) {
+    return this.inLobby.hasPlayer(player);
   }
   isInGame(player: Player) {
     return ([this.pacman, ...this.ghosts.players].includes(player));
@@ -82,31 +103,30 @@ export class GamePlayers {
     }
 
   }
-  moveToWaitingArea(player: Player) {
-    this.all.addPlayer(player);
-    if (this.pacman === player) {
-      this.pacman = undefined;
-    }
-    this.ghosts.removePlayer(player);
-    this.inWaitingArea.addPlayer(player);
+  moveToLobby(player: Player) {
+    this.unassignPlayer(player);
+    this.inLobby.addPlayer(player);
 
   }
   makePacman(player: Player) {
-    this.inWaitingArea.removePlayer(player);
+    this.unassignPlayer(player);
     this.pacman = player;
   }
   makeGhost(player: Player) {
     if (this.ghosts.size() < 4){
-      this.inWaitingArea.removePlayer(player);
+      this.unassignPlayer(player);
       this.ghosts.addPlayer(player);
     }
   }
   removePlayer(player: Player) {
     this.all.removePlayer(player);
-    this.inWaitingArea.removePlayer(player);
+    this.unassignPlayer(player);
+  }
+  unassignPlayer(player: Player) {
+    this.inLobby.removePlayer(player);
+    if (this.pacman === player) {this.pacman = undefined;}
     this.ghosts.removePlayer(player);
-    if (this.pacman === player) {
-      this.pacman = undefined;
-    }
+    this.queue1.removePlayer(player);
+    this.queue2.removePlayer(player);
   }
 }

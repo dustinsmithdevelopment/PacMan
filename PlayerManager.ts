@@ -11,7 +11,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerExitWorld, (player: Player) => {this.onPlayerExitWorld(player);});
     }
     onPlayerEnterWorld(p: Player){
-        this.gamePlayers.moveToWaitingArea(p);
+        this.gamePlayers.moveToLobby(p);
     }
     onPlayerExitWorld(p: Player){
         if (this.gamePlayers.isPacman(p)){
