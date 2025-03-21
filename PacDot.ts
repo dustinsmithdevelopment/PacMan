@@ -13,7 +13,6 @@ class PacDot extends Component<typeof PacDot> {
   start() {
     this.gameManager = this.props.GameManager;
     this.registerComponent();
-    console.log("Dot Registered");
   }
   registerComponent() {
     this.sendNetworkBroadcastEvent(Events.registerPacDot, {pellet: this.entity});

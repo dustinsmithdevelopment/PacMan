@@ -69,16 +69,22 @@ export class GamePlayers {
   ghosts: PlayerList = new PlayerList();
 
   moveToQueue1(player: Player) {
-    if (!this.queueIsFull(this.queue1)){
+    if (!this.queue1Full()){
       this.unassignPlayer(player);
       this.queue1.addPlayer(player);
     }
   }
   moveToQueue2(player: Player) {
-    if (!this.queueIsFull(this.queue2)){
+    if (!this.queue2Full()){
       this.unassignPlayer(player);
       this.queue2.addPlayer(player);
     }
+  }
+  queue1Full() {
+    return this.queueIsFull(this.queue1);
+  }
+  queue2Full() {
+    return this.queueIsFull(this.queue2);
   }
   queueIsFull(queue: PlayerList) {
     return queue.size() == 5;

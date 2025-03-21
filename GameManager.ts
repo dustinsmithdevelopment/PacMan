@@ -10,12 +10,18 @@ class GameManager extends Component<typeof GameManager> {
     ghost4: {type: PropTypes.Entity},
   };
   private currentGameState: GameState = GameState.Waiting;
+  private queue1Ready = false;
+  private queue2Ready = false;
   private points = 0;
   private lives = 3;
   private allPacDots: Map<bigint, Entity> = new Map<bigint, Entity>();
   private remainingPacDots: Map<bigint, Entity> = new Map();
   preStart() {
-    this.connectLocalEvent(this.entity, Events.registerPacDot, (pacDot: Entity)=>{this.registerPowerPellet(pacDot);})
+    this.connectNetworkBroadcastEvent(Events.registerPacDot, (payload: {pacDot: Entity})=>{this.registerPacDot(payload.pacDot);});
+    this.connectNetworkEvent(this.entity, Events.pacDotCollected, (payload: {pacDot: Entity})=>{this.eatPacDot(payload.pacDot);});
+    this.connectNetworkEvent(this.entity, Events.setQueue1ReadyState, (payload: {ready: boolean})=>{this.updateQueue1ReadyState(payload.ready)});
+    this.connectNetworkEvent(this.entity, Events.setQueue2ReadyState, (payload: {ready: boolean})=>{this.updateQueue2ReadyState(payload.ready)});
+    this.connectNetworkEvent(this.entity, Events.ghostCaughtPacman, ()=>{this.loseLife();});
   }
 
   start() {
@@ -47,6 +53,7 @@ class GameManager extends Component<typeof GameManager> {
 
   prepareGame() {
     this.remainingPacDots = new Map(this.allPacDots);
+    this.lives = 3;
   }
   startGame() {}
   endGame() {}
@@ -54,9 +61,26 @@ class GameManager extends Component<typeof GameManager> {
     this.currentGameState = GameState.Waiting;
     this.sendNetworkBroadcastEvent(Events.resetGame, {});
   }
-
-  registerPowerPellet(pellet: Entity) {
-    this.allPacDots.set(pellet.id, pellet);
+  loseLife(){
+    this.lives -= 1;
+    if (this.lives === 0){
+      // TODO end the game as a loss
+    }
   }
+
+  registerPacDot(pacDot: Entity) {
+    this.allPacDots.set(pacDot.id, pacDot);
+    console.log(this.allPacDots.size + " PacDots registered");
+  }
+  eatPacDot(pacDot: Entity) {
+    this.remainingPacDots.delete(pacDot.id);
+  }
+  checkRemainingPacDots() {
+    if (this.remainingPacDots.size === 0) {
+      // TODO end the game as a win
+    }
+  }
+  updateQueue1ReadyState(isReady: boolean) {this.queue1Ready = isReady;}
+  updateQueue2ReadyState(isReady: boolean) {this.queue2Ready = isReady;}
 }
 Component.register(GameManager);

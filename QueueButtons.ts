@@ -3,12 +3,12 @@ import {Events, GamePlayers, PlayerList} from "./GameUtilities";
 import {Pressable, Text, UIComponent, UINode, View} from "horizon/ui";
 
 class QueueButtons extends UIComponent {
+    panelHeight = 100;
+    panelWidth = 200;
     static propsDefinition = {
         playerManager: {type: PropTypes.Entity}
     };
     initializeUI(): UINode {
-        const width = 120;
-        const height = 100;
         return View({children:
                 [
                     Pressable({children:
@@ -19,7 +19,7 @@ class QueueButtons extends UIComponent {
                         Text({text: "JoinQueue1", style: {color: "white", textAlign: "center", textAlignVertical: "center", height: "50%"}}), onClick: (player: Player) => {
                         this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue2, {player: player});
                     }}),
-                ], style: {backgroundColor:"black", width: width, height: height, display: "flex", justifyContent: "center", flexDirection: "column"}
+                ], style: {backgroundColor:"black", display: "flex", justifyContent: "center", flexDirection: "column"}
         })
     }
 
