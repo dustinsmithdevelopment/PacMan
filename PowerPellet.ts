@@ -16,7 +16,7 @@ class PowerPellet extends Component<typeof PowerPellet> {
     console.log("PowerPellet Collected");
     this.entity.collidable.set(false);
     this.entity.visible.set(false);
-    this.sendNetworkEvent(this.props.GameManager!, Events.pacDotCollected, {pacDot: this.entity});
+    this.sendNetworkEvent(this.props.GameManager!, Events.powerPelletCollected, {});
   }
 }
 Component.register(PowerPellet);

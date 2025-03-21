@@ -29,6 +29,7 @@ export const Events = {
   setQueue2ReadyState: new NetworkEvent<{ready: boolean}>("setQueue2ReadyState"),
   joinQueue1: new NetworkEvent<{player: Player}>("joinQueue1"),
   joinQueue2: new NetworkEvent<{player: Player}>("joinQueue2"),
+  makeGhostEdible: new NetworkEvent<{}>("makeGhostEdible"),
 }
 export class PlayerList {
   players: Player[] = [];
