@@ -43,6 +43,7 @@ export abstract class PlayerRole extends Component {
         }
     }
     private assignToPlayer(player: Player) {
+        console.log("Assigning Player", player);
         this.attachedPlayer = player;
         // this.attachedPlayer?.locomotionSpeed.set(0);
         // this.attachedPlayer.gravity.set(0);

@@ -2,6 +2,9 @@ import {AttachablePlayerAnchor, Entity, LocalEvent, NetworkEvent, Player} from "
 
 export const movementSpeed = 4.5
 export const anchorBodyPart = AttachablePlayerAnchor.Head;
+export const setupDelaySecs = 10;
+export const gameCheckFrequencySecs = 10;
+export const EDIBLE_SECONDS = 6;
 
 export enum GameState {
   'Waiting',
@@ -13,12 +16,13 @@ export enum GameState {
 
 export const Events = {
   registerPacDot: new NetworkEvent<{pacDot: Entity}>('registerPacDot'),
-  setPacman: new NetworkEvent<{ pacMan: Player }>("SetPacman"),
+  // setPacman: new NetworkEvent<{ pacMan: Player }>("SetPacman"),
   collectFruit: new NetworkEvent<{}>("collectFruit"),
   pacmanDead: new NetworkEvent<{}>("pacmanDead"),
   touchedByPacman: new NetworkEvent<{}>("touchedByPacman"),
   startConstantMotion: new NetworkEvent<{}>("startConstantMotion"),
   stopConstantMotion: new NetworkEvent<{}>("stopConstantMotion"),
+  startPlayerAssignment: new NetworkEvent<{}>("startPlayerAssignment"),
   assignPlayer: new NetworkEvent<{ player:Player }>("assignPlayer"),
   unassignPlayer: new NetworkEvent<{}>("unassignPlayer"),
   pacDotCollected: new NetworkEvent<{ pacDot: Entity }>("pacDotCollected"),

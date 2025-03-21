@@ -1,6 +1,26 @@
 import {CodeBlockEvents, Component, Entity, PhysicalEntity, Player, PropTypes, Vec3} from "horizon/core";
 import {Events} from "./GameUtilities";
 
+
+class PlayerJoinEmulation extends Component{
+  static propsDefinition = {
+    playerManager: {type: PropTypes.Entity}
+  };
+
+  start() {
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player: Player) => {
+      if (player.name.get().startsWith("NPC")){
+        this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});
+
+      }
+    })
+  }
+}
+Component.register(PlayerJoinEmulation);
+
+
+
+
 class SetPacman extends Component{
   static propsDefinition = {
     pacman: {type: PropTypes.Entity}

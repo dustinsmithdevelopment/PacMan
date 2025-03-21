@@ -1,13 +1,15 @@
 import {Component, Entity, PropTypes} from "horizon/core";
-import {Events, GameState} from "./GameUtilities";
+import {Events, gameCheckFrequencySecs, GameState, setupDelaySecs} from "./GameUtilities";
 
 class GameManager extends Component<typeof GameManager> {
   static propsDefinition = {
-    pacMan: {type: PropTypes.Entity},
-    ghost1: {type: PropTypes.Entity},
-    ghost2: {type: PropTypes.Entity},
-    ghost3: {type: PropTypes.Entity},
-    ghost4: {type: PropTypes.Entity},
+    playerManager : {type: PropTypes.Entity, required: true},
+    pacMan: {type: PropTypes.Entity, required: true},
+    ghost1: {type: PropTypes.Entity, required: true},
+    ghost2: {type: PropTypes.Entity, required: true},
+    ghost3: {type: PropTypes.Entity, required: true},
+    ghost4: {type: PropTypes.Entity, required: true},
+
   };
   private currentGameState: GameState = GameState.Waiting;
   private queue1Ready = false;
@@ -27,6 +29,17 @@ class GameManager extends Component<typeof GameManager> {
 
   start() {
     this.currentGameState = GameState.Waiting;
+    this.async.setTimeout(()=>{
+      this.async.setInterval(this.checkIfReadyToStart.bind(this), 1000*gameCheckFrequencySecs)
+    }, 1000*setupDelaySecs);
+  }
+  checkIfReadyToStart() {
+    if (this.currentGameState === GameState.Waiting){
+      // waiting to start the game
+      if (this.queue1Ready || this.queue2Ready) {
+        this.changeGameState(GameState.Starting);
+      }
+    }
   }
   changeGameState(newGameState: GameState) {
     if(this.currentGameState !== newGameState) {
@@ -59,6 +72,7 @@ class GameManager extends Component<typeof GameManager> {
   prepareGame() {
     this.remainingPacDots = new Map(this.allPacDots);
     this.lives = 3;
+    this.sendNetworkEvent(this.props.playerManager!, Events.startPlayerAssignment, {});
   }
   startGame() {}
   endGame() {}

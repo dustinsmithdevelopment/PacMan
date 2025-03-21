@@ -9,14 +9,14 @@ import {
   Vec3,
   World
 } from "horizon/core";
-import {anchorBodyPart, Events, movementSpeed} from "./GameUtilities";
+import {anchorBodyPart, EDIBLE_SECONDS, Events, movementSpeed} from "./GameUtilities";
 import {PlayerRole} from "./PlayerRole";
 enum GhostState{
   enemy,
   edible
 }
 
-const EDIBLE_SECONDS = 6;
+
 
 class Ghost extends PlayerRole {
   private edibleCooldown: number|undefined;
