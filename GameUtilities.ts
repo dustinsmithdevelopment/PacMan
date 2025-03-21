@@ -12,16 +12,17 @@ export enum GameState {
 
 
 export const Events = {
-  registerPowerPellet: new NetworkEvent<{pellet: Entity}>('registerPowerPellet'),
+  registerPacDot: new NetworkEvent<{pellet: Entity}>('registerPacDot'),
   setPacman: new NetworkEvent<{ pacMan: Player }>("SetPacman"),
-  collectFruit: new NetworkEvent<{ fruitValue :number }>("collectFruit"),
+  collectFruit: new NetworkEvent<{}>("collectFruit"),
   pacmanDead: new NetworkEvent<{}>("pacmanDead"),
   touchedByPacman: new NetworkEvent<{}>("touchedByPacman"),
   startConstantMotion: new NetworkEvent<{}>("startConstantMotion"),
   stopConstantMotion: new NetworkEvent<{}>("stopConstantMotion"),
   assignPlayer: new NetworkEvent<{ player:Player }>("assignPlayer"),
   unassignPlayer: new NetworkEvent<{}>("unassignPlayer"),
-  pelletCollected: new NetworkEvent<{ pellet: Entity }>("pelletCollected"),
+  pacDotCollected: new NetworkEvent<{ pacDot: Entity }>("pacDotCollected"),
+  powerPelletCollected: new NetworkEvent<{}>("powerPelletCollected"),
   ghostCaughtPacman: new NetworkEvent<{}>("ghostCaughtPacman"),
 }
 export class PlayerList {
