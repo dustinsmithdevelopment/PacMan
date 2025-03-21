@@ -29,11 +29,13 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.gamePlayers.removePlayer(p)
     }
     onJoinQueue1(p: Player){
+        console.log(p.name.get() + " Requested to join queue 1");
         this.gamePlayers.moveToQueue1(p);
         this.queue1ReadyState = this.gamePlayers.queue1Full();
         this.sendNetworkEvent(this.props.gameManager!, Events.setQueue1ReadyState, {ready: this.queue1ReadyState});
     }
     onJoinQueue2(p: Player){
+        console.log(p.name.get() + " Requested to join queue 2");
         this.gamePlayers.moveToQueue2(p);
         this.queue2ReadyState = this.gamePlayers.queue2Full();
         this.sendNetworkEvent(this.props.gameManager!, Events.setQueue2ReadyState, {ready: this.queue2ReadyState});

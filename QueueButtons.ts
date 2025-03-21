@@ -12,11 +12,11 @@ class QueueButtons extends UIComponent {
         return View({children:
                 [
                     Pressable({children:
-                        Text({text: "JoinQueue1", style: {color: "white", textAlign: "center", textAlignVertical: "center", height: "50%"}}), onClick: (player: Player) => {
+                        Text({text: "Join Queue 1", style: {color: "white", textAlign: "center", textAlignVertical: "center", height: "50%"}}), onClick: (player: Player) => {
                     this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});
                     }}),
                     Pressable({children:
-                        Text({text: "JoinQueue1", style: {color: "white", textAlign: "center", textAlignVertical: "center", height: "50%"}}), onClick: (player: Player) => {
+                        Text({text: "Join Queue 2", style: {color: "white", textAlign: "center", textAlignVertical: "center", height: "50%"}}), onClick: (player: Player) => {
                         this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue2, {player: player});
                     }}),
                 ], style: {backgroundColor:"black", display: "flex", justifyContent: "center", flexDirection: "column"}

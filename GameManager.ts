@@ -50,6 +50,10 @@ class GameManager extends Component<typeof GameManager> {
       }
     }
   }
+  // TODO check if any queues are ready every 10 seconds while the game isn't active
+  // TODO if a ghost leaves the game, mark the slot as empty and offer it to the other players
+  // TODO restrict the players rotation
+  // TODO set up the game end events
 
   prepareGame() {
     this.remainingPacDots = new Map(this.allPacDots);
