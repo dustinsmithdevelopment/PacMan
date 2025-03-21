@@ -30,7 +30,7 @@ class PacMan extends PlayerRole {
     this.homePosition = this.props.homePositionRef!.position.get();
   }
   itemTouched(item: Entity){
-    console.log("itemTouched", item.name.get());
+    // console.log("itemTouched", item.name.get());
     this.sendNetworkEvent(item, Events.touchedByPacman, {});
   }
 

@@ -22,7 +22,7 @@ class GameManager extends Component<typeof GameManager> {
     this.connectNetworkEvent(this.entity, Events.setQueue1ReadyState, (payload: {ready: boolean})=>{this.updateQueue1ReadyState(payload.ready)});
     this.connectNetworkEvent(this.entity, Events.setQueue2ReadyState, (payload: {ready: boolean})=>{this.updateQueue2ReadyState(payload.ready)});
     this.connectNetworkEvent(this.entity, Events.ghostCaughtPacman, ()=>{this.loseLife();});
-    this.connectNetworkEvent(this.entity, Events.powerPelletCollected, ()=>{this.powerPelletCollected});
+    this.connectNetworkEvent(this.entity, Events.powerPelletCollected, ()=>{this.powerPelletCollected()});
   }
 
   start() {
@@ -86,11 +86,11 @@ class GameManager extends Component<typeof GameManager> {
     }
   }
   powerPelletCollected(){
+    console.log('Pacman ate a PowerPellet')
     this.sendNetworkEvent(this.props.ghost1!, Events.makeGhostEdible, {});
     this.sendNetworkEvent(this.props.ghost2!, Events.makeGhostEdible, {});
     this.sendNetworkEvent(this.props.ghost3!, Events.makeGhostEdible, {});
     this.sendNetworkEvent(this.props.ghost4!, Events.makeGhostEdible, {});
-
   }
   updateQueue1ReadyState(isReady: boolean) {
     this.queue1Ready = isReady;

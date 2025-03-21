@@ -74,6 +74,7 @@ class Ghost extends PlayerRole {
     this.edibleCooldown = undefined;
     this.ghostState = GhostState.enemy;
   }
+  // TODO make ghosts flash blue while edible 
 
 }
 Component.register(Ghost);
