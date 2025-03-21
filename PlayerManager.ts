@@ -46,25 +46,32 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.queue2Ready = this.gamePlayers.queue2Full();
         this.sendNetworkEvent(this.props.gameManager!, Events.setQueue2ReadyState, {ready: this.queue2Ready});
     }
+    private playersAssigned = false;
     assignPlayers(){
-        let nextMatchPlayers: Player[] = [];
-        if (this.queue1Ready) {
-            nextMatchPlayers = [...this.gamePlayers.queue1.players];
-            this.gamePlayers.queue1.players = [...this.gamePlayers.queue2.players];
-            this.gamePlayers.queue2.players = []
-        }else if (this.queue2Ready) {
-            nextMatchPlayers = [...this.gamePlayers.queue2.players];
-            this.gamePlayers.queue2.players = []
-        }
-        const pacPlayer = Math.floor(Math.random()*5)
-        for (let i = 0; i < 5; i++) {
-            if (i === pacPlayer) {
-                this.gamePlayers.makePacman(nextMatchPlayers[pacPlayer]);
-            }else {
-                this.gamePlayers.makeGhost(nextMatchPlayers[i]);
+        console.log("Something requested to assignPlayers");
+        if (!this.playersAssigned) {
+            this.playersAssigned = true;
+            let nextMatchPlayers: Player[] = [];
+            if (this.queue1Ready) {
+                nextMatchPlayers = [...this.gamePlayers.queue1.players];
+                this.gamePlayers.queue1.players = [...this.gamePlayers.queue2.players];
+                this.gamePlayers.queue2.players = []
+            } else if (this.queue2Ready) {
+                nextMatchPlayers = [...this.gamePlayers.queue2.players];
+                this.gamePlayers.queue2.players = []
             }
+            this.sendNetworkEvent(this.props.gameManager!, Events.setQueue1ReadyState, {ready: this.queue1Ready});
+            this.sendNetworkEvent(this.props.gameManager!, Events.setQueue2ReadyState, {ready: this.queue2Ready});
+            const pacPlayer = Math.floor(Math.random() * 5)
+            for (let i = 0; i < 5; i++) {
+                if (i === pacPlayer) {
+                    this.gamePlayers.makePacman(nextMatchPlayers[pacPlayer]);
+                } else {
+                    this.gamePlayers.makeGhost(nextMatchPlayers[i]);
+                }
+            }
+            this.suitUp();
         }
-        this.suitUp();
     }
     suitUp() {
         const pacman = this.gamePlayers.pacman!;

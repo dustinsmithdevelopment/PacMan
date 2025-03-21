@@ -28,7 +28,6 @@ class GameManager extends Component<typeof GameManager> {
   }
 
   start() {
-    this.currentGameState = GameState.Waiting;
     this.async.setTimeout(()=>{
       this.async.setInterval(this.checkIfReadyToStart.bind(this), 1000*gameCheckFrequencySecs)
     }, 1000*setupDelaySecs);
@@ -45,20 +44,27 @@ class GameManager extends Component<typeof GameManager> {
     if(this.currentGameState !== newGameState) {
       switch (newGameState) {
         case GameState.Waiting:
+          console.log("Changing Game State to Waiting");
           this.resetGame();
           break;
         case GameState.Starting:
+            console.log("Requested to change game state to waiting");
           if (this.currentGameState === GameState.Waiting){
+            console.log("Changing Game State to Starting");
             this.prepareGame();
           }
           break;
         case GameState.Playing:
-        if (this.currentGameState === GameState.Waiting){
+          console.log("Requested to change game state to playing")
+        if (this.currentGameState === GameState.Starting){
+          console.log("Changing Game State to Waiting");
           this.startGame();
         }
           break;
         case GameState.Ending:
+          console.log("Requested to change game state to ending")
           if (this.currentGameState === GameState.Playing){
+            console.log("Changing Game State to Ending");
             this.endGame();
           }
       }
@@ -70,12 +76,17 @@ class GameManager extends Component<typeof GameManager> {
   // TODO set up the game end events
 
   prepareGame() {
+    this.currentGameState = GameState.Starting;
     this.remainingPacDots = new Map(this.allPacDots);
     this.lives = 3;
     this.sendNetworkEvent(this.props.playerManager!, Events.startPlayerAssignment, {});
   }
-  startGame() {}
-  endGame() {}
+  startGame() {
+    this.currentGameState = GameState.Playing;
+  }
+  endGame() {
+    this.currentGameState = GameState.Ending;
+  }
   resetGame(){
     this.currentGameState = GameState.Waiting;
     this.sendNetworkBroadcastEvent(Events.resetGame, {});
