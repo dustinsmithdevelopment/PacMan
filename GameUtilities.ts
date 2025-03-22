@@ -1,4 +1,4 @@
-import {AttachablePlayerAnchor, Entity, LocalEvent, NetworkEvent, Player} from "horizon/core";
+import {AttachablePlayerAnchor, Entity, LocalEvent, NetworkEvent, Player, SpawnPointGizmo} from "horizon/core";
 
 // TODO
 export const playerCount = 3;
@@ -41,6 +41,7 @@ export const Events = {
   makeGhostEdible: new NetworkEvent<{}>("makeGhostEdible"),
   moveAllToStart: new NetworkEvent<{}>("moveAllToStart"),
   roleAssignmentComplete: new NetworkEvent<{}>("roleAssignmentComplete"),
+  teleportPacman: new NetworkEvent<{spawnPoint: SpawnPointGizmo}>("teleportPacman"),
 }
 export class PlayerList {
   players: Player[] = [];

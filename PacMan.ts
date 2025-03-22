@@ -1,5 +1,6 @@
 import {
-  CodeBlockEvents, Component, Entity, PropTypes,} from "horizon/core";
+  CodeBlockEvents, Component, Entity, PropTypes, SpawnPointGizmo,
+} from "horizon/core";
 import {Events} from "./GameUtilities";
 import {PlayerRole} from "./PlayerRole";
 
@@ -12,6 +13,9 @@ class PacMan extends PlayerRole {
 
   preStart() {
     super.preStart();
+    this.connectNetworkEvent(this.entity, Events.teleportPacman, (payload: {spawnPoint: SpawnPointGizmo})=>{
+      this.teleportPacman(payload.spawnPoint);
+    })
   }
   start() {
     this.connectCodeBlockEvent(this.props.collectionTrigger, CodeBlockEvents.OnEntityEnterTrigger, (entity: Entity)=>{
@@ -27,6 +31,9 @@ class PacMan extends PlayerRole {
     super.stopConstantMotion();
     super.moveToStart();
     super.startConstantMotion();
+  }
+  teleportPacman(spawnPoint: SpawnPointGizmo){
+    spawnPoint.teleportPlayer(super.getAttachedPlayer()!);
   }
 
 }
