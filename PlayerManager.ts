@@ -1,5 +1,5 @@
 import {CodeBlockEvent, CodeBlockEvents, Component, Player, PropTypes} from "horizon/core";
-import {Events, GamePlayers, PlayerList} from "./GameUtilities";
+import {Events, GamePlayers, playerCount, PlayerList} from "./GameUtilities";
 
 class PlayerManager extends Component<typeof PlayerManager> {
     static propsDefinition = {
@@ -62,8 +62,8 @@ class PlayerManager extends Component<typeof PlayerManager> {
             }
             this.sendNetworkEvent(this.props.gameManager!, Events.setQueue1ReadyState, {ready: this.queue1Ready});
             this.sendNetworkEvent(this.props.gameManager!, Events.setQueue2ReadyState, {ready: this.queue2Ready});
-            const pacPlayer = Math.floor(Math.random() * 5)
-            for (let i = 0; i < 5; i++) {
+            const pacPlayer = Math.floor(Math.random() * playerCount)
+            for (let i = 0; i < playerCount; i++) {
                 if (i === pacPlayer) {
                     this.gamePlayers.makePacman(nextMatchPlayers[pacPlayer]);
                 } else {
@@ -76,23 +76,25 @@ class PlayerManager extends Component<typeof PlayerManager> {
     private pacman:Player|undefined;
     private ghost1:Player|undefined;
     private ghost2:Player|undefined;
-    private ghost3:Player|undefined;
-    private ghost4:Player|undefined;
+    // private ghost3:Player|undefined;
+    // private ghost4:Player|undefined;
     suitUp() {
+        // suit up requested
         this.pacman = this.gamePlayers.pacman!;
         this.ghost1 = this.gamePlayers.ghosts.players[0];
         this.ghost2 = this.gamePlayers.ghosts.players[1];
-        this.ghost3 = this.gamePlayers.ghosts.players[2];
-        this.ghost4 = this.gamePlayers.ghosts.players[3];
+        // this.ghost3 = this.gamePlayers.ghosts.players[2];
+        // this.ghost4 = this.gamePlayers.ghosts.players[3];
         this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: this.pacman});
         this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.assignPlayer, {player: this.ghost1!});},100);
         this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.assignPlayer, {player: this.ghost2!});},200);
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});},300);
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});},400);
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});},300);
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});},400);
         this.async.setTimeout(()=>{this.moveGamePlayersToStart()}, 600);
     }
     moveGamePlayersToStart(){
         this.sendNetworkBroadcastEvent(Events.moveAllToStart, {})
+        this.sendNetworkEvent(this.props.gameManager!, Events.roleAssignmentComplete, {});
     }
 }
 Component.register(PlayerManager);

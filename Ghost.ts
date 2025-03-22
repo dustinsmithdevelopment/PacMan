@@ -1,15 +1,5 @@
-import {
-  AttachableEntity,
-  Component,
-  Entity,
-  EventSubscription,
-  Player,
-  PropTypes,
-  Quaternion,
-  Vec3,
-  World
-} from "horizon/core";
-import {anchorBodyPart, EDIBLE_SECONDS, Events, movementSpeed} from "./GameUtilities";
+import {Component, PropTypes,} from "horizon/core";
+import {EDIBLE_SECONDS, Events} from "./GameUtilities";
 import {PlayerRole} from "./PlayerRole";
 enum GhostState{
   enemy,
@@ -21,28 +11,18 @@ enum GhostState{
 class Ghost extends PlayerRole {
   private edibleCooldown: number|undefined;
   static propsDefinition = {
-    homePositionRef: {type: PropTypes.Entity},
+    homePositionSpawn: {type: PropTypes.Entity},
     manager: {type: PropTypes.Entity},
   };
   private ghostState: GhostState = GhostState.enemy;
-  private homePosition: Vec3|undefined;
-  private homeRotation: Quaternion|undefined;
 
   preStart() {
     super.preStart();
     this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.touchedByPacman.bind(this));
     this.connectNetworkEvent(this.entity, Events.makeGhostEdible, this.becomeEdible.bind(this));
-    this.connectNetworkBroadcastEvent(Events.moveAllToStart, this.moveToStart.bind(this));
   }
   start() {
-    // @ts-ignore
-    this.homePosition = this.props.homePositionRef!.position.get();
-    // @ts-ignore
-    this.homeRotation = this.props.homePositionRef!.rotation.get();
-  }
-  moveToStart(){
-    super.getAttachedPlayer()?.position.set(this.homePosition!);
-    super.getAttachedPlayer()?.rootRotation.set(this.homeRotation!);
+    this.SetSpawnPoint(this.props.homePositionSpawn!);
   }
   touchedByPacman() {
     console.log("I'm a ghost and pacman touched me.")
@@ -62,14 +42,14 @@ class Ghost extends PlayerRole {
     this.respawn();
   }
   respawn(){
-    // super.stopConstantMotion();
+    super.stopConstantMotion();
     if (this.edibleCooldown){
       this.async.clearInterval(this.edibleCooldown);
       this.edibleCooldown = undefined;
     }
-    this.moveToStart();
+    super.moveToStart();
     this.becomeEnemy();
-    // super.startConstantMotion();
+    super.startConstantMotion();
   }
   becomeEdible(){
     this.ghostState = GhostState.edible;

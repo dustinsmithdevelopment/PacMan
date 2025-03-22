@@ -25,6 +25,7 @@ class GameManager extends Component<typeof GameManager> {
     this.connectNetworkEvent(this.entity, Events.setQueue2ReadyState, (payload: {ready: boolean})=>{this.updateQueue2ReadyState(payload.ready)});
     this.connectNetworkEvent(this.entity, Events.ghostCaughtPacman, ()=>{this.loseLife();});
     this.connectNetworkEvent(this.entity, Events.powerPelletCollected, ()=>{this.powerPelletCollected()});
+    this.connectNetworkEvent(this.entity, Events.roleAssignmentComplete, ()=>{this.changeGameState(GameState.Playing);});
   }
 
   start() {
@@ -44,7 +45,6 @@ class GameManager extends Component<typeof GameManager> {
     if(this.currentGameState !== newGameState) {
       switch (newGameState) {
         case GameState.Waiting:
-          console.log("Changing Game State to Waiting");
           this.resetGame();
           break;
         case GameState.Starting:
@@ -57,14 +57,12 @@ class GameManager extends Component<typeof GameManager> {
         case GameState.Playing:
           console.log("Requested to change game state to playing")
         if (this.currentGameState === GameState.Starting){
-          console.log("Changing Game State to Waiting");
           this.startGame();
         }
           break;
         case GameState.Ending:
           console.log("Requested to change game state to ending")
           if (this.currentGameState === GameState.Playing){
-            console.log("Changing Game State to Ending");
             this.endGame();
           }
       }
@@ -82,12 +80,21 @@ class GameManager extends Component<typeof GameManager> {
     this.sendNetworkEvent(this.props.playerManager!, Events.startPlayerAssignment, {});
   }
   startGame() {
+    console.log("Changing Game State to Playing");
     this.currentGameState = GameState.Playing;
+    this.sendNetworkEvent(this.props.pacMan!, Events.startConstantMotion, {});
+    this.sendNetworkEvent(this.props.ghost1!, Events.startConstantMotion, {});
+    this.sendNetworkEvent(this.props.ghost2!, Events.startConstantMotion, {});
+    this.sendNetworkEvent(this.props.ghost3!, Events.startConstantMotion, {});
+    this.sendNetworkEvent(this.props.ghost4!, Events.startConstantMotion, {});
+
   }
   endGame() {
+    console.log("Changing Game State to Ending");
     this.currentGameState = GameState.Ending;
   }
   resetGame(){
+    console.log("Changing Game State to Waiting");
     this.currentGameState = GameState.Waiting;
     this.sendNetworkBroadcastEvent(Events.resetGame, {});
   }
@@ -114,8 +121,8 @@ class GameManager extends Component<typeof GameManager> {
     console.log('Pacman ate a PowerPellet')
     this.sendNetworkEvent(this.props.ghost1!, Events.makeGhostEdible, {});
     this.sendNetworkEvent(this.props.ghost2!, Events.makeGhostEdible, {});
-    this.sendNetworkEvent(this.props.ghost3!, Events.makeGhostEdible, {});
-    this.sendNetworkEvent(this.props.ghost4!, Events.makeGhostEdible, {});
+    // this.sendNetworkEvent(this.props.ghost3!, Events.makeGhostEdible, {});
+    // this.sendNetworkEvent(this.props.ghost4!, Events.makeGhostEdible, {});
   }
   updateQueue1ReadyState(isReady: boolean) {
     this.queue1Ready = isReady;

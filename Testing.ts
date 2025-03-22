@@ -10,7 +10,8 @@ class PlayerJoinEmulation extends Component{
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player: Player) => {
       if (player.name.get().startsWith("NPC")){
-        this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});}, 10_000);
+        
 
       }
     })

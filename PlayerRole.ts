@@ -1,10 +1,10 @@
 import {
     AttachableEntity,
-    Component,
+    Component, Entity,
     EventSubscription,
     Player,
     PropTypes,
-    SerializableState,
+    SerializableState, SpawnPointGizmo,
     Vec3,
     World
 } from "horizon/core";
@@ -13,12 +13,14 @@ import {anchorBodyPart, Events, movementSpeed} from "./GameUtilities";
 export abstract class PlayerRole extends Component {
     protected attachedPlayer: Player|null = null;
     private motionActive = false;
+    private spawnPointGizmo: SpawnPointGizmo| undefined;
 
     preStart() {
         this.connectNetworkEvent(this.entity, Events.startConstantMotion, this.startConstantMotion.bind(this));
         this.connectNetworkEvent(this.entity, Events.stopConstantMotion, this.stopConstantMotion.bind(this));
         this.connectNetworkEvent(this.entity, Events.assignPlayer, (data: {player: Player})=>{this.assignToPlayer(data.player)});
         this.connectNetworkEvent(this.entity, Events.unassignPlayer, (data: {player: Player})=>{this.removeFromPlayer(data.player)});
+        this.connectNetworkBroadcastEvent(Events.moveAllToStart, this.moveToStart.bind(this));
     }
     private worldUpdate:number|null = null;
     protected startConstantMotion() {
@@ -38,22 +40,26 @@ export abstract class PlayerRole extends Component {
         if (this.motionActive) {
             if (this.attachedPlayer !== null) {
                 const playerTorsoDirection = this.attachedPlayer.torso.forward;
+                //TODO
                 this.attachedPlayer.velocity.set(new Vec3(playerTorsoDirection.get().x, 0, playerTorsoDirection.get().z).mul(movementSpeed));
             }
         }
     }
+    protected SetSpawnPoint(spawnEntity: Entity): void {
+        this.spawnPointGizmo = spawnEntity.as(SpawnPointGizmo);
+    }
+    protected moveToStart(){
+        console.log("Move To Start", this.spawnPointGizmo, this.attachedPlayer);
+        this.spawnPointGizmo!.teleportPlayer(this.attachedPlayer!);
+    }
     private assignToPlayer(player: Player) {
         console.log("Assigning Player", player);
         this.attachedPlayer = player;
-        // this.attachedPlayer?.locomotionSpeed.set(0);
-        // this.attachedPlayer.gravity.set(0);
         this.entity.as(AttachableEntity).attachToPlayer(player, anchorBodyPart);
         this.entity.owner.set(player);
     }
     private removeFromPlayer(player: Player) {
         this.stopConstantMotion();
-        // this.attachedPlayer?.locomotionSpeed.set(4.5);
-        // this.attachedPlayer?.gravity.set(9.81);
         this.entity.as(AttachableEntity).detach();
         this.attachedPlayer = null;
         this.entity.owner.set(this.world.getServerPlayer());
@@ -63,11 +69,12 @@ export abstract class PlayerRole extends Component {
         return this.attachedPlayer ?? null;
     }
     transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
-        return {attachedPlayer: this.attachedPlayer, motionActive: this.motionActive};
+        return {attachedPlayer: this.attachedPlayer, motionActive: this.motionActive, spawnPointGizmo: this.spawnPointGizmo!.as(Entity)};
     }
-    receiveOwnership( state: {attachedPlayer: Player, motionActive: boolean}, _oldOwner: Player, _newOwner: Player) {
+    receiveOwnership( state: {attachedPlayer: Player, motionActive: boolean, spawnPointGizmo: SpawnPointGizmo}, _oldOwner: Player, _newOwner: Player) {
         this.attachedPlayer = state?.attachedPlayer;
         this.motionActive = state?.motionActive;
+        this.spawnPointGizmo = state?.spawnPointGizmo.as(SpawnPointGizmo);
     }
 
 }

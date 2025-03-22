@@ -1,6 +1,11 @@
 import {AttachablePlayerAnchor, Entity, LocalEvent, NetworkEvent, Player} from "horizon/core";
 
-export const movementSpeed = 4.5
+// TODO
+export const playerCount = 3;
+
+
+
+export const movementSpeed = 9;
 export const anchorBodyPart = AttachablePlayerAnchor.Head;
 export const setupDelaySecs = 10;
 export const gameCheckFrequencySecs = 10;
@@ -35,6 +40,7 @@ export const Events = {
   joinQueue2: new NetworkEvent<{player: Player}>("joinQueue2"),
   makeGhostEdible: new NetworkEvent<{}>("makeGhostEdible"),
   moveAllToStart: new NetworkEvent<{}>("moveAllToStart"),
+  roleAssignmentComplete: new NetworkEvent<{}>("roleAssignmentComplete"),
 }
 export class PlayerList {
   players: Player[] = [];
@@ -93,7 +99,7 @@ export class GamePlayers {
     return this.queueIsFull(this.queue2);
   }
   queueIsFull(queue: PlayerList) {
-    return queue.size() == 5;
+    return queue.size() == playerCount;
   }
   isInLobby(player: Player) {
     return this.inLobby.hasPlayer(player);
