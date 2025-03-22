@@ -5,7 +5,7 @@ import {
   Entity,
   EventSubscription,
   Player,
-  PropTypes, Vec3,
+  PropTypes, Quaternion, Vec3,
   World
 } from "horizon/core";
 import {anchorBodyPart, Events, movementSpeed} from "./GameUtilities";
@@ -18,6 +18,7 @@ class PacMan extends PlayerRole {
     manager: {type: PropTypes.Entity},
   };
   private homePosition: Vec3|undefined;
+  private homeRotation: Quaternion|undefined;
 
   preStart() {
     super.preStart();
@@ -29,9 +30,18 @@ class PacMan extends PlayerRole {
     // @ts-ignore
     this.homePosition = this.props.homePositionRef!.position.get();
   }
+  moveToStart(){
+    super.getAttachedPlayer()?.position.set(this.homePosition!);
+    super.getAttachedPlayer()?.rootRotation.set(this.homeRotation!);
+  }
   itemTouched(item: Entity){
     // console.log("itemTouched", item.name.get());
     this.sendNetworkEvent(item, Events.touchedByPacman, {});
+  }
+  respawn(){
+    super.stopConstantMotion();
+    this.moveToStart();
+    super.startConstantMotion();
   }
 
 }

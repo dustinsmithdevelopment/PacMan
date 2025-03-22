@@ -31,13 +31,18 @@ class Ghost extends PlayerRole {
   preStart() {
     super.preStart();
     this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.touchedByPacman.bind(this));
-    this.connectNetworkEvent(this.entity, Events.makeGhostEdible, ()=>{this.becomeEdible();});
+    this.connectNetworkEvent(this.entity, Events.makeGhostEdible, this.becomeEdible.bind(this));
+    this.connectNetworkBroadcastEvent(Events.moveAllToStart, this.moveToStart.bind(this));
   }
   start() {
     // @ts-ignore
     this.homePosition = this.props.homePositionRef!.position.get();
     // @ts-ignore
     this.homeRotation = this.props.homePositionRef!.rotation.get();
+  }
+  moveToStart(){
+    super.getAttachedPlayer()?.position.set(this.homePosition!);
+    super.getAttachedPlayer()?.rootRotation.set(this.homeRotation!);
   }
   touchedByPacman() {
     console.log("I'm a ghost and pacman touched me.")
@@ -62,8 +67,7 @@ class Ghost extends PlayerRole {
       this.async.clearInterval(this.edibleCooldown);
       this.edibleCooldown = undefined;
     }
-    super.getAttachedPlayer()?.position.set(this.homePosition!);
-    super.getAttachedPlayer()?.rootRotation.set(this.homeRotation!);
+    this.moveToStart();
     this.becomeEnemy();
     // super.startConstantMotion();
   }

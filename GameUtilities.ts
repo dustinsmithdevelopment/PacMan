@@ -34,6 +34,7 @@ export const Events = {
   joinQueue1: new NetworkEvent<{player: Player}>("joinQueue1"),
   joinQueue2: new NetworkEvent<{player: Player}>("joinQueue2"),
   makeGhostEdible: new NetworkEvent<{}>("makeGhostEdible"),
+  moveAllToStart: new NetworkEvent<{}>("moveAllToStart"),
 }
 export class PlayerList {
   players: Player[] = [];
