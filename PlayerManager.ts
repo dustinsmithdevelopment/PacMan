@@ -1,4 +1,4 @@
-import {CodeBlockEvent, CodeBlockEvents, Component, Player, PropTypes} from "horizon/core";
+import {CodeBlockEvent, CodeBlockEvents, Component, Player, PropTypes, SpawnPointGizmo} from "horizon/core";
 import {Events, GamePlayers, playerCount, PlayerList} from "./GameUtilities";
 
 class PlayerManager extends Component<typeof PlayerManager> {
@@ -9,8 +9,10 @@ class PlayerManager extends Component<typeof PlayerManager> {
         ghost2: {type: PropTypes.Entity, required: true},
         ghost3: {type: PropTypes.Entity, required: true},
         ghost4: {type: PropTypes.Entity, required: true},
+        lobbySpawnGizmo: {type: PropTypes.Entity, required: true},
     };
 
+    private lobbySpawn: SpawnPointGizmo|undefined;
     private gamePlayers: GamePlayers = new GamePlayers();
     private queue1Ready: boolean = false;
     private queue2Ready: boolean = false;
@@ -19,9 +21,11 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.connectNetworkEvent(this.entity, Events.joinQueue1, (payload: {player: Player}) => {this.onJoinQueue1(payload.player);});
         this.connectNetworkEvent(this.entity, Events.joinQueue2, (payload: {player: Player}) => {this.onJoinQueue2(payload.player);});
         this.connectNetworkEvent(this.entity, Events.startPlayerAssignment, this.assignPlayers.bind(this));
+        this.connectNetworkEvent(this.entity, Events.gameEnding, this.returnGamePlayersToLobby.bind(this));
     }
 
     start() {
+        this.lobbySpawn = this.props.lobbySpawnGizmo!.as(SpawnPointGizmo);
         this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player: Player) => {this.onPlayerEnterWorld(player);});
         this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerExitWorld, (player: Player) => {this.onPlayerExitWorld(player);});
     }
@@ -95,6 +99,20 @@ class PlayerManager extends Component<typeof PlayerManager> {
     moveGamePlayersToStart(){
         this.sendNetworkBroadcastEvent(Events.moveAllToStart, {})
         this.sendNetworkEvent(this.props.gameManager!, Events.roleAssignmentComplete, {});
+    }
+    returnGamePlayersToLobby (player: Player){
+        this.sendNetworkEvent(this.props.pacman!, Events.unassignPlayer, {});
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.unassignPlayer, {});},100);
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.unassignPlayer, {});},200);
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.unassignPlayer, {});},300);
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.unassignPlayer, {});},400);
+        this.async.setTimeout(()=>{this.lobbySpawn?.teleportPlayer(this.pacman!)},150);
+        this.async.setTimeout(()=>{this.lobbySpawn?.teleportPlayer(this.ghost1!)},250);
+        this.async.setTimeout(()=>{this.lobbySpawn?.teleportPlayer(this.ghost2!)},350);
+        // this.async.setTimeout(()=>{this.lobbySpawn?.teleportPlayer(this.ghost3!)},450);
+        // this.async.setTimeout(()=>{this.lobbySpawn?.teleportPlayer(this.ghost4!)},550);
+        this.async.setTimeout(()=>{this.playersAssigned = false;},600);
+
     }
 }
 Component.register(PlayerManager);

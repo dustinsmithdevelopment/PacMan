@@ -11,8 +11,8 @@ enum GhostState{
 class Ghost extends PlayerRole {
   private edibleCooldown: number|undefined;
   static propsDefinition = {
-    homePositionSpawn: {type: PropTypes.Entity},
-    manager: {type: PropTypes.Entity},
+    homePositionSpawn: {type: PropTypes.Entity, required: true},
+    manager: {type: PropTypes.Entity, required: true},
   };
   private ghostState: GhostState = GhostState.enemy;
 

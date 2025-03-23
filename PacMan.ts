@@ -6,9 +6,9 @@ import {PlayerRole} from "./PlayerRole";
 
 class PacMan extends PlayerRole {
   static propsDefinition = {
-    homePositionSpawn: {type: PropTypes.Entity},
-    collectionTrigger: {type: PropTypes.Entity},
-    manager: {type: PropTypes.Entity},
+    homePositionSpawn: {type: PropTypes.Entity, required: true},
+    collectionTrigger: {type: PropTypes.Entity, required: true},
+    manager: {type: PropTypes.Entity, required: true},
   };
 
   preStart() {

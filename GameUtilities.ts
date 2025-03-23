@@ -43,6 +43,7 @@ export const Events = {
   roleAssignmentComplete: new NetworkEvent<{}>("roleAssignmentComplete"),
   teleportPacman: new NetworkEvent<{spawnPoint: SpawnPointGizmo}>("teleportPacman"),
   respawnPacman: new NetworkEvent<{}>("respawnPacman"),
+  gameEnding: new NetworkEvent<{}>("gameEnding"),
 }
 export class PlayerList {
   players: Player[] = [];

@@ -68,10 +68,8 @@ class GameManager extends Component<typeof GameManager> {
       }
     }
   }
-  // TODO check if any queues are ready every 10 seconds while the game isn't active
   // TODO if a ghost leaves the game, mark the slot as empty and offer it to the other players
   // TODO restrict the players rotation
-  // TODO set up the game end events
 
   prepareGame() {
     this.currentGameState = GameState.Starting;
@@ -92,6 +90,8 @@ class GameManager extends Component<typeof GameManager> {
   endGame() {
     console.log("Changing Game State to Ending");
     this.currentGameState = GameState.Ending;
+    this.sendNetworkEvent(this.props.playerManager!, Events.gameEnding, {});
+    this.async.setTimeout(()=>{this.changeGameState(GameState.Waiting)}, 5_000)
   }
   resetGame(){
     console.log("Changing Game State to Waiting");
@@ -101,7 +101,9 @@ class GameManager extends Component<typeof GameManager> {
   loseLife(){
     this.lives -= 1;
     if (this.lives === 0){
-      // TODO end the game as a loss
+      // TODO GHOSTS WIN!
+      this.world.ui.showPopupForEveryone("Ghosts Win!", 3);
+      this.changeGameState(GameState.Ending);
     } else {
       // respawn pacman
       this.sendNetworkEvent(this.props.pacMan!, Events.respawnPacman, {});
@@ -114,10 +116,13 @@ class GameManager extends Component<typeof GameManager> {
   }
   eatPacDot(pacDot: Entity) {
     this.remainingPacDots.delete(pacDot.id);
+    this.checkRemainingPacDots();
   }
   checkRemainingPacDots() {
     if (this.remainingPacDots.size === 0) {
-      // TODO end the game as a win
+      // TODO PACMAN WINS
+      this.world.ui.showPopupForEveryone("Pacman Wins!", 3);
+      this.changeGameState(GameState.Ending);
     }
   }
   powerPelletCollected(){
