@@ -64,8 +64,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
                 nextMatchPlayers = [...this.gamePlayers.queue2.players];
                 this.gamePlayers.queue2.players = []
             }
-            this.sendNetworkEvent(this.props.gameManager!, Events.setQueue1ReadyState, {ready: this.queue1Ready});
-            this.sendNetworkEvent(this.props.gameManager!, Events.setQueue2ReadyState, {ready: this.queue2Ready});
+            this.updateQueueStates();
             const pacPlayer = Math.floor(Math.random() * playerCount)
             for (let i = 0; i < playerCount; i++) {
                 if (i === pacPlayer) {
@@ -113,6 +112,12 @@ class PlayerManager extends Component<typeof PlayerManager> {
         // this.async.setTimeout(()=>{this.lobbySpawn?.teleportPlayer(this.ghost4!)},550);
         this.async.setTimeout(()=>{this.playersAssigned = false;},600);
 
+    }
+    updateQueueStates(){
+        this.queue1Ready = this.gamePlayers.queue1Full();
+        this.queue2Ready = this.gamePlayers.queue2Full();
+        this.sendNetworkEvent(this.props.gameManager!, Events.setQueue1ReadyState, {ready: this.queue1Ready});
+        this.sendNetworkEvent(this.props.gameManager!, Events.setQueue2ReadyState, {ready: this.queue2Ready});
     }
 }
 Component.register(PlayerManager);

@@ -5,6 +5,7 @@ export const playerCount = 3;
 
 
 
+export const pacmanInvinsiblityTime = 3;
 export const movementSpeed = 9;
 export const anchorBodyPart = AttachablePlayerAnchor.Head;
 export const setupDelaySecs = 10;
@@ -145,6 +146,8 @@ export class GamePlayers {
   }
   unassignPlayer(player: Player) {
     this.inLobby.removePlayer(player);
+    this.queue1.removePlayer(player);
+    this.queue2.removePlayer(player);
     if (this.pacman === player) {this.pacman = undefined;}
     this.ghosts.removePlayer(player);
     this.queue1.removePlayer(player);

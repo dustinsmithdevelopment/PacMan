@@ -29,6 +29,7 @@ class PacMan extends PlayerRole {
     this.sendNetworkEvent(item, Events.touchedByPacman, {});
   }
   respawn(){
+    console.log("Event is being received by pacman to respawn");
     super.stopConstantMotion();
     super.moveToStart();
     super.startConstantMotion();

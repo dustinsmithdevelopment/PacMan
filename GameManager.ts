@@ -1,5 +1,5 @@
 import {Component, Entity, PropTypes} from "horizon/core";
-import {Events, gameCheckFrequencySecs, GameState, setupDelaySecs} from "./GameUtilities";
+import {Events, gameCheckFrequencySecs, GameState, pacmanInvinsiblityTime, setupDelaySecs} from "./GameUtilities";
 
 class GameManager extends Component<typeof GameManager> {
   static propsDefinition = {
@@ -98,15 +98,21 @@ class GameManager extends Component<typeof GameManager> {
     this.currentGameState = GameState.Waiting;
     this.sendNetworkBroadcastEvent(Events.resetGame, {});
   }
+  private pacmanInvincible = false;
   loseLife(){
-    this.lives -= 1;
-    if (this.lives === 0){
-      // TODO GHOSTS WIN!
-      this.world.ui.showPopupForEveryone("Ghosts Win!", 3);
-      this.changeGameState(GameState.Ending);
-    } else {
-      // respawn pacman
-      this.sendNetworkEvent(this.props.pacMan!, Events.respawnPacman, {});
+    if(!this.pacmanInvincible){
+      this.pacmanInvincible = true;
+      this.async.setTimeout((()=>{this.pacmanInvincible = false}), 1000 * pacmanInvinsiblityTime);
+      this.lives -= 1;
+      if (this.lives === 0) {
+        // TODO GHOSTS WIN!
+        this.world.ui.showPopupForEveryone("Ghosts Win!", 3);
+        this.changeGameState(GameState.Ending);
+      } else {
+        // respawn pacman
+        console.log("Event is being sent to pacman to respawn")
+        this.sendNetworkEvent(this.props.pacMan!, Events.respawnPacman, {});
+      }
     }
   }
 
