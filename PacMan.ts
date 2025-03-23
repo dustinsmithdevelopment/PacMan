@@ -15,7 +15,8 @@ class PacMan extends PlayerRole {
     super.preStart();
     this.connectNetworkEvent(this.entity, Events.teleportPacman, (payload: {spawnPoint: SpawnPointGizmo})=>{
       this.teleportPacman(payload.spawnPoint);
-    })
+    });
+    this.connectNetworkEvent(this.entity, Events.respawnPacman, ()=>{this.respawn();})
   }
   start() {
     this.connectCodeBlockEvent(this.props.collectionTrigger, CodeBlockEvents.OnEntityEnterTrigger, (entity: Entity)=>{

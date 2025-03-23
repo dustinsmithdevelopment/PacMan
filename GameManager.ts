@@ -102,6 +102,9 @@ class GameManager extends Component<typeof GameManager> {
     this.lives -= 1;
     if (this.lives === 0){
       // TODO end the game as a loss
+    } else {
+      // respawn pacman
+      this.sendNetworkEvent(this.props.pacMan!, Events.respawnPacman, {});
     }
   }
 
