@@ -5,12 +5,12 @@ export const playerCount = 3;
 
 
 
-export const pacmanInvinsiblityTime = 3;
+export const pacmanInvinsiblityTime = 10;
 export const movementSpeed = 9;
 export const anchorBodyPart = AttachablePlayerAnchor.Head;
 export const setupDelaySecs = 10;
 export const gameCheckFrequencySecs = 10;
-export const EDIBLE_SECONDS = 6;
+export const EDIBLE_SECONDS = 20;
 
 export enum GameState {
   'Waiting',

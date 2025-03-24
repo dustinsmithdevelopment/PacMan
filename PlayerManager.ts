@@ -31,6 +31,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
     }
     onPlayerEnterWorld(p: Player){
         this.gamePlayers.moveToLobby(p);
+        this.lobbySpawn?.teleportPlayer(p);
     }
     onPlayerExitWorld(p: Player){
         if (this.gamePlayers.isPacman(p)){
