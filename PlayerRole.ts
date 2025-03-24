@@ -14,6 +14,7 @@ export abstract class PlayerRole extends Component {
     protected attachedPlayer: Player|null = null;
     private motionActive = false;
     private spawnPointGizmo: SpawnPointGizmo| undefined;
+    private role = "";
 
     preStart() {
         this.connectNetworkEvent(this.entity, Events.startConstantMotion, this.startConstantMotion.bind(this));
@@ -23,6 +24,9 @@ export abstract class PlayerRole extends Component {
         this.connectNetworkBroadcastEvent(Events.moveAllToStart, this.moveToStart.bind(this));
     }
     private worldUpdate:number|null = null;
+    protected setRole(role: string){
+        this.role = role;
+    }
     protected startConstantMotion() {
         this.motionActive = true;
         console.log("Starting Constant Motion");
@@ -58,6 +62,7 @@ export abstract class PlayerRole extends Component {
         this.entity.as(AttachableEntity).attachToPlayer(player, anchorBodyPart);
         this.entity.owner.set(player);
         this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.HiddenFrom);
+        this.world.ui.showPopupForPlayer(player, "You are " + this.role, 5);
     }
     private removeFromPlayer(player: Player) {
         this.stopConstantMotion();

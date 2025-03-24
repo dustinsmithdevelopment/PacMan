@@ -26,6 +26,7 @@ class Ghost extends PlayerRole {
   start() {
     this.SetSpawnPoint(this.props.homePositionSpawn!);
     this.ghostMesh = this.entity.as(MeshEntity);
+    super.setRole("a ghost");
   }
   touchedByPacman() {
     console.log("I'm a ghost and pacman touched me.")
