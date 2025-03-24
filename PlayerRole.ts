@@ -1,12 +1,12 @@
 import {
     AttachableEntity,
-    Component, Entity,
-    EventSubscription,
+    Component,
+    Entity,
     Player,
-    PropTypes,
-    SerializableState, SpawnPointGizmo,
-    Vec3,
-    World
+    PlayerVisibilityMode,
+    SerializableState,
+    SpawnPointGizmo,
+    Vec3
 } from "horizon/core";
 import {anchorBodyPart, Events, movementSpeed} from "./GameUtilities";
 
@@ -57,13 +57,14 @@ export abstract class PlayerRole extends Component {
         this.attachedPlayer = player;
         this.entity.as(AttachableEntity).attachToPlayer(player, anchorBodyPart);
         this.entity.owner.set(player);
+        this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.HiddenFrom);
     }
     private removeFromPlayer(player: Player) {
         this.stopConstantMotion();
         this.entity.as(AttachableEntity).detach();
         this.attachedPlayer = null;
         this.entity.owner.set(this.world.getServerPlayer());
-
+        this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.VisibleTo);
     }
     protected getAttachedPlayer(): Player | null {
         return this.attachedPlayer ?? null;

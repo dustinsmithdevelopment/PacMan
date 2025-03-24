@@ -1,5 +1,5 @@
 import {
-  CodeBlockEvents, Component, Entity, PropTypes, SpawnPointGizmo,
+  CodeBlockEvents, Component, Entity, Player, PropTypes, SpawnPointGizmo,
 } from "horizon/core";
 import {Events} from "./GameUtilities";
 import {PlayerRole} from "./PlayerRole";
@@ -34,6 +34,7 @@ class PacMan extends PlayerRole {
     super.moveToStart();
     super.startConstantMotion();
   }
+
   teleportPacman(spawnPoint: SpawnPointGizmo){
     spawnPoint.teleportPlayer(super.getAttachedPlayer()!);
   }
