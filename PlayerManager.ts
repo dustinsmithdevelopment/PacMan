@@ -1,5 +1,6 @@
 import {CodeBlockEvent, CodeBlockEvents, Component, Player, PropTypes, SpawnPointGizmo} from "horizon/core";
 import {Events, GamePlayers, playerCount, PlayerList} from "./GameUtilities";
+import {Camera} from "horizon/camera";
 
 class PlayerManager extends Component<typeof PlayerManager> {
     static propsDefinition = {

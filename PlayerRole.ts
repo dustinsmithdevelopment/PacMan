@@ -57,10 +57,10 @@ export abstract class PlayerRole extends Component {
         this.spawnPointGizmo!.teleportPlayer(this.attachedPlayer!);
     }
     private assignToPlayer(player: Player) {
+        this.entity.owner.set(player);
         console.log("Assigning Player", player);
         this.attachedPlayer = player;
         this.entity.as(AttachableEntity).attachToPlayer(player, anchorBodyPart);
-        this.entity.owner.set(player);
         this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.HiddenFrom);
         this.world.ui.showPopupForPlayer(player, "You are " + this.role, 5);
     }
@@ -68,18 +68,24 @@ export abstract class PlayerRole extends Component {
         this.stopConstantMotion();
         this.entity.as(AttachableEntity).detach();
         this.attachedPlayer = null;
-        this.entity.owner.set(this.world.getServerPlayer());
         this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.VisibleTo);
+        this.entity.owner.set(this.world.getServerPlayer());
     }
     protected getAttachedPlayer(): Player | null {
         return this.attachedPlayer ?? null;
     }
     transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
-        return {attachedPlayer: this.attachedPlayer, motionActive: this.motionActive, spawnPointGizmo: this.spawnPointGizmo!.as(Entity)};
+        return {
+            // attachedPlayer: this.attachedPlayer,
+            // motionActive: this.motionActive,
+            spawnPointGizmo: this.spawnPointGizmo!.as(Entity)};
     }
-    receiveOwnership( state: {attachedPlayer: Player, motionActive: boolean, spawnPointGizmo: SpawnPointGizmo}, _oldOwner: Player, _newOwner: Player) {
-        this.attachedPlayer = state?.attachedPlayer;
-        this.motionActive = state?.motionActive;
+    receiveOwnership( state: {
+        // attachedPlayer: Player,
+        // motionActive: boolean,
+        spawnPointGizmo: SpawnPointGizmo}, _oldOwner: Player, _newOwner: Player) {
+        // this.attachedPlayer = state?.attachedPlayer;
+        // this.motionActive = state?.motionActive;
         this.spawnPointGizmo = state?.spawnPointGizmo.as(SpawnPointGizmo);
     }
 
