@@ -9,8 +9,9 @@ import {
     Vec3
 } from "horizon/core";
 import {anchorBodyPart, Events, movementSpeed} from "./GameUtilities";
+import {RestrictedRotation} from "./RestrictedRotation";
 
-export abstract class PlayerRole extends Component {
+export abstract class PlayerRole extends RestrictedRotation {
     protected attachedPlayer: Player|null = null;
     private motionActive = false;
     private spawnPointGizmo: SpawnPointGizmo| undefined;
@@ -58,6 +59,7 @@ export abstract class PlayerRole extends Component {
     }
     private assignToPlayer(player: Player) {
         this.entity.owner.set(player);
+        super.restrictRotation(player);
         console.log("Assigning Player", player);
         this.attachedPlayer = player;
         this.entity.as(AttachableEntity).attachToPlayer(player, anchorBodyPart);
@@ -66,6 +68,7 @@ export abstract class PlayerRole extends Component {
     }
     private removeFromPlayer(player: Player) {
         this.stopConstantMotion();
+        super.unrestrictRotation(player);
         this.entity.as(AttachableEntity).detach();
         this.attachedPlayer = null;
         this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.VisibleTo);

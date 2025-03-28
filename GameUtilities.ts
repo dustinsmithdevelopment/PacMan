@@ -6,7 +6,7 @@ export const playerCount = 3;
 
 
 export const pacmanInvinsiblityTime = 10;
-export const movementSpeed = 9;
+export const movementSpeed = 4.5;
 export const anchorBodyPart = AttachablePlayerAnchor.Head;
 export const setupDelaySecs = 10;
 export const gameCheckFrequencySecs = 10;
