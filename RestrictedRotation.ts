@@ -25,10 +25,10 @@ export abstract class RestrictedRotation extends Component {
     this.rotation = 0;
     this.owner = p;
     this.assignRotation();
-    if (this.entity.owner.get().deviceType.get() == PlayerDeviceType.VR){
+    if (this.owner.deviceType.get() == PlayerDeviceType.VR){
       // VR
       console.log("Restricting rotation in VR for " + this.owner.name.get());
-      this.VR_forward_input = PlayerControls.connectLocalInput(PlayerInputAction.RightYAxis, ButtonIcon.None, this);
+      this.VR_forward_input = PlayerControls.connectLocalInput(PlayerInputAction.LeftYAxis, ButtonIcon.None, this);
       this.VR_forward_input.registerCallback((_, pressed) => {
         if (pressed && this.VR_forward_input!.axisValue.get() < 0){
           this.reverse();
@@ -44,8 +44,8 @@ export abstract class RestrictedRotation extends Component {
           }
         }
       })
-    }else {
-      // Desktop or mobile
+    }else if (this.owner.deviceType.get() == PlayerDeviceType.Mobile){
+      // TODO mobile
 
     }
   }
@@ -65,7 +65,7 @@ export abstract class RestrictedRotation extends Component {
     const targetQuaternion = Quaternion.fromEuler(new Vec3(0,this.rotation, 0));
     this.async.setTimeout(()=>{
       this.owner!.rootRotation.set(targetQuaternion);
-    },250);
+    },100);
   }
   protected unrestrictRotation(p: Player) {
     console.log("Removing rotation restriction for " + this.owner!.name.get());
