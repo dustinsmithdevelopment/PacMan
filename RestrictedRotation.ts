@@ -11,7 +11,6 @@ import {
   PlayerInputAction, Quaternion, radiansToDegrees, Vec3
 } from "horizon/core";
 
-const degreeToRadian = Math.PI / 180;
 export abstract class RestrictedRotation extends Component {
   static propsDefinition = {};
   private owner: Player | undefined;
