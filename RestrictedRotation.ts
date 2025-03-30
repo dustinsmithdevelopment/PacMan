@@ -69,7 +69,10 @@ export abstract class RestrictedRotation extends Component {
       });
 
 
-    }else if (this.owner!.deviceType.get() == PlayerDeviceType.Mobile){}
+    }else if (this.owner!.deviceType.get() == PlayerDeviceType.Mobile){
+      // TODO mobile assignment
+
+    }
   }
   private rotateRight(){
     this.rotation = (this.rotation + 90) % 360;
@@ -105,7 +108,7 @@ export abstract class RestrictedRotation extends Component {
       this.Desktop_forward_input?.disconnect();
       this.Desktop_turn_input?.disconnect();
     }else if (this.entity.owner.get().deviceType.get() == PlayerDeviceType.Mobile){
-      // Mobile
+      // TODO mobile unassignment
       
     }
   }
