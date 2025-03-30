@@ -1,7 +1,7 @@
 const INPUT_TOLERANCE = 0.2;
 
 import {
-  ButtonIcon,
+  ButtonIcon, CodeBlockEvents,
   Component,
   EventSubscription,
   Player,
@@ -14,8 +14,6 @@ import {
 export abstract class RestrictedRotation extends Component {
   static propsDefinition = {};
   private owner: Player | undefined;
-  private VR_forward_input?: PlayerInput;
-  private VR_turn_input?: PlayerInput;
   private rotation = 0;
 
   start() {
@@ -25,9 +23,16 @@ export abstract class RestrictedRotation extends Component {
     this.rotation = 0;
     this.owner = p;
     this.assignRotation();
-    if (this.owner.deviceType.get() == PlayerDeviceType.VR){
+    this.configureControls();
+  }
+  private VR_forward_input?: PlayerInput;
+  private VR_turn_input?: PlayerInput;
+  private Desktop_forward_input?: PlayerInput;
+  private Desktop_turn_input?: PlayerInput;
+  private configureControls() {
+    if (this.owner!.deviceType.get() == PlayerDeviceType.VR){
       // VR
-      console.log("Restricting rotation in VR for " + this.owner.name.get());
+      console.log("Restricting rotation in VR for " + this.owner!.name.get());
       this.VR_forward_input = PlayerControls.connectLocalInput(PlayerInputAction.LeftYAxis, ButtonIcon.None, this);
       this.VR_forward_input.registerCallback((_, pressed) => {
         if (pressed && this.VR_forward_input!.axisValue.get() < 0){
@@ -43,11 +48,28 @@ export abstract class RestrictedRotation extends Component {
             this.rotateLeft();
           }
         }
+      });
+    }else if (this.owner!.deviceType.get() == PlayerDeviceType.Desktop){
+      console.log("Restricting rotation on Desktop for " + this.owner!.name.get());
+      this.Desktop_forward_input = PlayerControls.connectLocalInput(PlayerInputAction.LeftYAxis, ButtonIcon.None, this);
+      this.Desktop_forward_input.registerCallback((_, pressed) => {
+        if (pressed && this.Desktop_forward_input!.axisValue.get() < 0){
+          this.reverse();
+        }
       })
-    }else if (this.owner.deviceType.get() == PlayerDeviceType.Mobile){
-      // TODO mobile
+      this.Desktop_turn_input = PlayerControls.connectLocalInput(PlayerInputAction.RightXAxis, ButtonIcon.None, this);
+      this.Desktop_turn_input.registerCallback((_, pressed) => {
+        if (pressed){
+          if (this.Desktop_turn_input!.axisValue.get() > (INPUT_TOLERANCE)) {
+            this.rotateRight();
+          }else if (this.Desktop_turn_input!.axisValue.get() < (-INPUT_TOLERANCE)){
+            this.rotateLeft();
+          }
+        }
+      });
 
-    }
+
+    }else if (this.owner!.deviceType.get() == PlayerDeviceType.Mobile){}
   }
   private rotateRight(){
     this.rotation = (this.rotation + 90) % 360;
@@ -76,9 +98,15 @@ export abstract class RestrictedRotation extends Component {
       this.VR_forward_input?.disconnect();
       this.VR_turn_input?.disconnect();
 
-    }else {
-      // Desktop or mobile
-
+    }else if (this.entity.owner.get().deviceType.get() == PlayerDeviceType.Desktop){
+      // Desktop
+      this.Desktop_forward_input?.unregisterCallback();
+      this.Desktop_turn_input?.unregisterCallback();
+      this.Desktop_forward_input?.disconnect();
+      this.Desktop_turn_input?.disconnect();
+    }else if (this.entity.owner.get().deviceType.get() == PlayerDeviceType.Mobile){
+      // Mobile
+      
     }
   }
 
