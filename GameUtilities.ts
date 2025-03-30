@@ -45,6 +45,9 @@ export const Events = {
   teleportPacman: new NetworkEvent<{spawnPoint: SpawnPointGizmo}>("teleportPacman"),
   respawnPacman: new NetworkEvent<{}>("respawnPacman"),
   gameEnding: new NetworkEvent<{}>("gameEnding"),
+  turnLeft: new LocalEvent<{}>("turnLeft"),
+  turnRight: new LocalEvent<{}>("turnRight"),
+  reverse: new LocalEvent<{}>("reverse"),
 }
 export class PlayerList {
   players: Player[] = [];
