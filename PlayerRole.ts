@@ -18,6 +18,7 @@ export abstract class PlayerRole extends RestrictedRotation {
     private role = "";
 
     preStart() {
+        super.preStart();
         this.connectNetworkEvent(this.entity, Events.startConstantMotion, this.startConstantMotion.bind(this));
         this.connectNetworkEvent(this.entity, Events.stopConstantMotion, this.stopConstantMotion.bind(this));
         this.connectNetworkEvent(this.entity, Events.assignPlayer, (data: {player: Player})=>{this.assignToPlayer(data.player)});

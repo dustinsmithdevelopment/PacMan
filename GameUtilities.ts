@@ -21,6 +21,12 @@ export enum GameState {
 
 
 export const Events = {
+
+  moveForward: new LocalEvent<{}>('moveForward'),
+  moveReverse: new LocalEvent<{}>('moveReverse'),
+  moveLeft: new LocalEvent<{}>('moveLeft'),
+  moveRight: new LocalEvent<{}>('moveRight'),
+
   registerPacDot: new NetworkEvent<{pacDot: Entity}>('registerPacDot'),
   // setPacman: new NetworkEvent<{ pacMan: Player }>("SetPacman"),
   collectFruit: new NetworkEvent<{}>("collectFruit"),

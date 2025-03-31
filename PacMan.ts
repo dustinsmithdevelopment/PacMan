@@ -9,6 +9,7 @@ class PacMan extends PlayerRole {
     homePositionSpawn: {type: PropTypes.Entity, required: true},
     collectionTrigger: {type: PropTypes.Entity, required: true},
     manager: {type: PropTypes.Entity, required: true},
+    mobileUI: {type: PropTypes.Entity, required: true},
   };
 
   preStart() {
@@ -24,6 +25,7 @@ class PacMan extends PlayerRole {
     });
     this.SetSpawnPoint(this.props.homePositionSpawn!);
     super.setRole("PacMan");
+    super.SetUI(this.props.mobileUI);
   }
   itemTouched(item: Entity){
     // console.log("itemTouched", item.name.get());

@@ -14,6 +14,7 @@ class Ghost extends PlayerRole {
   static propsDefinition = {
     homePositionSpawn: {type: PropTypes.Entity, required: true},
     manager: {type: PropTypes.Entity, required: true},
+    mobileUI: {type: PropTypes.Entity, required: true},
   };
   private ghostState: GhostState = GhostState.enemy;
   private ghostMesh: MeshEntity|undefined;
@@ -27,6 +28,7 @@ class Ghost extends PlayerRole {
     this.SetSpawnPoint(this.props.homePositionSpawn!);
     this.ghostMesh = this.entity.as(MeshEntity);
     super.setRole("a ghost");
+    super.SetUI(this.props.mobileUI);
   }
   touchedByPacman() {
     console.log("I'm a ghost and pacman touched me.")

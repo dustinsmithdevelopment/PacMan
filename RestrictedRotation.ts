@@ -1,8 +1,10 @@
+import {Events} from "./GameUtilities";
+
 const INPUT_TOLERANCE = 0.2;
 
 import {
   ButtonIcon, CodeBlockEvents,
-  Component,
+  Component, Entity,
   EventSubscription,
   Player,
   PlayerControls,
@@ -15,9 +17,20 @@ export abstract class RestrictedRotation extends Component {
   static propsDefinition = {};
   private owner: Player | undefined;
   private rotation = 0;
+  private mobileUI: Entity|undefined;
+
+  preStart() {
+    this.connectLocalEvent(this.entity, Events.moveForward, ()=>{this.assignRotation();});
+    this.connectLocalEvent(this.entity, Events.moveReverse, ()=>{this.reverse();});
+    this.connectLocalEvent(this.entity, Events.moveLeft, ()=>{this.rotateLeft()});
+    this.connectLocalEvent(this.entity, Events.moveRight, ()=>{this.rotateRight()});
+  }
 
   start() {
 
+  }
+  protected SetUI(mobileUI: Entity){
+    this.mobileUI = mobileUI;
   }
   protected restrictRotation(p: Player) {
     this.rotation = 0;
@@ -67,7 +80,7 @@ export abstract class RestrictedRotation extends Component {
       });
     }else if (this.owner!.deviceType.get() == PlayerDeviceType.Mobile){
       // TODO mobile assignment
-      PlayerControls.disableSystemControls();
+      this.mobileUI!.owner.set(this.owner!);
     }
   }
   private rotateRight(){
@@ -100,8 +113,9 @@ export abstract class RestrictedRotation extends Component {
 
     }else if (this.entity.owner.get().deviceType.get() == PlayerDeviceType.Mobile){
       // TODO mobile unassignment
-      PlayerControls.enableSystemControls();
-      
+      this.mobileUI!.owner.set(this.world.getServerPlayer());
+
+
     }
   }
 
