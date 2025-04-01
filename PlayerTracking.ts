@@ -3,7 +3,7 @@ import {Events} from "./GameUtilities";
 import {UIComponent, UINode, View, ImageSource, Image, DynamicList, Binding, DimensionValue} from "horizon/ui";
 
 
-
+const UPSCALE = 19;
 
 
 
@@ -93,15 +93,15 @@ class MobileUI extends UIComponent {
     // TODO end test
 
 
-    const pacPos = this.pacman!.position.get().sub(this.origin!);
+    const pacPos = this.pacman!.position.get().sub(this.origin!).mul(UPSCALE);
     // console.log("Pacman", pacPos.x, pacPos.y, pacPos.z);
-    const e1Pos = this.enemy1!.position.get().sub(this.origin!);
+    const e1Pos = this.enemy1!.position.get().sub(this.origin!).mul(UPSCALE);
     // console.log("e1Pos", e1Pos.x, pacPos.y, pacPos.z);
-    const e2Pos = this.enemy2!.position.get().sub(this.origin!);
+    const e2Pos = this.enemy2!.position.get().sub(this.origin!).mul(UPSCALE);
     // console.log("e2Pos", e2Pos.x, pacPos.y, pacPos.z);
-    const e3Pos = this.enemy3!.position.get().sub(this.origin!);
+    const e3Pos = this.enemy3!.position.get().sub(this.origin!).mul(UPSCALE);
     // console.log("e3Pos", e3Pos.x, pacPos.y, pacPos.z);
-    const e4Pos = this.enemy4!.position.get().sub(this.origin!);
+    const e4Pos = this.enemy4!.position.get().sub(this.origin!).mul(UPSCALE);
     // console.log("e4Pos", e4Pos.x, pacPos.y, pacPos.z);
     this.pacManX.set(pacPos.x as DimensionValue);
     this.pacManY.set(pacPos.z as DimensionValue);
