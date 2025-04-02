@@ -20,7 +20,7 @@ class GameManager extends Component<typeof GameManager> {
   private remainingPacDots: Map<bigint, Entity> = new Map();
   preStart() {
     this.connectNetworkBroadcastEvent(Events.registerPacDot, (payload: {pacDot: Entity})=>{this.registerPacDot(payload.pacDot);});
-    this.connectNetworkEvent(this.entity, Events.pacDotCollected, (payload: {pacDot: Entity})=>{this.eatPacDot(payload.pacDot);});
+    this.connectNetworkBroadcastEvent(Events.pacDotCollected, (payload: {pacDot: Entity})=>{this.eatPacDot(payload.pacDot);});
     this.connectNetworkEvent(this.entity, Events.setQueue1ReadyState, (payload: {ready: boolean})=>{this.updateQueue1ReadyState(payload.ready)});
     this.connectNetworkEvent(this.entity, Events.setQueue2ReadyState, (payload: {ready: boolean})=>{this.updateQueue2ReadyState(payload.ready)});
     this.connectNetworkEvent(this.entity, Events.ghostCaughtPacman, ()=>{this.loseLife();});

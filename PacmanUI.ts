@@ -5,6 +5,11 @@ import {UIComponent, UINode, View, ImageSource, Image, Binding, DimensionValue, 
 
 const UPSCALE = 19;
 
+interface DotLocation{
+  x: number;
+  z: number;
+}
+//TODO GENERATE ARRAY ON EACH CYCLE
 
 
 class PacmanUI extends UIComponent {
@@ -18,10 +23,10 @@ class PacmanUI extends UIComponent {
 
   private origin: Vec3|undefined;
 
-  private allDots: bigint[] = [];
-  private visibleDots: bigint[] = [];
+  private allDots: number[] = [];
+  private visibleDots: number[] = [];
 
-  private dotDisplay = new Binding<bigint[]>([]);
+  private dotDisplay = new Binding<number[]>([]);
 
 
 
@@ -51,6 +56,7 @@ class PacmanUI extends UIComponent {
     enemy2Image: {type: PropTypes.Asset},
     enemy3Image: {type: PropTypes.Asset},
     enemy4Image: {type: PropTypes.Asset},
+    pacDotImage: {type: PropTypes.Asset},
   };
   initializeUI(): UINode {
     const backgroundImage: ImageSource = ImageSource.fromTextureAsset(this.props.backgroundImage);
@@ -59,6 +65,7 @@ class PacmanUI extends UIComponent {
     const enemy2Image: ImageSource = ImageSource.fromTextureAsset(this.props.enemy2Image);
     const enemy3Image: ImageSource = ImageSource.fromTextureAsset(this.props.enemy3Image);
     const enemy4Image: ImageSource = ImageSource.fromTextureAsset(this.props.enemy4Image);
+    const pacDotImage: ImageSource = ImageSource.fromTextureAsset(this.props.pacDotImage);
 
     return View({children:[
         Image({source: backgroundImage, style:{width: 1920, height: 1080, top: 0, left: 0, position: "absolute", zIndex: -1}}),
@@ -67,7 +74,14 @@ class PacmanUI extends UIComponent {
         Image({source: enemy2Image, style:{width: 32, height: 32, bottom: this.enemy2X, left: this.enemy2Y, position: "absolute", zIndex: 1}}),
         Image({source: enemy3Image, style:{width: 32, height: 32, bottom: this.enemy3X, left: this.enemy3Y, position: "absolute", zIndex: 1}}),
         Image({source: enemy4Image, style:{width: 32, height: 32, bottom: this.enemy4X, left: this.enemy4Y, position: "absolute", zIndex: 1}}),
-          // DynamicList({})
+          DynamicList({
+            data: this.dotDisplay, renderItem: (item) => {
+              const pacDotLocation = new Entity(item as unknown as bigint).position.get().sub(this.origin!);
+              const x = pacDotLocation.x as DimensionValue;
+              const z = pacDotLocation.z as DimensionValue;
+              return Image({source: pacDotImage, style:{width: 32, height: 32, bottom: x, left: z, position: "absolute", zIndex: 2}});
+            }, style: {position: "absolute", zIndex: 1, top: 0, left: 0}
+          })
       ], style: {position: "absolute", width: "100%", height: "100%"}});
   }
 
@@ -90,7 +104,7 @@ class PacmanUI extends UIComponent {
     const originRef: Entity = this.props.trackingOrigin;
     this.origin = originRef.position.get();
 
-    this.async.setInterval(this.updatePositions.bind(this),5_000);
+    this.async.setInterval(this.updatePositions.bind(this),1_000);
   }
   updatePositions(){
 
@@ -133,9 +147,11 @@ class PacmanUI extends UIComponent {
   }
 
   registerPacDot(pacDot: Entity) {
-    this.allDots.push(pacDot.id);
-    console.log("something should have happened here");
+    this.allDots.push(pacDot.id as unknown as number);
+    console.log(pacDot.id);
+    console.log(pacDot.id as unknown as number);
     console.log(new Entity(pacDot.id).position.get().x, new Entity(pacDot.id).position.get().z);
+    this.dotDisplay.set(this.allDots);
   }
 
 }
