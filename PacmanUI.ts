@@ -1,13 +1,13 @@
 import {Component, Player, CodeBlockEvents, PropTypes, Entity, Vec3,} from "horizon/core";
 import {Events} from "./GameUtilities";
-import {UIComponent, UINode, View, ImageSource, Image, DynamicList, Binding, DimensionValue} from "horizon/ui";
+import {UIComponent, UINode, View, ImageSource, Image, Binding, DimensionValue, DynamicList} from "horizon/ui";
 
 
 const UPSCALE = 19;
 
 
 
-class MobileUI extends UIComponent {
+class PacmanUI extends UIComponent {
   panelWidth = 1920;
   panelHeight = 1080;
   private pacman: Entity|undefined;
@@ -17,6 +17,11 @@ class MobileUI extends UIComponent {
   private enemy4: Entity|undefined;
 
   private origin: Vec3|undefined;
+
+  private allDots: bigint[] = [];
+  private visibleDots: bigint[] = [];
+
+  private dotDisplay = new Binding<bigint[]>([]);
 
 
 
@@ -62,6 +67,7 @@ class MobileUI extends UIComponent {
         Image({source: enemy2Image, style:{width: 32, height: 32, bottom: this.enemy2X, left: this.enemy2Y, position: "absolute", zIndex: 1}}),
         Image({source: enemy3Image, style:{width: 32, height: 32, bottom: this.enemy3X, left: this.enemy3Y, position: "absolute", zIndex: 1}}),
         Image({source: enemy4Image, style:{width: 32, height: 32, bottom: this.enemy4X, left: this.enemy4Y, position: "absolute", zIndex: 1}}),
+          // DynamicList({})
       ], style: {position: "absolute", width: "100%", height: "100%"}});
   }
 
@@ -70,6 +76,7 @@ class MobileUI extends UIComponent {
   preStart() {
     this.connectNetworkEvent(this.entity, Events.assignPlayer, (payload: {player: Player}) => {this.assignPlayer(payload.player)});
     this.connectNetworkEvent(this.entity, Events.unassignPlayer, ()=>{this.unassignPlayer()});
+    this.connectNetworkBroadcastEvent(Events.registerPacDot, (payload: {pacDot: Entity})=>{this.registerPacDot(payload.pacDot);});
   }
   start() {
     // this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player: Player) => {this.entity.owner.set(player); this.assignPlayer(player);});
@@ -125,5 +132,11 @@ class MobileUI extends UIComponent {
     this.entity.owner.set(this.world.getServerPlayer());
   }
 
+  registerPacDot(pacDot: Entity) {
+    this.allDots.push(pacDot.id);
+    console.log("something should have happened here");
+    console.log(new Entity(pacDot.id).position.get().x, new Entity(pacDot.id).position.get().z);
+  }
+
 }
-Component.register(MobileUI);
+Component.register(PacmanUI);
