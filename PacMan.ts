@@ -33,9 +33,7 @@ class PacMan extends PlayerRole {
   }
   respawn(){
     console.log("Event is being received by pacman to respawn");
-    super.stopConstantMotion();
     super.moveToStart();
-    super.startConstantMotion();
   }
 
   teleportPacman(spawnPoint: SpawnPointGizmo){

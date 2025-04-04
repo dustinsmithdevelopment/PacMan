@@ -107,36 +107,7 @@ class RemoveGhost extends Component{
 }
 Component.register(RemoveGhost);
 
-class StartConstantMotion extends Component{
-  static propsDefinition = {};
-  preStart() {
 
-  }
-
-  start() {
-    this.entity.as(PhysicalEntity).locked.set(true);
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnEntityEnterTrigger, (item: Entity)=>{
-      console.log("sending startConstantMotion");
-      this.sendNetworkEvent(item, Events.startConstantMotion, {});
-    });
-  }
-}
-Component.register(StartConstantMotion);
-
-class StopConstantMotion extends Component{
-  static propsDefinition = {};
-  preStart() {
-
-  }
-
-  start() {
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnEntityEnterTrigger, (item: Entity)=>{
-      console.log("sending stopConstantMotion");
-      this.sendNetworkEvent(item, Events.stopConstantMotion, {});
-    });
-  }
-}
-Component.register(StopConstantMotion);
 
 // class GenericComponent extends Component{
 //     static propsDefinition = {};

@@ -48,10 +48,8 @@ class Ghost extends PlayerRole {
     this.respawn();
   }
   respawn(){
-    super.stopConstantMotion();
     super.moveToStart();
     this.becomeEnemy();
-    super.startConstantMotion();
   }
   becomeEdible(){
     this.ghostState = GhostState.edible;

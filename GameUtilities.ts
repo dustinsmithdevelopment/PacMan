@@ -35,8 +35,6 @@ export const Events = {
   collectFruit: new NetworkEvent<{}>("collectFruit"),
   pacmanDead: new NetworkEvent<{}>("pacmanDead"),
   touchedByPacman: new NetworkEvent<{}>("touchedByPacman"),
-  startConstantMotion: new NetworkEvent<{}>("startConstantMotion"),
-  stopConstantMotion: new NetworkEvent<{}>("stopConstantMotion"),
   startPlayerAssignment: new NetworkEvent<{}>("startPlayerAssignment"),
   assignPlayer: new NetworkEvent<{ player:Player }>("assignPlayer"),
   unassignPlayer: new NetworkEvent<{}>("unassignPlayer"),

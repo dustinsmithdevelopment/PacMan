@@ -80,11 +80,6 @@ class GameManager extends Component<typeof GameManager> {
   startGame() {
     console.log("Changing Game State to Playing");
     this.currentGameState = GameState.Playing;
-    this.sendNetworkEvent(this.props.pacMan!, Events.startConstantMotion, {});
-    this.sendNetworkEvent(this.props.ghost1!, Events.startConstantMotion, {});
-    this.sendNetworkEvent(this.props.ghost2!, Events.startConstantMotion, {});
-    this.sendNetworkEvent(this.props.ghost3!, Events.startConstantMotion, {});
-    this.sendNetworkEvent(this.props.ghost4!, Events.startConstantMotion, {});
 
   }
   endGame() {
