@@ -8,7 +8,7 @@ import {
     SpawnPointGizmo,
     Vec3
 } from "horizon/core";
-import {anchorBodyPart, Events, movementSpeed} from "./GameUtilities";
+import {anchorBodyPart, Events, GAME_SCALE, movementSpeed} from "./GameUtilities";
 import {RestrictedRotation} from "./RestrictedRotation";
 
 export abstract class PlayerRole extends RestrictedRotation {
@@ -56,7 +56,9 @@ export abstract class PlayerRole extends RestrictedRotation {
     }
     protected moveToStart(){
         console.log("Move To Start", this.spawnPointGizmo, this.attachedPlayer);
-        this.spawnPointGizmo!.teleportPlayer(this.attachedPlayer!);
+        this.attachedPlayer!.avatarScale.set(GAME_SCALE);
+        this.async.setTimeout(()=>{this.spawnPointGizmo!.teleportPlayer(this.attachedPlayer!);},100);
+
     }
     private assignToPlayer(player: Player) {
         this.entity.owner.set(player);

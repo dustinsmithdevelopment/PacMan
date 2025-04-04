@@ -1,5 +1,5 @@
 import {CodeBlockEvent, CodeBlockEvents, Component, Player, PropTypes, SpawnPointGizmo} from "horizon/core";
-import {Events, GamePlayers, playerCount, PlayerList} from "./GameUtilities";
+import {Events, GamePlayers, playerCount, PlayerList, LOBBY_SCALE, GAME_SCALE} from "./GameUtilities";
 import {Camera} from "horizon/camera";
 
 class PlayerManager extends Component<typeof PlayerManager> {
@@ -33,6 +33,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
     onPlayerEnterWorld(p: Player){
         this.gamePlayers.moveToLobby(p);
         this.lobbySpawn?.teleportPlayer(p);
+        p.avatarScale.set(LOBBY_SCALE);
     }
     onPlayerExitWorld(p: Player){
         if (this.gamePlayers.isPacman(p)){
@@ -107,11 +108,26 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.unassignPlayer, {});},200);
         // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.unassignPlayer, {});},300);
         // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.unassignPlayer, {});},400);
-        this.async.setTimeout(()=>{this.lobbySpawn?.teleportPlayer(this.pacman!)},150);
-        this.async.setTimeout(()=>{this.lobbySpawn?.teleportPlayer(this.ghost1!)},250);
-        this.async.setTimeout(()=>{this.lobbySpawn?.teleportPlayer(this.ghost2!)},350);
-        // this.async.setTimeout(()=>{this.lobbySpawn?.teleportPlayer(this.ghost3!)},450);
-        // this.async.setTimeout(()=>{this.lobbySpawn?.teleportPlayer(this.ghost4!)},550);
+        this.async.setTimeout(()=>{
+            this.lobbySpawn?.teleportPlayer(this.pacman!);
+            this.pacman!.avatarScale.set(LOBBY_SCALE);
+        },150);
+        this.async.setTimeout(()=>{
+            this.lobbySpawn?.teleportPlayer(this.ghost1!);
+            this.ghost1!.avatarScale.set(LOBBY_SCALE);
+            },250);
+        this.async.setTimeout(()=>{
+            this.lobbySpawn?.teleportPlayer(this.ghost2!);
+            this.ghost2!.avatarScale.set(LOBBY_SCALE);
+            },350);
+        // this.async.setTimeout(()=>{
+        //     this.lobbySpawn?.teleportPlayer(this.ghost3!);
+        //     this.ghost3!.avatarScale.set(LOBBY_SCALE);
+        //     },450);
+        // this.async.setTimeout(()=>{
+        //     this.lobbySpawn?.teleportPlayer(this.ghost4!);
+        //     this.ghost4!.avatarScale.set(LOBBY_SCALE);
+        //     },550);
         this.async.setTimeout(()=>{this.playersAssigned = false;},600);
 
     }

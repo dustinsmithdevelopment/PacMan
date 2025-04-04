@@ -6,11 +6,14 @@ export const playerCount = 3;
 
 
 export const pacmanInvinsiblityTime = 10;
-export const movementSpeed = 4.5;
+export const movementSpeed = 0.225;
 export const anchorBodyPart = AttachablePlayerAnchor.Head;
 export const setupDelaySecs = 10;
 export const gameCheckFrequencySecs = 10;
 export const EDIBLE_SECONDS = 20;
+
+export const LOBBY_SCALE = 8;
+export const GAME_SCALE = 0.1;
 
 export enum GameState {
   'Waiting',
