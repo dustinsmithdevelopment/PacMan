@@ -3,7 +3,7 @@ import {Events} from "./GameUtilities";
 import {UIComponent, UINode, View, ImageSource, Image, Binding, DimensionValue, DynamicList} from "horizon/ui";
 
 
-const UPSCALE = 19;
+const UPSCALE = 250;
 
 interface DotLocation{
   x: number;
@@ -124,16 +124,16 @@ class PacmanUI extends UIComponent {
     // console.log("e3Pos", e3Pos.x, pacPos.y, pacPos.z);
     const e4Pos = this.enemy4!.position.get().sub(this.origin!).mul(UPSCALE);
     // console.log("e4Pos", e4Pos.x, pacPos.y, pacPos.z);
-    this.pacManX.set(pacPos.x as DimensionValue);
-    this.pacManY.set(pacPos.z as DimensionValue);
-    this.enemy1X.set(e1Pos.x as DimensionValue);
-    this.enemy1Y.set(e1Pos.z as DimensionValue);
-    this.enemy2X.set(e2Pos.x as DimensionValue);
-    this.enemy2Y.set(e2Pos.z as DimensionValue);
-    this.enemy3X.set(e3Pos.x as DimensionValue);
-    this.enemy3Y.set(e3Pos.z as DimensionValue);
-    this.enemy4X.set(e4Pos.x as DimensionValue);
-    this.enemy4Y.set(e4Pos.z as DimensionValue);
+    this.pacManY.set(pacPos.x as DimensionValue);
+    this.pacManX.set(pacPos.z as DimensionValue);
+    this.enemy1Y.set(e1Pos.x as DimensionValue);
+    this.enemy1X.set(e1Pos.z as DimensionValue);
+    this.enemy2Y.set(e2Pos.x as DimensionValue);
+    this.enemy2X.set(e2Pos.z as DimensionValue);
+    this.enemy3Y.set(e3Pos.x as DimensionValue);
+    this.enemy3X.set(e3Pos.z as DimensionValue);
+    this.enemy4Y.set(e4Pos.x as DimensionValue);
+    this.enemy4X.set(e4Pos.z as DimensionValue);
 
   }
 

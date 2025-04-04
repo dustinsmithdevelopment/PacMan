@@ -9,15 +9,32 @@ class PlayerJoinEmulation extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player: Player) => {
-      if (player.name.get().startsWith("NPC")){
+      // if (player.name.get().startsWith("NPC")){
         this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});}, 10_000);
         
+
+      // }
+    })
+  }
+}
+Component.register(PlayerJoinEmulation);
+
+class PlayerJoinGrab extends Component{
+  static propsDefinition = {
+    playerManager: {type: PropTypes.Entity}
+  };
+
+  start() {
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_, player: Player) => {
+      if (player.name.get().startsWith("NPC")){
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});}, 10_000);
+
 
       }
     })
   }
 }
-Component.register(PlayerJoinEmulation);
+Component.register(PlayerJoinGrab);
 
 
 
