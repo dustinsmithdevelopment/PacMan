@@ -148,10 +148,10 @@ class PacmanUI extends UIComponent {
 
   registerPacDot(pacDot: Entity) {
     this.allDots.push(pacDot.id as unknown as number);
-    console.log(pacDot.id);
-    console.log(pacDot.id as unknown as number);
-    console.log(new Entity(pacDot.id).position.get().x, new Entity(pacDot.id).position.get().z);
-    this.dotDisplay.set(this.allDots);
+    // console.log(pacDot.id);
+    // console.log(pacDot.id as unknown as number);
+    // console.log(new Entity(pacDot.id).position.get().x, new Entity(pacDot.id).position.get().z);
+    // this.dotDisplay.set(this.allDots);
   }
 
 }

@@ -19,6 +19,22 @@ class PlayerJoinEmulation extends Component{
 }
 Component.register(PlayerJoinEmulation);
 
+class ScreenAssignmentEmulation extends Component{
+  static propsDefinition = {
+    screen: {type: PropTypes.Entity}
+  };
+
+  start() {
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (p: Player) => {
+      this.sendNetworkEvent(this.props.screen!, Events.assignPlayer, {player: p})
+      
+    })
+  }
+}
+Component.register(ScreenAssignmentEmulation);
+
+
+
 class PlayerJoinGrab extends Component{
   static propsDefinition = {
     playerManager: {type: PropTypes.Entity}

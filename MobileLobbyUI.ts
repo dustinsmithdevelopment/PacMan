@@ -8,7 +8,7 @@ import {
   TextureAsset,
   CodeBlockEvents,
   PropTypes,
-  LocalEvent, Entity
+  LocalEvent, Entity, SpawnPointGizmo
 } from "horizon/core";
 import {Events} from "./GameUtilities";
 import {UIComponent, UINode, View, ImageSource, Image, Pressable, Text} from "horizon/ui";
@@ -24,22 +24,35 @@ class PlayerScreen extends UIComponent {
 
 
   static propsDefinition = {
-
+    firstPersonSpawn: {type: PropTypes.Entity},
+    thirdPersonSpawn: {type: PropTypes.Entity},
+    orbitSpawn: {type: PropTypes.Entity},
   };
   initializeUI(): UINode {
     return View({children:[
         View({style: {height: 66, width: "60%", marginLeft: "20%", marginRight: "20%", marginTop: 15, position: 'absolute', display: "flex", justifyContent: "space-around", flexDirection: "row"}, children:[
-            Pressable({style: {backgroundColor: "#00796B", height: 58, width: 220, borderRadius: 12, borderColor: "black", borderWidth: 2}, onClick: ()=>{}, children: [
+            Pressable({style: {backgroundColor: "#00796B", height: 58, width: 220, borderRadius: 12, borderColor: "black", borderWidth: 2}, onClick: (p: Player)=>{
+              const spawnEntity: Entity = this.props.firstPersonSpawn;
+              spawnEntity.as(SpawnPointGizmo).teleportPlayer(p);
+              }, children: [
                 Text({text: "First-Person View", style: {height: "100%" ,color: "white", textAlign: "center", fontSize: 24, textAlignVertical: "center", fontWeight: "bold"}},)
               ]}),
-            Pressable({style: {backgroundColor: "#0288D1", height: 58, width: 220, borderRadius: 12, borderColor: "black", borderWidth: 2}, onClick: ()=>{}, children: [
+            Pressable({style: {backgroundColor: "#0288D1", height: 58, width: 220, borderRadius: 12, borderColor: "black", borderWidth: 2}, onClick: (p: Player)=>{
+                const spawnEntity: Entity = this.props.thirdPersonSpawn;
+                spawnEntity.as(SpawnPointGizmo).teleportPlayer(p);
+              }, children: [
                 Text({text: "Third-Person View", style: {height: "100%" ,color: "white", textAlign: "center", fontSize: 24, textAlignVertical: "center", fontWeight: "bold"}},)
               ]}),
-            Pressable({style: {backgroundColor: "#455A64", height: 58, width: 220, borderRadius: 12, borderColor: "black", borderWidth: 2}, onClick: ()=>{}, children: [
+            Pressable({style: {backgroundColor: "#455A64", height: 58, width: 220, borderRadius: 12, borderColor: "black", borderWidth: 2}, onClick: (p: Player)=>{
+                const spawnEntity: Entity = this.props.orbitSpawn;
+                spawnEntity.as(SpawnPointGizmo).teleportPlayer(p);
+              }, children: [
                 Text({text: "Floating View", style: {height: "100%" ,color: "#ECEFF1", textAlign: "center", fontSize: 24, textAlignVertical: "center", fontWeight: "bold"}},)
               ]})
           ]}),
-        Pressable({style: {position: "absolute",width: 220, height: 180, right: 10, bottom: 10, backgroundColor: "#455A64", borderRadius: 12, borderColor: "black", borderWidth: 4}, onClick: ()=>{}, children: [
+        Pressable({style: {position: "absolute",width: 220, height: 180, right: 10, bottom: 10, backgroundColor: "#455A64", borderRadius: 12, borderColor: "black", borderWidth: 4}, onClick: ()=>{
+          // TODO make the join thingy happen
+          }, children: [
             Text({text: "Join Game", style: {color: "#00BCD4", textAlign: "center", fontSize: 64, textAlignVertical: "center", fontWeight: "bold"}},)
           ]})
       ], style: {position: "absolute", width: "100%", height: "100%"}});
@@ -55,6 +68,7 @@ class PlayerScreen extends UIComponent {
 
   }
   assignPlayer(p: Player) {
+    console.log("Assignment requested to Mobile Lobby UI for", p.name.get());
     this.entity.owner.set(p);
     PlayerControls.disableSystemControls();
 
