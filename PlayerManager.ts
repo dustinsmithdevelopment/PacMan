@@ -82,8 +82,8 @@ class PlayerManager extends Component<typeof PlayerManager> {
     private pacman:Player|undefined;
     private ghost1:Player|undefined;
     private ghost2:Player|undefined;
-    // private ghost3:Player|undefined;
-    // private ghost4:Player|undefined;
+    private ghost3:Player|undefined;
+    private ghost4:Player|undefined;
     suitUp() {
         // suit up requested
         this.pacman = this.gamePlayers.pacman!;
@@ -96,7 +96,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.assignPlayer, {player: this.ghost2!});},200);
         // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});},300);
         // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});},400);
-        this.async.setTimeout(()=>{this.moveGamePlayersToStart()}, 600);
+        this.async.setTimeout(()=>{this.moveGamePlayersToStart()}, 1_000);
     }
     moveGamePlayersToStart(){
         this.sendNetworkBroadcastEvent(Events.moveAllToStart, {})

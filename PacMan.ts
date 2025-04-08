@@ -25,7 +25,6 @@ class PacMan extends PlayerRole {
     });
     this.SetSpawnPoint(this.props.homePositionSpawn!);
     super.setRole("PacMan");
-    super.SetUI(this.props.mobileUI);
   }
   itemTouched(item: Entity){
     // console.log("itemTouched", item.name.get());

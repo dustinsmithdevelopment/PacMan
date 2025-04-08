@@ -8,13 +8,12 @@ import {
     SpawnPointGizmo,
     Vec3
 } from "horizon/core";
-import {anchorBodyPart, Events, GAME_SCALE, movementSpeed} from "./GameUtilities";
+import {anchorBodyPart, Events, GAME_SCALE} from "./GameUtilities";
 
 export abstract class PlayerRole extends Component {
     protected attachedPlayer: Player|null = null;
     private spawnPointGizmo: SpawnPointGizmo| undefined;
     private role = "";
-    private mobileUI: Entity|undefined;
 
     preStart() {
         super.preStart();
@@ -22,21 +21,21 @@ export abstract class PlayerRole extends Component {
         this.connectNetworkEvent(this.entity, Events.unassignPlayer, (data: {player: Player})=>{this.removeFromPlayer(data.player)});
         this.connectNetworkBroadcastEvent(Events.moveAllToStart, this.moveToStart.bind(this));
     }
-    private worldUpdate:number|null = null;
     protected setRole(role: string){
         this.role = role;
-    }
-    protected SetUI(mobileUI: Entity){
-        this.mobileUI = mobileUI;
     }
 
     protected SetSpawnPoint(spawnEntity: Entity): void {
         this.spawnPointGizmo = spawnEntity.as(SpawnPointGizmo);
     }
     protected moveToStart(){
-        console.log("Move To Start", this.spawnPointGizmo, this.attachedPlayer);
-        this.attachedPlayer!.avatarScale.set(GAME_SCALE);
-        this.async.setTimeout(()=>{this.spawnPointGizmo!.teleportPlayer(this.attachedPlayer!);},100);
+        // if (!this.attachedPlayer!.name.get().startsWith("NPC")){
+            console.log("Move To Start", this.spawnPointGizmo, this.attachedPlayer);
+            this.attachedPlayer!.avatarScale.set(GAME_SCALE);
+            this.async.setTimeout(() => {
+                this.spawnPointGizmo!.teleportPlayer(this.attachedPlayer!);
+            }, 100);
+        // }
 
     }
     private assignToPlayer(player: Player) {
