@@ -6,10 +6,11 @@ class PlayerJoinEmulation extends Component{
   static propsDefinition = {
     playerManager: {type: PropTypes.Entity}
   };
-
+  private id_list: number[] = []
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player: Player) => {
-      if (player.name.get().startsWith("NPC")){
+      if (player.name.get().startsWith("NPC") && (!this.id_list.includes(player.id))){
+        this.id_list.push(player.id);
         this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});}, 10_000);
         
 

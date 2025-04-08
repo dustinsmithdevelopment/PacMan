@@ -14,7 +14,6 @@ class Ghost extends PlayerRole {
   static propsDefinition = {
     homePositionSpawn: {type: PropTypes.Entity, required: true},
     manager: {type: PropTypes.Entity, required: true},
-    mobileUI: {type: PropTypes.Entity, required: true},
   };
   private ghostState: GhostState = GhostState.enemy;
   private ghostMesh: MeshEntity|undefined;
@@ -30,7 +29,7 @@ class Ghost extends PlayerRole {
     super.setRole("a ghost");
   }
   touchedByPacman() {
-    console.log("I'm a ghost and pacman touched me.")
+    // console.log("I'm a ghost and pacman touched me.")
     switch (this.ghostState){
       case GhostState.enemy:
         this.attackPacman();
@@ -80,7 +79,6 @@ class Ghost extends PlayerRole {
     }
     this.ghostState = GhostState.enemy;
   }
-  // TODO make ghosts flash blue while edible 
 
 }
 Component.register(Ghost);

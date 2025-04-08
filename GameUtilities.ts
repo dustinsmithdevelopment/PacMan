@@ -1,7 +1,7 @@
 import {AttachablePlayerAnchor, Entity, LocalEvent, NetworkEvent, Player, SpawnPointGizmo} from "horizon/core";
 
 // TODO
-export const playerCount = 3;
+export const playerCount = 5;
 
 
 

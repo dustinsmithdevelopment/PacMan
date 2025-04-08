@@ -55,7 +55,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
     }
     private playersAssigned = false;
     assignPlayers(){
-        console.log("Something requested to assignPlayers");
+        console.log("Assigning Players");
         if (!this.playersAssigned) {
             this.playersAssigned = true;
             let nextMatchPlayers: Player[] = [];
@@ -71,7 +71,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
             const pacPlayer = Math.floor(Math.random() * playerCount)
             for (let i = 0; i < playerCount; i++) {
                 if (i === pacPlayer) {
-                    this.gamePlayers.makePacman(nextMatchPlayers[pacPlayer]);
+                    this.gamePlayers.makePacman(nextMatchPlayers[i]);
                 } else {
                     this.gamePlayers.makeGhost(nextMatchPlayers[i]);
                 }
@@ -87,16 +87,25 @@ class PlayerManager extends Component<typeof PlayerManager> {
     suitUp() {
         // suit up requested
         this.pacman = this.gamePlayers.pacman!;
+        console.log("Pacman",this.pacman.name.get());
         this.ghost1 = this.gamePlayers.ghosts.players[0];
+        console.log("Ghost1",this.ghost1.name.get());
         this.ghost2 = this.gamePlayers.ghosts.players[1];
-        // this.ghost3 = this.gamePlayers.ghosts.players[2];
-        // this.ghost4 = this.gamePlayers.ghosts.players[3];
+        console.log("Ghost2",this.ghost2.name.get());
+        this.ghost3 = this.gamePlayers.ghosts.players[2];
+        console.log("Ghost3",this.ghost3.name.get());
+        this.ghost4 = this.gamePlayers.ghosts.players[3];
+        console.log("Ghost4",this.ghost4.name.get());
         this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: this.pacman});
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.assignPlayer, {player: this.ghost1!});},100);
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.assignPlayer, {player: this.ghost2!});},200);
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});},300);
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});},400);
-        this.async.setTimeout(()=>{this.moveGamePlayersToStart()}, 1_000);
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.assignPlayer, {player: this.ghost1!});},200);
+        // this.sendNetworkEvent(this.props.ghost1!, Events.assignPlayer, {player: this.ghost1!});
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.assignPlayer, {player: this.ghost2!});},400);
+        // this.sendNetworkEvent(this.props.ghost2!, Events.assignPlayer, {player: this.ghost2!});
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});},600);
+        // this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});},800);
+        // this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});
+        this.async.setTimeout(()=>{this.moveGamePlayersToStart()}, 2_000);
     }
     moveGamePlayersToStart(){
         this.sendNetworkBroadcastEvent(Events.moveAllToStart, {})
@@ -104,10 +113,10 @@ class PlayerManager extends Component<typeof PlayerManager> {
     }
     returnGamePlayersToLobby (player: Player){
         this.sendNetworkEvent(this.props.pacman!, Events.unassignPlayer, {});
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.unassignPlayer, {});},100);
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.unassignPlayer, {});},200);
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.unassignPlayer, {});},300);
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.unassignPlayer, {});},400);
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.unassignPlayer, {});},200);
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.unassignPlayer, {});},400);
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.unassignPlayer, {});},600);
+        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.unassignPlayer, {});},800);
         this.async.setTimeout(()=>{
             this.lobbySpawn?.teleportPlayer(this.pacman!);
             this.pacman!.avatarScale.set(LOBBY_SCALE);
@@ -120,14 +129,14 @@ class PlayerManager extends Component<typeof PlayerManager> {
             this.lobbySpawn?.teleportPlayer(this.ghost2!);
             this.ghost2!.avatarScale.set(LOBBY_SCALE);
             },350);
-        // this.async.setTimeout(()=>{
-        //     this.lobbySpawn?.teleportPlayer(this.ghost3!);
-        //     this.ghost3!.avatarScale.set(LOBBY_SCALE);
-        //     },450);
-        // this.async.setTimeout(()=>{
-        //     this.lobbySpawn?.teleportPlayer(this.ghost4!);
-        //     this.ghost4!.avatarScale.set(LOBBY_SCALE);
-        //     },550);
+        this.async.setTimeout(()=>{
+            this.lobbySpawn?.teleportPlayer(this.ghost3!);
+            this.ghost3!.avatarScale.set(LOBBY_SCALE);
+            },450);
+        this.async.setTimeout(()=>{
+            this.lobbySpawn?.teleportPlayer(this.ghost4!);
+            this.ghost4!.avatarScale.set(LOBBY_SCALE);
+            },550);
         this.async.setTimeout(()=>{this.playersAssigned = false;},600);
 
     }

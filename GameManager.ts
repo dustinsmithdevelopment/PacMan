@@ -72,17 +72,20 @@ class GameManager extends Component<typeof GameManager> {
   // TODO restrict the players rotation
 
   prepareGame() {
+    this.pacmanInvincible = true;
     this.currentGameState = GameState.Starting;
     this.remainingPacDots = new Map(this.allPacDots);
     this.lives = 3;
     this.sendNetworkEvent(this.props.playerManager!, Events.startPlayerAssignment, {});
   }
   startGame() {
+    this.pacmanInvincible = false;
     console.log("Changing Game State to Playing");
     this.currentGameState = GameState.Playing;
 
   }
   endGame() {
+    this.pacmanInvincible = true;
     console.log("Changing Game State to Ending");
     this.currentGameState = GameState.Ending;
     this.sendNetworkEvent(this.props.playerManager!, Events.gameEnding, {});
