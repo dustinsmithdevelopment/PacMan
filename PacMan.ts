@@ -22,7 +22,7 @@ class PacMan extends PlayerRole {
     this.connectCodeBlockEvent(this.props.collectionTrigger, CodeBlockEvents.OnEntityEnterTrigger, (entity: Entity)=>{
       this.itemTouched(entity);
     });
-    this.SetSpawnPoint(this.props.homePositionSpawn!);
+    super.SetSpawnPoint(this.props.homePositionSpawn!);
     super.setRole("PacMan");
   }
   itemTouched(item: Entity){

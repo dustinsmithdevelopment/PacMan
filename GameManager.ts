@@ -133,16 +133,16 @@ class GameManager extends Component<typeof GameManager> {
     console.log('Pacman ate a PowerPellet')
     this.sendNetworkEvent(this.props.ghost1!, Events.makeGhostEdible, {});
     this.sendNetworkEvent(this.props.ghost2!, Events.makeGhostEdible, {});
-    // this.sendNetworkEvent(this.props.ghost3!, Events.makeGhostEdible, {});
-    // this.sendNetworkEvent(this.props.ghost4!, Events.makeGhostEdible, {});
+    this.sendNetworkEvent(this.props.ghost3!, Events.makeGhostEdible, {});
+    this.sendNetworkEvent(this.props.ghost4!, Events.makeGhostEdible, {});
   }
   updateQueue1ReadyState(isReady: boolean) {
     this.queue1Ready = isReady;
-    if (isReady) {
-      console.log("Queue 1 is ready");
-    }else {
-      console.log("Queue 1 is not ready");
-    }
+    // if (isReady) {
+    //   console.log("Queue 1 is ready");
+    // }else {
+    //   console.log("Queue 1 is not ready");
+    // }
   }
   updateQueue2ReadyState(isReady: boolean) {
     this.queue2Ready = isReady;

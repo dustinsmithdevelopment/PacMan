@@ -24,7 +24,7 @@ class Ghost extends PlayerRole {
     this.connectNetworkEvent(this.entity, Events.makeGhostEdible, this.becomeEdible.bind(this));
   }
   start() {
-    this.SetSpawnPoint(this.props.homePositionSpawn!);
+    super.SetSpawnPoint(this.props.homePositionSpawn!);
     this.ghostMesh = this.entity.as(MeshEntity);
     super.setRole("a ghost");
   }

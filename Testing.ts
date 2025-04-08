@@ -39,26 +39,6 @@ Component.register(ScreenAssignmentEmulation);
 
 
 
-class PlayerJoinGrab extends Component{
-  static propsDefinition = {
-    playerManager: {type: PropTypes.Entity}
-  };
-
-  start() {
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_, player: Player) => {
-      if (player.name.get().startsWith("NPC")){
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});}, 10_000);
-
-
-      }
-    })
-  }
-}
-Component.register(PlayerJoinGrab);
-
-
-
-
 class SetPacman extends Component{
   static propsDefinition = {
     pacman: {type: PropTypes.Entity}

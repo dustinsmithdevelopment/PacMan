@@ -108,7 +108,11 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.async.setTimeout(()=>{this.moveGamePlayersToStart()}, 2_000);
     }
     moveGamePlayersToStart(){
-        this.sendNetworkBroadcastEvent(Events.moveAllToStart, {})
+        this.sendNetworkEvent(this.props.pacman! ,Events.moveToStart, {});
+        this.sendNetworkEvent(this.props.ghost1! ,Events.moveToStart, {});
+        this.sendNetworkEvent(this.props.ghost2! ,Events.moveToStart, {});
+        this.sendNetworkEvent(this.props.ghost3! ,Events.moveToStart, {});
+        this.sendNetworkEvent(this.props.ghost4! ,Events.moveToStart, {});
         this.sendNetworkEvent(this.props.gameManager!, Events.roleAssignmentComplete, {});
     }
     returnGamePlayersToLobby (player: Player){

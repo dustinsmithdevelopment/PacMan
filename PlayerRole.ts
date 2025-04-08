@@ -19,7 +19,7 @@ export abstract class PlayerRole extends Component {
         super.preStart();
         this.connectNetworkEvent(this.entity, Events.assignPlayer, (data: {player: Player})=>{this.assignToPlayer(data.player)});
         this.connectNetworkEvent(this.entity, Events.unassignPlayer, (data: {player: Player})=>{this.removeFromPlayer(data.player)});
-        this.connectNetworkBroadcastEvent(Events.moveAllToStart, this.moveToStart.bind(this));
+        this.connectNetworkEvent( this.entity, Events.moveToStart, this.moveToStart.bind(this));
     }
     protected setRole(role: string){
         this.role = role;
@@ -29,19 +29,18 @@ export abstract class PlayerRole extends Component {
         this.spawnPointGizmo = spawnEntity.as(SpawnPointGizmo);
     }
     protected moveToStart(){
-        if (this.attachedPlayer){
-            console.log("Move To Start", this.spawnPointGizmo, this.attachedPlayer?.name.get());
-            // TODO find out why this breaks everything
+        if (this.attachedPlayer && this.spawnPointGizmo){
+            if(!this.attachedPlayer.name.get().startsWith("NPC")) console.log("Move To Start", this.spawnPointGizmo, this.attachedPlayer?.name.get());
             this.attachedPlayer!.avatarScale.set(GAME_SCALE);
             this.async.setTimeout(()=>{this.spawnPointGizmo!.teleportPlayer(this.attachedPlayer!);},200);
-            console.log("All the stuff should have happened on", this.attachedPlayer!.name.get(), "as the", this.role);
+            if(!this.attachedPlayer.name.get().startsWith("NPC")) console.log("All the stuff should have happened on", this.attachedPlayer!.name.get(), "as the", this.role);
         } else this.async.setTimeout(this.moveToStart.bind(this), 100);
 
 
     }
     private assignToPlayer(player: Player) {
         this.entity.owner.set(player);
-        console.log("Assigning Player", player, "to", this.role);
+        if(!player.name.get().startsWith("NPC")) console.log("Assigning Player", player, "to", this.role);
         this.attachedPlayer = player;
         this.entity.as(AttachableEntity).attachToPlayer(player, anchorBodyPart);
         this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.HiddenFrom);
