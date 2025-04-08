@@ -76,10 +76,12 @@ class PlayerScreen extends UIComponent {
 
   }
   assignPlayer(p: Player) {
-    console.log("Assignment requested to Mobile Lobby UI for", p.name.get());
     this.entity.owner.set(p);
+    console.log("Assignment requested to Mobile Lobby UI for", p.name.get());
     PlayerControls.disableSystemControls();
-    this.connectNetworkEvent(p, PlayerCameraEvents.OnCameraResetPressed, ()=>{this.entity.resetVisibilityForPlayers();})
+    this.connectNetworkEvent(p, PlayerCameraEvents.OnCameraResetPressed, ()=>{
+      // console.log("Event was received but did nothing");
+      this.entity.setVisibilityForPlayers([p], PlayerVisibilityMode.VisibleTo);});
   }
   unassignPlayer() {
     PlayerControls.enableSystemControls();
