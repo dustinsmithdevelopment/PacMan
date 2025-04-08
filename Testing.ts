@@ -9,11 +9,11 @@ class PlayerJoinEmulation extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player: Player) => {
-      // if (player.name.get().startsWith("NPC")){
+      if (player.name.get().startsWith("NPC")){
         this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});}, 10_000);
         
 
-      // }
+      }
     })
   }
 }
@@ -26,7 +26,10 @@ class ScreenAssignmentEmulation extends Component{
 
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (p: Player) => {
-      this.sendNetworkEvent(this.props.screen!, Events.assignPlayer, {player: p})
+      if (!p.name.get().startsWith("NPC")){
+        this.sendNetworkEvent(this.props.screen!, Events.assignPlayer, {player: p});
+      }
+
       
     })
   }
