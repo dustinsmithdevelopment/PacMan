@@ -3,7 +3,7 @@ import {Events} from "./GameUtilities";
 import {Binding, DimensionValue, Image, ImageSource, UIComponent, UINode, View} from "horizon/ui";
 
 
-const UPSCALE = 250;
+const UPSCALE = 120;
 
 //TODO GENERATE ARRAY ON EACH CYCLE
 
@@ -36,9 +36,12 @@ class PacmanUI extends UIComponent {
   private enemy3Y = new Binding<DimensionValue>(0);
   private enemy4X = new Binding<DimensionValue>(0);
   private enemy4Y = new Binding<DimensionValue>(0);
-  private locationsX: Binding<number>[] = [];
-  private locationsY: Binding<number>[] = [];
-  private visibility: Binding<string>[] = [];
+  private locationsX: number[] = [];
+  private locationsY: number[] = [];
+  private visibility: string[] = [];
+  private displayLocationsX: Binding<number[]> = new Binding<number[]>([]);
+  private displayLocationsY: Binding<number[]> = new Binding<number[]>([]);
+  private displayVisibility: Binding<string[]> = new Binding<string[]>([]);
 
 
   static propsDefinition = {
@@ -68,15 +71,24 @@ class PacmanUI extends UIComponent {
 
 
     // TODO make the binding arrays
-    this.locationsX = Array(this.allDots.length).fill(new Binding<number>(0));
-    this.locationsY = Array(this.allDots.length).fill(new Binding<number>(0));
-    this.visibility = Array(this.allDots.length).fill(new Binding<string>("flex"));
+
+    this.locationsX = Array(this.allDots.length).fill(0);
+    this.locationsY = Array(this.allDots.length).fill(0);
+    this.visibility = Array(this.allDots.length).fill("flex");
+    this.displayLocationsX.set(this.locationsX)
+    this.displayLocationsY.set(this.locationsY);
+    this.displayVisibility.set(this.visibility);
+
 
 
 
 
     this.allDots.forEach((dot:Entity, index:number) => {
-      displayDots.push(Image({source: pacDotImage, style:{width: 32, height: 32, bottom: this.locationsX[index], left: this.locationsY[index], position: "absolute", zIndex: 1}}));
+      displayDots.push(Image({source: pacDotImage, style:{width: 32, height: 32, bottom: this.displayLocationsX.derive((numberArray)=>{
+            return numberArray[index];
+          }), left: this.displayLocationsY.derive((numberArray)=>{
+            return numberArray[index];
+          }), position: "absolute", zIndex: 1}}));
     });
 
 
@@ -163,9 +175,11 @@ class PacmanUI extends UIComponent {
       console.log("Dot Original", index, ":", dot.position.get().z, ",", dot.position.get().x);
       const currentDotLocation = dot.position.get().sub(this.origin!).mul(UPSCALE);
       console.log("Dot Calculation", index, ":", currentDotLocation.z, ",", currentDotLocation.x);
-      this.locationsX[index].set(currentDotLocation.z);
-      this.locationsY[index].set(currentDotLocation.x);
+      this.locationsX[index] = currentDotLocation.z;
+      this.locationsY[index] = currentDotLocation.x;
     });
+    this.displayLocationsX.set(this.locationsX);
+    this.displayLocationsY.set(this.locationsY);
   }
 
 }
