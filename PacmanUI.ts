@@ -3,7 +3,7 @@ import {Events} from "./GameUtilities";
 import {Binding, DimensionValue, Image, ImageSource, UIComponent, UINode, View} from "horizon/ui";
 
 
-const UPSCALE = 120;
+const UPSCALE = 210;
 
 //TODO GENERATE ARRAY ON EACH CYCLE
 
