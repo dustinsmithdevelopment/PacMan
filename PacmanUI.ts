@@ -20,8 +20,6 @@ class PacmanUI extends UIComponent {
   private origin: Vec3|undefined;
 
   private allDots: Entity[] = [];
-  private visibleDots: Entity[] = [];
-
 
 
 
@@ -126,18 +124,11 @@ class PacmanUI extends UIComponent {
     this.origin = originRef.position.get();
     this.async.setTimeout(()=>{
       this.setDotPositions();
-      this.async.setInterval(this.updatePlayerPositions.bind(this),1_000);
+      this.async.setInterval(this.updatePlayerPositions.bind(this),100);
     },10_000)
 
   }
   updatePlayerPositions(){
-
-    // TODO these lines are for testing
-    const originRef: Entity = this.props.trackingOrigin;
-    this.origin = originRef.position.get();
-    // TODO end test
-
-
     const pacPos = this.pacman!.position.get().sub(this.origin!).mul(UPSCALE);
     // console.log("Pacman", pacPos.x, pacPos.y, pacPos.z);
     const e1Pos = this.enemy1!.position.get().sub(this.origin!).mul(UPSCALE);
