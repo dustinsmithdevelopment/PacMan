@@ -1,9 +1,18 @@
-import {Component, Entity, EntityTagMatchOperation, Player, PropTypes, Vec3,} from "horizon/core";
+import {
+  Color,
+  Component,
+  Entity,
+  EntityTagMatchOperation,
+  Player,
+  PropTypes,
+  SerializableState,
+  Vec3,
+} from "horizon/core";
 import {Events} from "./GameUtilities";
 import {Binding, DimensionValue, Image, ImageSource, UIComponent, UINode, View} from "horizon/ui";
 
 
-const UPSCALE = 210;
+const MAP_UPSCALE = 63;
 
 //TODO GENERATE ARRAY ON EACH CYCLE
 
@@ -11,11 +20,6 @@ const UPSCALE = 210;
 class PacmanUI extends UIComponent {
   panelWidth = 1920;
   panelHeight = 1080;
-  private pacman: Entity|undefined;
-  private enemy1: Entity|undefined;
-  private enemy2: Entity|undefined;
-  private enemy3: Entity|undefined;
-  private enemy4: Entity|undefined;
 
   private origin: Vec3|undefined;
 
@@ -90,15 +94,37 @@ class PacmanUI extends UIComponent {
     });
 
 
-    return View({children:[
-        Image({source: backgroundImage, style:{width: 1920, height: 1080, top: 0, left: 0, position: "absolute", zIndex: -1}}),
-        Image({source: playerImage, style:{width: 32, height: 32, bottom: this.pacManX, left: this.pacManY, position: "absolute", zIndex: 2}}),
-        Image({source: enemyImage, style:{width: 32, height: 32, bottom: this.enemy1X, left: this.enemy1Y, position: "absolute", zIndex: 2}}),
-        Image({source: enemyImage, style:{width: 32, height: 32, bottom: this.enemy2X, left: this.enemy2Y, position: "absolute", zIndex: 2}}),
-        Image({source: enemyImage, style:{width: 32, height: 32, bottom: this.enemy3X, left: this.enemy3Y, position: "absolute", zIndex: 2}}),
-        Image({source: enemyImage, style:{width: 32, height: 32, bottom: this.enemy4X, left: this.enemy4Y, position: "absolute", zIndex: 2}}),
+    return View({
+      children: [View({
+        children: [
+          Image({
+            source: backgroundImage,
+            style: {width: "100%", height: "100%", top: 0, left: 0, position: "absolute", zIndex: -1, opacity: 0.5}
+          }),
+          Image({
+            source: playerImage,
+            style: {width: 32, height: 32, bottom: this.pacManX, left: this.pacManY, position: "absolute", zIndex: 2}
+          }),
+          Image({
+            source: enemyImage,
+            style: {width: 32, height: 32, bottom: this.enemy1X, left: this.enemy1Y, position: "absolute", zIndex: 2}
+          }),
+          Image({
+            source: enemyImage,
+            style: {width: 32, height: 32, bottom: this.enemy2X, left: this.enemy2Y, position: "absolute", zIndex: 2}
+          }),
+          Image({
+            source: enemyImage,
+            style: {width: 32, height: 32, bottom: this.enemy3X, left: this.enemy3Y, position: "absolute", zIndex: 2}
+          }),
+          Image({
+            source: enemyImage,
+            style: {width: 32, height: 32, bottom: this.enemy4X, left: this.enemy4Y, position: "absolute", zIndex: 2}
+          }),
           ...displayDots
-      ], style: {position: "absolute", width: "100%", height: "100%"}});
+        ], style: {position: "absolute", width: "30%", height: "30%"}
+      })], style: {width: "100%", height: "100%", position: "absolute", backgroundColor: Color.white}
+    })
   }
 
 
@@ -114,11 +140,6 @@ class PacmanUI extends UIComponent {
   start() {
     // this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player: Player) => {this.entity.owner.set(player); this.assignPlayer(player);});
     // if (this.entity.owner.get().id != this.world.getServerPlayer().id){this.assignPlayer(this.entity.owner.get())}
-    this.pacman = this.props.pacmanSuit;
-    this.enemy1 = this.props.enemy1Suit;
-    this.enemy2 = this.props.enemy2Suit;
-    this.enemy3 = this.props.enemy3Suit;
-    this.enemy4 = this.props.enemy4Suit;
 
     const originRef: Entity = this.props.trackingOrigin;
     this.origin = originRef.position.get();
@@ -129,15 +150,20 @@ class PacmanUI extends UIComponent {
 
   }
   updatePlayerPositions(){
-    const pacPos = this.pacman!.position.get().sub(this.origin!).mul(UPSCALE);
+    // @ts-ignore
+    const pacPos = this.props.pacmanSuit!.position.get().sub(this.origin!).mul(MAP_UPSCALE);
     // console.log("Pacman", pacPos.x, pacPos.y, pacPos.z);
-    const e1Pos = this.enemy1!.position.get().sub(this.origin!).mul(UPSCALE);
+    // @ts-ignore
+    const e1Pos = this.props.enemy1Suit!.position.get().sub(this.origin!).mul(MAP_UPSCALE);
     // console.log("e1Pos", e1Pos.x, pacPos.y, pacPos.z);
-    const e2Pos = this.enemy2!.position.get().sub(this.origin!).mul(UPSCALE);
+    // @ts-ignore
+    const e2Pos = this.props.enemy2Suit!.position.get().sub(this.origin!).mul(MAP_UPSCALE);
     // console.log("e2Pos", e2Pos.x, pacPos.y, pacPos.z);
-    const e3Pos = this.enemy3!.position.get().sub(this.origin!).mul(UPSCALE);
+    // @ts-ignore
+    const e3Pos = this.props.enemy3Suit!.position.get().sub(this.origin!).mul(MAP_UPSCALE);
     // console.log("e3Pos", e3Pos.x, pacPos.y, pacPos.z);
-    const e4Pos = this.enemy4!.position.get().sub(this.origin!).mul(UPSCALE);
+    // @ts-ignore
+    const e4Pos = this.props.enemy4Suit!.position.get().sub(this.origin!).mul(MAP_UPSCALE);
     // console.log("e4Pos", e4Pos.x, pacPos.y, pacPos.z);
     this.pacManY.set(pacPos.x as DimensionValue);
     this.pacManX.set(pacPos.z as DimensionValue);
@@ -163,14 +189,18 @@ class PacmanUI extends UIComponent {
   }
   setDotPositions(){
     this.allDots.forEach((dot: Entity, index: number)=>{
-      console.log("Dot Original", index, ":", dot.position.get().z, ",", dot.position.get().x);
-      const currentDotLocation = dot.position.get().sub(this.origin!).mul(UPSCALE);
-      console.log("Dot Calculation", index, ":", currentDotLocation.z, ",", currentDotLocation.x);
+      const currentDotLocation = dot.position.get().sub(this.origin!).mul(MAP_UPSCALE);
       this.locationsX[index] = currentDotLocation.z;
       this.locationsY[index] = currentDotLocation.x;
     });
     this.displayLocationsX.set(this.locationsX);
     this.displayLocationsY.set(this.locationsY);
+  }
+  transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
+    return {allDots: this.allDots}
+  }
+  receiveOwnership(state: {allDots: Entity[]} | null, _oldOwner: Player, _newOwner: Player) {
+    this.allDots = state?.allDots || []
   }
 
 }
