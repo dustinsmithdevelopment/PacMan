@@ -12,18 +12,25 @@ import {Events} from "./GameUtilities";
 import {Binding, DimensionValue, Image, ImageSource, UIComponent, UINode, View} from "horizon/ui";
 
 
-const MAP_UPSCALE = 63;
+const MAP_UPSCALE = 61;
+const ADD_X = 0;
+const ADD_Y = 0;
+
+
+
 
 //TODO GENERATE ARRAY ON EACH CYCLE
 
-
+const offset = new Vec3(ADD_Y,0,ADD_X);
 class PacmanUI extends UIComponent {
   panelWidth = 1920;
   panelHeight = 1080;
 
   private origin: Vec3|undefined;
 
-  private allDots: Entity[] = [];
+  private pacDots: Entity[] = [];
+  private powerPellets: Entity[] = [];
+  private fruits: Entity[] = [];
 
 
 
@@ -38,12 +45,24 @@ class PacmanUI extends UIComponent {
   private enemy3Y = new Binding<DimensionValue>(0);
   private enemy4X = new Binding<DimensionValue>(0);
   private enemy4Y = new Binding<DimensionValue>(0);
-  private locationsX: number[] = [];
-  private locationsY: number[] = [];
-  private visibility: string[] = [];
-  private displayLocationsX: Binding<number[]> = new Binding<number[]>([]);
-  private displayLocationsY: Binding<number[]> = new Binding<number[]>([]);
-  private displayVisibility: Binding<string[]> = new Binding<string[]>([]);
+  private pacDotLocationsX: number[] = [];
+  private pacDotLocationsY: number[] = [];
+  private pacDotVisibility: string[] = [];
+  private pacDotDisplayLocationsX: Binding<number[]> = new Binding<number[]>([]);
+  private pacDotDisplayLocationsY: Binding<number[]> = new Binding<number[]>([]);
+  private pacDotDisplayVisibility: Binding<string[]> = new Binding<string[]>([]);
+  private powerPelletLocationsX: number[] = [];
+  private powerPelletLocationsY: number[] = [];
+  private powerPelletVisibility: string[] = [];
+  private powerPelletDisplayLocationsX: Binding<number[]> = new Binding<number[]>([]);
+  private powerPelletDisplayLocationsY: Binding<number[]> = new Binding<number[]>([]);
+  private powerPelletDisplayVisibility: Binding<string[]> = new Binding<string[]>([]);
+  private fruitLocationsX: number[] = [];
+  private fruitLocationsY: number[] = [];
+  private fruitVisibility: string[] = [];
+  private fruitDisplayLocationsX: Binding<number[]> = new Binding<number[]>([]);
+  private fruitDisplayLocationsY: Binding<number[]> = new Binding<number[]>([]);
+  private fruitDisplayVisibility: Binding<string[]> = new Binding<string[]>([]);
 
 
   static propsDefinition = {
@@ -57,38 +76,74 @@ class PacmanUI extends UIComponent {
     playerImage: {type: PropTypes.Asset},
     enemyImage: {type: PropTypes.Asset},
     pacDotImage: {type: PropTypes.Asset},
-    pacDots: {type: PropTypes.EntityArray},
+    fruitImage: {type: PropTypes.Asset},
+    powerPelletImage: {type: PropTypes.Asset},
   };
   initializeUI(): UINode {
     const backgroundImage: ImageSource = ImageSource.fromTextureAsset(this.props.backgroundImage);
     const playerImage: ImageSource = ImageSource.fromTextureAsset(this.props.playerImage);
     const enemyImage: ImageSource = ImageSource.fromTextureAsset(this.props.enemyImage);
     const pacDotImage: ImageSource = ImageSource.fromTextureAsset(this.props.pacDotImage);
+    const fruitImage: ImageSource = ImageSource.fromTextureAsset(this.props.fruitImage);
+    const powerPelletImage: ImageSource = ImageSource.fromTextureAsset(this.props.powerPelletImage);
 
 
-    this.allDots = this.world.getEntitiesWithTags(["PacDot"], EntityTagMatchOperation.HasAnyExact);
+    this.pacDots = this.world.getEntitiesWithTags(["PacDot"], EntityTagMatchOperation.HasAnyExact);
+    console.log(this.pacDots.length, "PacDots");
+    this.powerPellets = this.world.getEntitiesWithTags(["PowerPellet"], EntityTagMatchOperation.HasAnyExact);
+    console.log(this.powerPellets.length, "PowerPellets");
+    this.fruits = this.world.getEntitiesWithTags(["Fruit"], EntityTagMatchOperation.HasAnyExact);
+    console.log(this.fruits.length, "Fruit");
 
-    let displayDots: UINode[] = []
-    console.log("Dots found by PacmanUI",this.allDots.length);
-
-
-    // TODO make the binding arrays
-
-    this.locationsX = Array(this.allDots.length).fill(0);
-    this.locationsY = Array(this.allDots.length).fill(0);
-    this.visibility = Array(this.allDots.length).fill("flex");
-    this.displayLocationsX.set(this.locationsX)
-    this.displayLocationsY.set(this.locationsY);
-    this.displayVisibility.set(this.visibility);
+    let displayItems: UINode[] = []
+    console.log("Dots found by PacmanUI",this.pacDots.length);
 
 
+    this.pacDotLocationsX = Array(this.pacDots.length).fill(0);
+    this.pacDotLocationsY = Array(this.pacDots.length).fill(0);
+    this.pacDotVisibility = Array(this.pacDots.length).fill("flex");
+    this.pacDotDisplayLocationsX.set(this.pacDotLocationsX)
+    this.pacDotDisplayLocationsY.set(this.pacDotLocationsY);
+    this.pacDotDisplayVisibility.set(this.pacDotVisibility);
+
+    this.powerPelletLocationsX = Array(this.powerPellets.length).fill(0);
+    this.powerPelletLocationsY = Array(this.powerPellets.length).fill(0);
+    this.powerPelletVisibility = Array(this.powerPellets.length).fill("flex");
+    this.powerPelletDisplayLocationsX.set(this.powerPelletLocationsX)
+    this.powerPelletDisplayLocationsY.set(this.powerPelletLocationsY);
+    this.powerPelletDisplayVisibility.set(this.powerPelletVisibility);
+
+    this.fruitLocationsX = Array(this.fruits.length).fill(0);
+    this.fruitLocationsY = Array(this.fruits.length).fill(0);
+    this.fruitVisibility = Array(this.fruits.length).fill("flex");
+    this.fruitDisplayLocationsX.set(this.fruitLocationsX)
+    this.fruitDisplayLocationsY.set(this.fruitLocationsY);
+    this.fruitDisplayVisibility.set(this.fruitVisibility);
 
 
 
-    this.allDots.forEach((dot:Entity, index:number) => {
-      displayDots.push(Image({source: pacDotImage, style:{width: 32, height: 32, bottom: this.displayLocationsX.derive((numberArray)=>{
+
+
+    this.pacDots.forEach((_:Entity, index:number) => {
+      displayItems.push(Image({source: pacDotImage, style:{width: 32, height: 32, bottom: this.pacDotDisplayLocationsX.derive((numberArray)=>{
             return numberArray[index];
-          }), left: this.displayLocationsY.derive((numberArray)=>{
+          }), left: this.pacDotDisplayLocationsY.derive((numberArray)=>{
+            return numberArray[index];
+          }), position: "absolute", zIndex: 1}}));
+    });
+
+    this.powerPellets.forEach((_:Entity, index:number) => {
+      displayItems.push(Image({source: powerPelletImage, style:{width: 32, height: 32, bottom: this.powerPelletDisplayLocationsX.derive((numberArray)=>{
+            return numberArray[index];
+          }), left: this.powerPelletDisplayLocationsY.derive((numberArray)=>{
+            return numberArray[index];
+          }), position: "absolute", zIndex: 1}}));
+    });
+
+    this.fruits.forEach((_:Entity, index:number) => {
+      displayItems.push(Image({source: fruitImage, style:{width: 32, height: 32, bottom: this.fruitDisplayLocationsX.derive((numberArray)=>{
+            return numberArray[index];
+          }), left: this.fruitDisplayLocationsY.derive((numberArray)=>{
             return numberArray[index];
           }), position: "absolute", zIndex: 1}}));
     });
@@ -121,7 +176,7 @@ class PacmanUI extends UIComponent {
             source: enemyImage,
             style: {width: 32, height: 32, bottom: this.enemy4X, left: this.enemy4Y, position: "absolute", zIndex: 2}
           }),
-          ...displayDots
+          ...displayItems
         ], style: {position: "absolute", width: "30%", height: "30%"}
       })], style: {width: "100%", height: "100%", position: "absolute", backgroundColor: Color.white}
     })
@@ -142,9 +197,9 @@ class PacmanUI extends UIComponent {
     // if (this.entity.owner.get().id != this.world.getServerPlayer().id){this.assignPlayer(this.entity.owner.get())}
 
     const originRef: Entity = this.props.trackingOrigin;
-    this.origin = originRef.position.get();
+    this.origin = originRef.position.get().add(offset);
     this.async.setTimeout(()=>{
-      this.setDotPositions();
+      this.setItemPositions();
       this.async.setInterval(this.updatePlayerPositions.bind(this),100);
     },10_000)
 
@@ -187,20 +242,40 @@ class PacmanUI extends UIComponent {
   unassignPlayer() {
     this.entity.owner.set(this.world.getServerPlayer());
   }
-  setDotPositions(){
-    this.allDots.forEach((dot: Entity, index: number)=>{
+  setItemPositions(){
+    this.pacDots.forEach((dot: Entity, index: number)=>{
       const currentDotLocation = dot.position.get().sub(this.origin!).mul(MAP_UPSCALE);
-      this.locationsX[index] = currentDotLocation.z;
-      this.locationsY[index] = currentDotLocation.x;
+      this.pacDotLocationsX[index] = currentDotLocation.z;
+      this.pacDotLocationsY[index] = currentDotLocation.x;
     });
-    this.displayLocationsX.set(this.locationsX);
-    this.displayLocationsY.set(this.locationsY);
+    this.pacDotDisplayLocationsX.set(this.pacDotLocationsX);
+    this.pacDotDisplayLocationsY.set(this.pacDotLocationsY);
+
+
+    this.powerPellets.forEach((pellet: Entity, index: number)=>{
+      const currentPelletLocation = pellet.position.get().sub(this.origin!).mul(MAP_UPSCALE);
+      this.powerPelletLocationsX[index] = currentPelletLocation.z;
+      this.powerPelletLocationsY[index] = currentPelletLocation.x;
+    });
+    this.powerPelletDisplayLocationsX.set(this.powerPelletLocationsX);
+    this.powerPelletDisplayLocationsY.set(this.powerPelletLocationsY);
+
+
+    this.fruits.forEach((fruit: Entity, index: number)=>{
+      const currentFruitLocation = fruit.position.get().sub(this.origin!).mul(MAP_UPSCALE);
+      this.fruitLocationsX[index] = currentFruitLocation.z;
+      this.fruitLocationsY[index] = currentFruitLocation.x;
+    });
+    this.fruitDisplayLocationsX.set(this.fruitLocationsX);
+    this.fruitDisplayLocationsY.set(this.fruitLocationsY);
   }
   transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
-    return {allDots: this.allDots}
+    return {pacDots: this.pacDots, powerPellets: this.powerPellets, fruits: this.fruits};
   }
-  receiveOwnership(state: {allDots: Entity[]} | null, _oldOwner: Player, _newOwner: Player) {
-    this.allDots = state?.allDots || []
+  receiveOwnership(state: {pacDots: Entity[], powerPellets: Entity[], fruits: Entity[]} | null, _oldOwner: Player, _newOwner: Player) {
+    this.pacDots = state?.pacDots || [];
+    this.powerPellets = state?.powerPellets || [];
+    this.fruits = state?.fruits || [];
   }
 
 }
