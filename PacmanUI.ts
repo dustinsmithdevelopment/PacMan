@@ -12,16 +12,16 @@ import {Events} from "./GameUtilities";
 import {Binding, DimensionValue, Image, ImageSource, UIComponent, UINode, View} from "horizon/ui";
 
 
-const MAP_UPSCALE = 61;
-const ADD_X = 0;
-const ADD_Y = 0;
+const MAP_UPSCALE = 32;
+const ICON_SIZE = 16;
+const MOVE_UP = 0;
+const MOVE_RIGHT = 10;
 
 
 
 
 //TODO GENERATE ARRAY ON EACH CYCLE
 
-const offset = new Vec3(ADD_Y,0,ADD_X);
 class PacmanUI extends UIComponent {
   panelWidth = 1920;
   panelHeight = 1080;
@@ -63,6 +63,10 @@ class PacmanUI extends UIComponent {
   private fruitDisplayLocationsX: Binding<number[]> = new Binding<number[]>([]);
   private fruitDisplayLocationsY: Binding<number[]> = new Binding<number[]>([]);
   private fruitDisplayVisibility: Binding<string[]> = new Binding<string[]>([]);
+
+  private life1: Binding<string> = new Binding<string>("flex");
+  private life2: Binding<string> = new Binding<string>("flex");
+  private life3: Binding<string> = new Binding<string>("flex");
 
 
   static propsDefinition = {
@@ -125,7 +129,7 @@ class PacmanUI extends UIComponent {
 
 
     this.pacDots.forEach((_:Entity, index:number) => {
-      displayItems.push(Image({source: pacDotImage, style:{width: 32, height: 32, bottom: this.pacDotDisplayLocationsX.derive((numberArray)=>{
+      displayItems.push(Image({source: pacDotImage, style:{width: ICON_SIZE, height: ICON_SIZE, bottom: this.pacDotDisplayLocationsX.derive((numberArray)=>{
             return numberArray[index];
           }), left: this.pacDotDisplayLocationsY.derive((numberArray)=>{
             return numberArray[index];
@@ -133,7 +137,7 @@ class PacmanUI extends UIComponent {
     });
 
     this.powerPellets.forEach((_:Entity, index:number) => {
-      displayItems.push(Image({source: powerPelletImage, style:{width: 32, height: 32, bottom: this.powerPelletDisplayLocationsX.derive((numberArray)=>{
+      displayItems.push(Image({source: powerPelletImage, style:{width: ICON_SIZE, height: ICON_SIZE, bottom: this.powerPelletDisplayLocationsX.derive((numberArray)=>{
             return numberArray[index];
           }), left: this.powerPelletDisplayLocationsY.derive((numberArray)=>{
             return numberArray[index];
@@ -141,7 +145,7 @@ class PacmanUI extends UIComponent {
     });
 
     this.fruits.forEach((_:Entity, index:number) => {
-      displayItems.push(Image({source: fruitImage, style:{width: 32, height: 32, bottom: this.fruitDisplayLocationsX.derive((numberArray)=>{
+      displayItems.push(Image({source: fruitImage, style:{width: ICON_SIZE, height: ICON_SIZE, bottom: this.fruitDisplayLocationsX.derive((numberArray)=>{
             return numberArray[index];
           }), left: this.fruitDisplayLocationsY.derive((numberArray)=>{
             return numberArray[index];
@@ -150,7 +154,9 @@ class PacmanUI extends UIComponent {
 
 
     return View({
-      children: [View({
+      children: [
+          // miniMap
+          View({
         children: [
           Image({
             source: backgroundImage,
@@ -158,27 +164,35 @@ class PacmanUI extends UIComponent {
           }),
           Image({
             source: playerImage,
-            style: {width: 32, height: 32, bottom: this.pacManX, left: this.pacManY, position: "absolute", zIndex: 2}
+            style: {width: ICON_SIZE, height: ICON_SIZE, bottom: this.pacManX, left: this.pacManY, position: "absolute", zIndex: 2}
           }),
           Image({
             source: enemyImage,
-            style: {width: 32, height: 32, bottom: this.enemy1X, left: this.enemy1Y, position: "absolute", zIndex: 2}
+            style: {width: ICON_SIZE, height: ICON_SIZE, bottom: this.enemy1X, left: this.enemy1Y, position: "absolute", zIndex: 2}
           }),
           Image({
             source: enemyImage,
-            style: {width: 32, height: 32, bottom: this.enemy2X, left: this.enemy2Y, position: "absolute", zIndex: 2}
+            style: {width: ICON_SIZE, height: ICON_SIZE, bottom: this.enemy2X, left: this.enemy2Y, position: "absolute", zIndex: 2}
           }),
           Image({
             source: enemyImage,
-            style: {width: 32, height: 32, bottom: this.enemy3X, left: this.enemy3Y, position: "absolute", zIndex: 2}
+            style: {width: ICON_SIZE, height: ICON_SIZE, bottom: this.enemy3X, left: this.enemy3Y, position: "absolute", zIndex: 2}
           }),
           Image({
             source: enemyImage,
-            style: {width: 32, height: 32, bottom: this.enemy4X, left: this.enemy4Y, position: "absolute", zIndex: 2}
+            style: {width: ICON_SIZE, height: ICON_SIZE, bottom: this.enemy4X, left: this.enemy4Y, position: "absolute", zIndex: 2}
           }),
           ...displayItems
-        ], style: {position: "absolute", width: "30%", height: "30%"}
-      })], style: {width: "100%", height: "100%", position: "absolute", backgroundColor: Color.white}
+        ], style: {position: "absolute", width: 384, height: 216, left: 0, top: "10%"}
+      }),
+      // life Indicator
+          View({children: [
+              Image({source: pacDotImage, style: {width: 80, height: 80, display: this.life1}}),
+              Image({source: pacDotImage, style: {width: 80, height: 80, display: this.life2}}),
+              Image({source: pacDotImage, style: {width: 80, height: 80, display: this.life3}}),
+
+            ], style:{backgroundColor: "black", width: "30%", height: 80, top: 0, left: "35%", position: "absolute", display: "flex", flexDirection: "row", justifyContent: "space-around", alignItems: "center"}})
+      ], style: {width: "100%", height: "100%" ,position: "absolute", backgroundColor: Color.white}
     })
   }
 
@@ -197,7 +211,7 @@ class PacmanUI extends UIComponent {
     // if (this.entity.owner.get().id != this.world.getServerPlayer().id){this.assignPlayer(this.entity.owner.get())}
 
     const originRef: Entity = this.props.trackingOrigin;
-    this.origin = originRef.position.get().add(offset);
+    this.origin = originRef.position.get();
     this.async.setTimeout(()=>{
       this.setItemPositions();
       this.async.setInterval(this.updatePlayerPositions.bind(this),100);
@@ -220,16 +234,16 @@ class PacmanUI extends UIComponent {
     // @ts-ignore
     const e4Pos = this.props.enemy4Suit!.position.get().sub(this.origin!).mul(MAP_UPSCALE);
     // console.log("e4Pos", e4Pos.x, pacPos.y, pacPos.z);
-    this.pacManY.set(pacPos.x as DimensionValue);
-    this.pacManX.set(pacPos.z as DimensionValue);
-    this.enemy1Y.set(e1Pos.x as DimensionValue);
-    this.enemy1X.set(e1Pos.z as DimensionValue);
-    this.enemy2Y.set(e2Pos.x as DimensionValue);
-    this.enemy2X.set(e2Pos.z as DimensionValue);
-    this.enemy3Y.set(e3Pos.x as DimensionValue);
-    this.enemy3X.set(e3Pos.z as DimensionValue);
-    this.enemy4Y.set(e4Pos.x as DimensionValue);
-    this.enemy4X.set(e4Pos.z as DimensionValue);
+    this.pacManY.set((pacPos.x + MOVE_RIGHT) as DimensionValue);
+    this.pacManX.set((pacPos.z + MOVE_UP) as DimensionValue);
+    this.enemy1Y.set((e1Pos.x + MOVE_RIGHT) as DimensionValue);
+    this.enemy1X.set((e1Pos.z + MOVE_UP) as DimensionValue);
+    this.enemy2Y.set((e2Pos.x + MOVE_RIGHT) as DimensionValue);
+    this.enemy2X.set((e2Pos.z + MOVE_UP) as DimensionValue);
+    this.enemy3Y.set((e3Pos.x + MOVE_RIGHT) as DimensionValue);
+    this.enemy3X.set((e3Pos.z + MOVE_UP) as DimensionValue);
+    this.enemy4Y.set((e4Pos.x + MOVE_RIGHT) as DimensionValue);
+    this.enemy4X.set((e4Pos.z + MOVE_UP) as DimensionValue);
 
 
   }
@@ -245,8 +259,8 @@ class PacmanUI extends UIComponent {
   setItemPositions(){
     this.pacDots.forEach((dot: Entity, index: number)=>{
       const currentDotLocation = dot.position.get().sub(this.origin!).mul(MAP_UPSCALE);
-      this.pacDotLocationsX[index] = currentDotLocation.z;
-      this.pacDotLocationsY[index] = currentDotLocation.x;
+      this.pacDotLocationsX[index] = currentDotLocation.z + MOVE_UP;
+      this.pacDotLocationsY[index] = currentDotLocation.x + MOVE_RIGHT;
     });
     this.pacDotDisplayLocationsX.set(this.pacDotLocationsX);
     this.pacDotDisplayLocationsY.set(this.pacDotLocationsY);
@@ -254,8 +268,8 @@ class PacmanUI extends UIComponent {
 
     this.powerPellets.forEach((pellet: Entity, index: number)=>{
       const currentPelletLocation = pellet.position.get().sub(this.origin!).mul(MAP_UPSCALE);
-      this.powerPelletLocationsX[index] = currentPelletLocation.z;
-      this.powerPelletLocationsY[index] = currentPelletLocation.x;
+      this.powerPelletLocationsX[index] = currentPelletLocation.z + MOVE_UP;
+      this.powerPelletLocationsY[index] = currentPelletLocation.x + MOVE_RIGHT;
     });
     this.powerPelletDisplayLocationsX.set(this.powerPelletLocationsX);
     this.powerPelletDisplayLocationsY.set(this.powerPelletLocationsY);
@@ -263,19 +277,11 @@ class PacmanUI extends UIComponent {
 
     this.fruits.forEach((fruit: Entity, index: number)=>{
       const currentFruitLocation = fruit.position.get().sub(this.origin!).mul(MAP_UPSCALE);
-      this.fruitLocationsX[index] = currentFruitLocation.z;
-      this.fruitLocationsY[index] = currentFruitLocation.x;
+      this.fruitLocationsX[index] = currentFruitLocation.z + MOVE_UP;
+      this.fruitLocationsY[index] = currentFruitLocation.x + MOVE_RIGHT;
     });
     this.fruitDisplayLocationsX.set(this.fruitLocationsX);
     this.fruitDisplayLocationsY.set(this.fruitLocationsY);
-  }
-  transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
-    return {pacDots: this.pacDots, powerPellets: this.powerPellets, fruits: this.fruits};
-  }
-  receiveOwnership(state: {pacDots: Entity[], powerPellets: Entity[], fruits: Entity[]} | null, _oldOwner: Player, _newOwner: Player) {
-    this.pacDots = state?.pacDots || [];
-    this.powerPellets = state?.powerPellets || [];
-    this.fruits = state?.fruits || [];
   }
 
 }
