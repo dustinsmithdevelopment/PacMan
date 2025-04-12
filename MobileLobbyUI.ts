@@ -1,21 +1,24 @@
 import {
   Component,
-  Entity,
+  Entity, EventSubscription,
   Player,
-  PlayerControls,
   PlayerVisibilityMode,
   PropTypes,
+  SerializableState,
   SpawnPointGizmo
 } from "horizon/core";
 import {Events} from "./GameUtilities";
 import {Pressable, Text, UIComponent, UINode, View} from "horizon/ui";
 import {PlayerCameraEvents} from "./PlayerCamera";
 import {Easing} from "horizon/camera";
+import {MobileUIManagerEvents} from "./MobileUIManager";
 
 
 class PlayerScreen extends UIComponent {
   panelWidth = 1920;
   panelHeight = 1080;
+
+  private resetEvent: EventSubscription|undefined;
 
 
   static propsDefinition = {
@@ -68,25 +71,36 @@ class PlayerScreen extends UIComponent {
 
 
 
-  preStart() {
-    this.connectNetworkEvent(this.entity, Events.assignPlayer, (payload: {player: Player}) => {this.assignPlayer(payload.player)});
-    this.connectNetworkEvent(this.entity, Events.unassignPlayer, ()=>{this.unassignPlayer()});
-  }
+  preStart() {}
   start() {
+    this.sendNetworkBroadcastEvent(MobileUIManagerEvents.OnRegisterMobileUI, {ObjectId: "PlayerMobileUI", Object: this.entity});
+  }
+  transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
+    if (this.resetEvent){
+      this.resetEvent.disconnect();
+      this.resetEvent = undefined;
+    }
+    return super.transferOwnership(_oldOwner, _newOwner);
+  }
 
+  receiveOwnership(_serializableState: SerializableState, _oldOwner: Player, _newOwner: Player): void {
+    if (_newOwner !== this.world.getServerPlayer()) {
+      this.resetEvent = this.connectNetworkEvent(_newOwner, PlayerCameraEvents.OnCameraResetPressed, ()=>{
+        this.entity.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.VisibleTo);
+      });
+    }
   }
-  assignPlayer(p: Player) {
-    this.entity.owner.set(p);
-    console.log("Assignment requested to Mobile Lobby UI for", p.name.get());
-    PlayerControls.disableSystemControls();
-    this.connectNetworkEvent(p, PlayerCameraEvents.OnCameraResetPressed, ()=>{
-      // console.log("Event was received but did nothing");
-      this.entity.setVisibilityForPlayers([p], PlayerVisibilityMode.VisibleTo);});
-  }
-  unassignPlayer() {
-    PlayerControls.enableSystemControls();
-    this.entity.owner.set(this.world.getServerPlayer());
-  }
+
+
+
+
+
+
+
+
+
+
+
 
 }
 Component.register(PlayerScreen);
