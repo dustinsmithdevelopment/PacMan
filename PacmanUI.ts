@@ -187,11 +187,11 @@ class PacmanUI extends UIComponent {
       }),
       // life Indicator
           View({children: [
-              Image({source: pacDotImage, style: {width: 80, height: 80, display: this.life1}}),
-              Image({source: pacDotImage, style: {width: 80, height: 80, display: this.life2}}),
-              Image({source: pacDotImage, style: {width: 80, height: 80, display: this.life3}}),
+              Image({source: playerImage, style: {width: 80, height: 80, display: this.life1}}),
+              Image({source: playerImage, style: {width: 80, height: 80, display: this.life2}}),
+              Image({source: playerImage, style: {width: 80, height: 80, display: this.life3}}),
 
-            ], style:{backgroundColor: "black", width: "30%", height: 80, top: 0, left: "35%", position: "absolute", display: "flex", flexDirection: "row", justifyContent: "space-around", alignItems: "center"}})
+            ], style:{width: "30%", height: 80, top: 0, left: "35%", position: "absolute", display: "flex", flexDirection: "row", justifyContent: "space-around", alignItems: "center"}})
       ], style: {width: "100%", height: "100%" ,position: "absolute", backgroundColor: Color.white}
     })
   }
