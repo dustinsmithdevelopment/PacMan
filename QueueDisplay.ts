@@ -1,8 +1,8 @@
-import {Component, Player} from "horizon/core";
+import {Color, Component, Player} from "horizon/core";
 import {Binding, Text, UIComponent, UINode, View} from "horizon/ui";
 import {Events} from "./GameUtilities";
 
-
+const textProperties = {}
 class QueueDisplay extends UIComponent{
   panelWidth = 500;
   panelHeight= 800;
@@ -12,29 +12,29 @@ class QueueDisplay extends UIComponent{
   private queue1DisplayValues: string[] = new Array(5).fill("None");
   private queue2DisplayValues: string[] = new Array(5).fill("None");
 
-  private queue1DisplayBinding: Binding<string[]> = new Binding(Array());
-  private queue2DisplayBinding: Binding<string[]> = new Binding(Array());
+  private queue1DisplayBinding: Binding<string[]> = new Binding(this.queue1DisplayValues);
+  private queue2DisplayBinding: Binding<string[]> = new Binding(this.queue2DisplayValues);
 
-  static propsDefinition = {};
+  static propsDefinition = {fontSize:64, fontWeight:'bold', margin: 12};
 
   initializeUI(): UINode {
     return View({
       children: [
           View({children: [
-              Text({text: this.queue1DisplayBinding.derive((value)=>{return value[0]})}),
-              Text({text: this.queue1DisplayBinding.derive((value)=>{return value[1]})}),
-              Text({text: this.queue1DisplayBinding.derive((value)=>{return value[2]})}),
-              Text({text: this.queue1DisplayBinding.derive((value)=>{return value[3]})}),
-              Text({text: this.queue1DisplayBinding.derive((value)=>{return value[4]})}),
+              Text({text: this.queue1DisplayBinding.derive((value)=>{return value[0]}), style: {...textProperties}}),
+              Text({text: this.queue1DisplayBinding.derive((value)=>{return value[1]}), style: {...textProperties}}),
+              Text({text: this.queue1DisplayBinding.derive((value)=>{return value[2]}), style: {...textProperties}}),
+              Text({text: this.queue1DisplayBinding.derive((value)=>{return value[3]}), style: {...textProperties}}),
+              Text({text: this.queue1DisplayBinding.derive((value)=>{return value[4]}), style: {...textProperties}}),
             ], style: {display: "flex", flexDirection: "column"}}),
           View({children: [
-              Text({text: this.queue2DisplayBinding.derive((value)=>{return value[0]})}),
-              Text({text: this.queue2DisplayBinding.derive((value)=>{return value[1]})}),
-              Text({text: this.queue2DisplayBinding.derive((value)=>{return value[2]})}),
-              Text({text: this.queue2DisplayBinding.derive((value)=>{return value[3]})}),
-              Text({text: this.queue2DisplayBinding.derive((value)=>{return value[4]})}),
+              Text({text: this.queue2DisplayBinding.derive((value)=>{return value[0]}), style: {...textProperties}}),
+              Text({text: this.queue2DisplayBinding.derive((value)=>{return value[1]}), style: {...textProperties}}),
+              Text({text: this.queue2DisplayBinding.derive((value)=>{return value[2]}), style: {...textProperties}}),
+              Text({text: this.queue2DisplayBinding.derive((value)=>{return value[3]}), style: {...textProperties}}),
+              Text({text: this.queue2DisplayBinding.derive((value)=>{return value[4]}), style: {...textProperties}}),
             ], style: {display: "flex", flexDirection: "column"}}),
-      ], style:{display: "flex", flexDirection: "row"}
+      ], style:{display: "flex", flexDirection: "row", backgroundColor: Color.black}
     });
   }
   preStart() {
