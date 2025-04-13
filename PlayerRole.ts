@@ -56,14 +56,19 @@ export abstract class PlayerRole extends Component {
         return this.attachedPlayer ?? null;
     }
     transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
+        if (_oldOwner !== this.world.getServerPlayer()){
+            this.sendNetworkEvent(_oldOwner, Events.showLobbyUI, {});
+        }
+        if (_newOwner !== this.world.getServerPlayer()){
+            this.sendNetworkEvent(_newOwner, Events.hideLobbyUI, {});
+        }
         return {
-            attachedPlayer: this.attachedPlayer,
             spawnPointGizmo: this.spawnPointGizmo!.as(Entity)};
     }
     receiveOwnership( state: {
-        attachedPlayer: Player,
         spawnPointGizmo: SpawnPointGizmo}, _oldOwner: Player, _newOwner: Player) {
         this.spawnPointGizmo = state?.spawnPointGizmo.as(SpawnPointGizmo);
+        this.attachedPlayer = _newOwner;
     }
 
 }
