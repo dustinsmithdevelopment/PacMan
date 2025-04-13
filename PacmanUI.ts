@@ -1,11 +1,12 @@
 import {
+  CodeBlockEvents,
   Color,
   Component,
   Entity,
   EntityTagMatchOperation,
   Player,
+  PlayerVisibilityMode,
   PropTypes,
-  SerializableState,
   Vec3,
 } from "horizon/core";
 import {Events} from "./GameUtilities";
@@ -207,8 +208,12 @@ class PacmanUI extends UIComponent {
     });
   }
   start() {
-    // this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player: Player) => {this.entity.owner.set(player); this.assignPlayer(player);});
-    // if (this.entity.owner.get().id != this.world.getServerPlayer().id){this.assignPlayer(this.entity.owner.get())}
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (p: Player) => {
+      this.entity.setVisibilityForPlayers([p], PlayerVisibilityMode.HiddenFrom)
+    });
+    this.async.setTimeout(()=>{
+      this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
+    },3_000)
 
     const originRef: Entity = this.props.trackingOrigin;
     this.origin = originRef.position.get();

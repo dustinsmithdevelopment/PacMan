@@ -1,5 +1,12 @@
 import {
-  CodeBlockEvents, Component, Entity, Player, PropTypes, SpawnPointGizmo,
+  CodeBlockEvents,
+  Component,
+  Entity,
+  Player,
+  PlayerVisibilityMode,
+  PropTypes,
+  SerializableState,
+  SpawnPointGizmo,
 } from "horizon/core";
 import {Events} from "./GameUtilities";
 import {PlayerRole} from "./PlayerRole";
@@ -9,6 +16,7 @@ class PacMan extends PlayerRole {
     homePositionSpawn: {type: PropTypes.Entity, required: true},
     collectionTrigger: {type: PropTypes.Entity, required: true},
     manager: {type: PropTypes.Entity, required: true},
+    pacmanUI: {type: PropTypes.Entity, required: true},
   };
 
   preStart() {
@@ -36,6 +44,20 @@ class PacMan extends PlayerRole {
 
   teleportPacman(spawnPoint: SpawnPointGizmo){
     spawnPoint.teleportPlayer(super.getAttachedPlayer()!);
+  }
+  transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
+    if (_oldOwner !== this.world.getServerPlayer()) {
+      const pacmanUI: Entity = this.props.pacmanUI;
+      pacmanUI.setVisibilityForPlayers([_oldOwner], PlayerVisibilityMode.HiddenFrom);
+    }
+    return super.transferOwnership(_oldOwner, _newOwner);
+  }
+  receiveOwnership(state: { spawnPointGizmo: SpawnPointGizmo }, _oldOwner: Player, _newOwner: Player) {
+    if (_newOwner !== this.world.getServerPlayer()) {
+      const pacmanUI: Entity = this.props.pacmanUI;
+      pacmanUI.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.VisibleTo);
+    }
+    super.receiveOwnership(state, _oldOwner, _newOwner);
   }
 
 }

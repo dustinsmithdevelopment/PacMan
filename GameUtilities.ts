@@ -43,6 +43,7 @@ export const Events = {
   resetGame: new NetworkEvent<{}>("resetGame"),
   setQueue1ReadyState: new NetworkEvent<{ready: boolean}>("setQueue1ReadyState"),
   setQueue2ReadyState: new NetworkEvent<{ready: boolean}>("setQueue2ReadyState"),
+  updatePlayersInQueue: new NetworkEvent<{queue1: Player[], queue2: Player[]}>("updatePlayersInQueue"),
   joinQueue1: new NetworkEvent<{player: Player}>("joinQueue1"),
   joinQueue2: new NetworkEvent<{player: Player}>("joinQueue2"),
   makeGhostEdible: new NetworkEvent<{}>("makeGhostEdible"),
