@@ -1,16 +1,17 @@
 import {
-  Component,
-  Entity, EventSubscription,
+  Entity,
+  EventSubscription,
   Player,
   PlayerVisibilityMode,
   PropTypes,
   SerializableState,
-  SpawnPointGizmo
+  SpawnPointGizmo,
+    Component
 } from "horizon/core";
 import {Events} from "./GameUtilities";
 import {Pressable, Text, UIComponent, UINode, View} from "horizon/ui";
 import {PlayerCameraEvents} from "./PlayerCamera";
-import {Easing} from "horizon/camera";
+import {CameraMode, Easing} from "horizon/camera";
 import {MobileUIManagerEvents} from "./MobileUIManager";
 
 
@@ -25,22 +26,24 @@ class PlayerScreen extends UIComponent {
 
   static propsDefinition = {
     playerManager: {type: PropTypes.Entity},
-    firstPersonSpawn: {type: PropTypes.Entity},
-    thirdPersonSpawn: {type: PropTypes.Entity},
+    // firstPersonSpawn: {type: PropTypes.Entity},
+    // thirdPersonSpawn: {type: PropTypes.Entity},
     cameraPositionEntity: {type: PropTypes.Entity},
   };
   initializeUI(): UINode {
     return View({children:[
         View({style: {height: 66, width: "60%", marginLeft: "20%", marginRight: "20%", marginTop: 15, position: 'absolute', display: "flex", justifyContent: "space-around", flexDirection: "row"}, children:[
             Pressable({style: {backgroundColor: "#00796B", height: 58, width: 220, borderRadius: 12, borderColor: "black", borderWidth: 2}, onClick: (p: Player)=>{
-              const spawnEntity: Entity = this.props.firstPersonSpawn;
-              spawnEntity.as(SpawnPointGizmo).teleportPlayer(p);
+              // const spawnEntity: Entity = this.props.firstPersonSpawn;
+              // spawnEntity.as(SpawnPointGizmo).teleportPlayer(p);
+                this.sendNetworkEvent(p, PlayerCameraEvents.SetCameraMode, {mode: CameraMode.FirstPerson});
               }, children: [
                 Text({text: "First-Person View", style: {height: "100%" ,color: "white", textAlign: "center", fontSize: 24, textAlignVertical: "center", fontWeight: "bold"}},)
               ]}),
             Pressable({style: {backgroundColor: "#0288D1", height: 58, width: 220, borderRadius: 12, borderColor: "black", borderWidth: 2}, onClick: (p: Player)=>{
-                const spawnEntity: Entity = this.props.thirdPersonSpawn;
-                spawnEntity.as(SpawnPointGizmo).teleportPlayer(p);
+                // const spawnEntity: Entity = this.props.thirdPersonSpawn;
+                // spawnEntity.as(SpawnPointGizmo).teleportPlayer(p);
+                this.sendNetworkEvent(p, PlayerCameraEvents.SetCameraMode, {mode: CameraMode.ThirdPerson});
               }, children: [
                 Text({text: "Third-Person View", style: {height: "100%" ,color: "white", textAlign: "center", fontSize: 24, textAlignVertical: "center", fontWeight: "bold"}},)
               ]}),
