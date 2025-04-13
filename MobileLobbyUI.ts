@@ -21,6 +21,8 @@ class PlayerScreen extends UIComponent {
   private resetEvent: EventSubscription|undefined;
 
 
+
+
   static propsDefinition = {
     playerManager: {type: PropTypes.Entity},
     firstPersonSpawn: {type: PropTypes.Entity},

@@ -1,6 +1,5 @@
 import * as hz from 'horizon/core';
 
-
 export const MobileUIManagerEvents = {
     OnRegisterMobileUI: new hz.NetworkEvent<{ ObjectId: string, Object: hz.Entity}>('OnRegisterMobileUI'),
 }
@@ -22,10 +21,8 @@ class MobileUIManager extends hz.Component {
 
     preStart(): void {
         this.connectNetworkBroadcastEvent(MobileUIManagerEvents.OnRegisterMobileUI, ({ObjectId, Object}) => {
-            console.log("A mobile UI manager was registered");
             if (ObjectId === "PlayerMobileUI") {
                 this.playerUIs.push(Object);
-                console.log(this.playerUIs.length, "mobile UIs have been registered");
             }
         });
     }
