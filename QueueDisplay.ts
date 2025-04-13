@@ -1,11 +1,18 @@
 import {Color, Component, Player} from "horizon/core";
-import {Binding, Text, UIComponent, UINode, View} from "horizon/ui";
+import {Bindable, Binding, Text, UIComponent, UINode, View} from "horizon/ui";
 import {Events} from "./GameUtilities";
 
-const textProperties = {}
+const textProperties = {
+    fontSize:64,
+    fontWeight:'bold' as Bindable<"bold" | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900">,
+    textAlign:'center' as "center" | "auto" | "left" | "right" | undefined,
+    marginTop: 50,
+    marginBottom: 50,
+    width: "100%",
+}
 class QueueDisplay extends UIComponent{
-  panelWidth = 500;
-  panelHeight= 800;
+  panelWidth = 1000;
+  panelHeight= 1200;
   private queue1: Player[] = [];
   private queue2: Player[] = [];
 
@@ -15,9 +22,11 @@ class QueueDisplay extends UIComponent{
   private queue1DisplayBinding: Binding<string[]> = new Binding(this.queue1DisplayValues);
   private queue2DisplayBinding: Binding<string[]> = new Binding(this.queue2DisplayValues);
 
-  static propsDefinition = {fontSize:64, fontWeight:'bold', margin: 12};
+  static propsDefinition = {};
 
   initializeUI(): UINode {
+      this.queue1DisplayBinding.set(this.queue1DisplayValues);
+      this.queue2DisplayBinding.set(this.queue2DisplayValues);
     return View({
       children: [
           View({children: [
@@ -26,15 +35,15 @@ class QueueDisplay extends UIComponent{
               Text({text: this.queue1DisplayBinding.derive((value)=>{return value[2]}), style: {...textProperties}}),
               Text({text: this.queue1DisplayBinding.derive((value)=>{return value[3]}), style: {...textProperties}}),
               Text({text: this.queue1DisplayBinding.derive((value)=>{return value[4]}), style: {...textProperties}}),
-            ], style: {display: "flex", flexDirection: "column"}}),
+            ], style: {display: "flex", flexDirection: "column", width: "50%"}}),
           View({children: [
               Text({text: this.queue2DisplayBinding.derive((value)=>{return value[0]}), style: {...textProperties}}),
               Text({text: this.queue2DisplayBinding.derive((value)=>{return value[1]}), style: {...textProperties}}),
               Text({text: this.queue2DisplayBinding.derive((value)=>{return value[2]}), style: {...textProperties}}),
               Text({text: this.queue2DisplayBinding.derive((value)=>{return value[3]}), style: {...textProperties}}),
               Text({text: this.queue2DisplayBinding.derive((value)=>{return value[4]}), style: {...textProperties}}),
-            ], style: {display: "flex", flexDirection: "column"}}),
-      ], style:{display: "flex", flexDirection: "row", backgroundColor: Color.black}
+            ], style: {display: "flex", flexDirection: "column", width: "50%"}}),
+      ], style:{display: "flex", flexDirection: "row", backgroundColor: "black", width:"100%"}
     });
   }
   preStart() {
