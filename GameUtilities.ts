@@ -54,6 +54,8 @@ export const Events = {
   turnLeft: new LocalEvent<{}>("turnLeft"),
   turnRight: new LocalEvent<{}>("turnRight"),
   reverse: new LocalEvent<{}>("reverse"),
+  hideLobbyUI: new NetworkEvent<{}>('hideLobbyUI'),
+  showLobbyUI: new NetworkEvent<{}>("showLobbyUI"),
 }
 export class PlayerList {
   players: Player[] = [];

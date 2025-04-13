@@ -1,13 +1,4 @@
-import {
-  Entity,
-  EventSubscription,
-  Player,
-  PlayerVisibilityMode,
-  PropTypes,
-  SerializableState,
-  SpawnPointGizmo,
-    Component
-} from "horizon/core";
+import {Component, EventSubscription, Player, PlayerVisibilityMode, PropTypes, SerializableState} from "horizon/core";
 import {Events} from "./GameUtilities";
 import {Pressable, Text, UIComponent, UINode, View} from "horizon/ui";
 import {PlayerCameraEvents} from "./PlayerCamera";
@@ -19,7 +10,9 @@ class PlayerScreen extends UIComponent {
   panelWidth = 1920;
   panelHeight = 1080;
 
-  private resetEvent: EventSubscription|undefined;
+  private endFloatingViewEvent: EventSubscription|undefined;
+  private hideLobbyUIEvent: EventSubscription|undefined;
+  private showLobbyUIEvent: EventSubscription|undefined;
 
 
 
@@ -80,17 +73,29 @@ class PlayerScreen extends UIComponent {
   start() {
     this.sendNetworkBroadcastEvent(MobileUIManagerEvents.OnRegisterMobileUI, {ObjectId: "PlayerMobileUI", Object: this.entity});
   }
-  transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
-    if (this.resetEvent){
-      this.resetEvent.disconnect();
-      this.resetEvent = undefined;
+  cancelEvent(event: EventSubscription|undefined) {
+    if (event){
+      event.disconnect();
     }
+    return undefined;
+  }
+  transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
+    this.endFloatingViewEvent = this.cancelEvent(this.endFloatingViewEvent);
+    this.hideLobbyUIEvent = this.cancelEvent(this.hideLobbyUIEvent);
+    this.showLobbyUIEvent = this.cancelEvent(this.showLobbyUIEvent);
     return super.transferOwnership(_oldOwner, _newOwner);
   }
 
+
   receiveOwnership(_serializableState: SerializableState, _oldOwner: Player, _newOwner: Player): void {
     if (_newOwner !== this.world.getServerPlayer()) {
-      this.resetEvent = this.connectNetworkEvent(_newOwner, PlayerCameraEvents.OnCameraResetPressed, ()=>{
+      this.endFloatingViewEvent = this.connectNetworkEvent(_newOwner, PlayerCameraEvents.OnCameraResetPressed, ()=>{
+        this.entity.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.VisibleTo);
+      });
+      this.hideLobbyUIEvent = this.connectNetworkEvent(_newOwner, Events.hideLobbyUI, ()=>{
+        this.entity.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.HiddenFrom);
+      });
+      this.showLobbyUIEvent = this.connectNetworkEvent(_newOwner, Events.showLobbyUI, ()=>{
         this.entity.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.VisibleTo);
       });
     }
