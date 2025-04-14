@@ -59,8 +59,8 @@ class QueueDisplay extends UIComponent{
   }
   private updateQueueDisplays() {
     for (let i = 0; i <= 4; i++) {
-      this.queue1DisplayValues[i] = this.queue1[i].name.get() ?? "None";
-      this.queue2DisplayValues[i] = this.queue2[i].name.get() ?? "None";
+      this.queue1DisplayValues[i] = this.queue1[i]?.name.get() ?? "None";
+      this.queue2DisplayValues[i] = this.queue2[i]?.name.get() ?? "None";
     }
     this.queue1DisplayBinding.set(this.queue1DisplayValues);
     this.queue2DisplayBinding.set(this.queue2DisplayValues);
