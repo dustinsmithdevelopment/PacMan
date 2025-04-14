@@ -147,6 +147,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
     updateQueueStates(){
         this.queue1Ready = this.gamePlayers.queue1Full();
         this.queue2Ready = this.gamePlayers.queue2Full();
+        this.sendNetworkBroadcastEvent(Events.updatePlayersInQueue, {queue1: this.gamePlayers.queue1.players, queue2: this.gamePlayers.queue2.players})
         this.sendNetworkEvent(this.props.gameManager!, Events.setQueue1ReadyState, {ready: this.queue1Ready});
         this.sendNetworkEvent(this.props.gameManager!, Events.setQueue2ReadyState, {ready: this.queue2Ready});
     }
