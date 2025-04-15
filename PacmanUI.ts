@@ -193,7 +193,7 @@ class PacmanUI extends UIComponent {
               Image({source: playerImage, style: {width: 80, height: 80, display: this.life3}}),
 
             ], style:{width: "30%", height: 80, top: 0, left: "35%", position: "absolute", display: "flex", flexDirection: "row", justifyContent: "space-around", alignItems: "center"}})
-      ], style: {width: "100%", height: "100%" ,position: "absolute", backgroundColor: Color.white}
+      ], style: {width: "100%", height: "100%" ,position: "absolute"}
     })
   }
 
