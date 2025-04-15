@@ -1,6 +1,6 @@
 import {Component, EventSubscription, Player, PlayerVisibilityMode, PropTypes, SerializableState} from "horizon/core";
 import {Events} from "./GameUtilities";
-import {Pressable, Text, UIComponent, UINode, View} from "horizon/ui";
+import {Binding, Pressable, Text, UIComponent, UINode, View} from "horizon/ui";
 import {PlayerCameraEvents} from "./PlayerCamera";
 import {CameraMode, Easing} from "horizon/camera";
 import {MobileUIManagerEvents} from "./MobileUIManager";
@@ -14,28 +14,28 @@ class PlayerScreen extends UIComponent {
   private hideLobbyUIEvent: EventSubscription|undefined;
   private showLobbyUIEvent: EventSubscription|undefined;
 
+  private wearer: Player|undefined;
+
+  private queue1Binding: Binding<string> = new Binding("Join Queue 1");
+  private queue2Binding: Binding<string> = new Binding("Join Queue 2");
+
+
 
 
 
   static propsDefinition = {
     playerManager: {type: PropTypes.Entity},
-    // firstPersonSpawn: {type: PropTypes.Entity},
-    // thirdPersonSpawn: {type: PropTypes.Entity},
     cameraPositionEntity: {type: PropTypes.Entity},
   };
   initializeUI(): UINode {
     return View({children:[
         View({style: {height: 66, width: "60%", marginLeft: "20%", marginRight: "20%", marginTop: 15, position: 'absolute', display: "flex", justifyContent: "space-around", flexDirection: "row"}, children:[
             Pressable({style: {backgroundColor: "#00796B", height: 58, width: 220, borderRadius: 12, borderColor: "black", borderWidth: 2}, onClick: (p: Player)=>{
-              // const spawnEntity: Entity = this.props.firstPersonSpawn;
-              // spawnEntity.as(SpawnPointGizmo).teleportPlayer(p);
                 this.sendNetworkEvent(p, PlayerCameraEvents.SetCameraMode, {mode: CameraMode.FirstPerson});
               }, children: [
                 Text({text: "First-Person View", style: {height: "100%" ,color: "white", textAlign: "center", fontSize: 24, textAlignVertical: "center", fontWeight: "bold"}},)
               ]}),
             Pressable({style: {backgroundColor: "#0288D1", height: 58, width: 220, borderRadius: 12, borderColor: "black", borderWidth: 2}, onClick: (p: Player)=>{
-                // const spawnEntity: Entity = this.props.thirdPersonSpawn;
-                // spawnEntity.as(SpawnPointGizmo).teleportPlayer(p);
                 this.sendNetworkEvent(p, PlayerCameraEvents.SetCameraMode, {mode: CameraMode.ThirdPerson});
               }, children: [
                 Text({text: "Third-Person View", style: {height: "100%" ,color: "white", textAlign: "center", fontSize: 24, textAlignVertical: "center", fontWeight: "bold"}},)
@@ -55,12 +55,12 @@ class PlayerScreen extends UIComponent {
               Pressable({style: {backgroundColor: "#455A64", borderRadius: 12, borderColor: "black", borderWidth: 4, height: 80}, onClick: (player: Player)=>{
                   this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});
                 }, children: [
-                  Text({text: "Join Queue 1", style: {color: "#00BCD4", height: "100%", textAlign: "center", textAlignVertical: "center", fontSize: 32, fontWeight: "bold"}},)
+                  Text({text: this.queue1Binding, style: {color: "#00BCD4", height: "100%", textAlign: "center", textAlignVertical: "center", fontSize: 32, fontWeight: "bold"}},)
                 ]}),
               Pressable({style: {backgroundColor: "#455A64", borderRadius: 12, borderColor: "black", borderWidth: 4, height: 80}, onClick: (player: Player)=>{
                   this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue2, {player: player});
                 }, children: [
-                  Text({text: "Join Queue 2", style: {color: "#00BCD4", height: "100%", textAlign: "center", textAlignVertical: "center", fontSize: 32, fontWeight: "bold"}},)
+                  Text({text: this.queue2Binding, style: {color: "#00BCD4", height: "100%", textAlign: "center", textAlignVertical: "center", fontSize: 32, fontWeight: "bold"}},)
                 ]})
             ], style: {position: "absolute",width: 220, height: 180, right: 10, bottom: 10, display: "flex", flexDirection: "column", justifyContent: "space-between"}}),
 
@@ -69,9 +69,14 @@ class PlayerScreen extends UIComponent {
 
 
 
-  preStart() {}
+  preStart() {
+    this.connectNetworkBroadcastEvent(Events.updatePlayersInQueue, (payload: {queue1: Player[], queue2: Player[]}) => {
+      this.updatePlayerStatuses(payload.queue1, payload.queue2);
+    });
+  }
   start() {
     this.sendNetworkBroadcastEvent(MobileUIManagerEvents.OnRegisterMobileUI, {ObjectId: "PlayerMobileUI", Object: this.entity});
+
   }
   cancelEvent(event: EventSubscription|undefined) {
     if (event){
@@ -89,6 +94,7 @@ class PlayerScreen extends UIComponent {
 
   receiveOwnership(_serializableState: SerializableState, _oldOwner: Player, _newOwner: Player): void {
     if (_newOwner !== this.world.getServerPlayer()) {
+      this.wearer = _newOwner;
       this.endFloatingViewEvent = this.connectNetworkEvent(_newOwner, PlayerCameraEvents.OnCameraResetPressed, ()=>{
         this.entity.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.VisibleTo);
       });
@@ -99,6 +105,43 @@ class PlayerScreen extends UIComponent {
         this.entity.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.VisibleTo);
       });
     }
+  }
+  private inQueue1 = false;
+  private inQueue2 = false;
+  private queue1Full = false;
+  private queue2Full = false;
+  private updatePlayerStatuses(queue1: Player[], queue2: Player[]): void {
+    if(this.wearer){
+      this.inQueue1 = queue1.includes(this.wearer);
+      this.inQueue2 = queue2.includes(this.wearer);
+    }
+    this.queue1Full = (queue1.length >= 5);
+    this.queue2Full = (queue2.length >= 5);
+    this.updatePlayerDisplay();
+  }
+  private updatePlayerDisplay() {
+    let queue1text = "";
+    let queue2text = "";
+
+    if (this.inQueue1) {
+      queue1text = "Leave Queue 1";
+    } else if (this.queue1Full) {
+      queue1text = "Queue 1 Full";
+    } else {
+      queue1text = "Join Queue 1";
+    }
+
+    if (this.inQueue2) {
+      queue2text = "Leave Queue 2";
+    } else if (this.queue2Full) {
+      queue2text = "Queue 2 Full";
+    } else {
+      queue2text = "Join Queue 2";
+    }
+
+    this.queue1Binding.set(queue1text);
+    this.queue2Binding.set(queue2text);
+
   }
 
 
