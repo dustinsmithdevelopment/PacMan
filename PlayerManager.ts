@@ -21,6 +21,8 @@ class PlayerManager extends Component<typeof PlayerManager> {
     preStart() {
         this.connectNetworkEvent(this.entity, Events.joinQueue1, (payload: {player: Player}) => {this.onJoinQueue1(payload.player);});
         this.connectNetworkEvent(this.entity, Events.joinQueue2, (payload: {player: Player}) => {this.onJoinQueue2(payload.player);});
+        this.connectNetworkEvent(this.entity, Events.leaveQueue1, (payload: {player: Player})=> {this.onLeaveQueue1(payload.player);});
+        this.connectNetworkEvent(this.entity, Events.leaveQueue2, (payload: {player: Player})=> {this.onLeaveQueue2(payload.player);});
         this.connectNetworkEvent(this.entity, Events.startPlayerAssignment, this.assignPlayers.bind(this));
         this.connectNetworkEvent(this.entity, Events.gameEnding, this.returnGamePlayersToLobby.bind(this));
     }
@@ -42,15 +44,25 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.gamePlayers.removePlayer(p)
     }
     onJoinQueue1(p: Player){
-        console.log(p.name.get() + " Requested to join queue 1");
         this.gamePlayers.moveToQueue1(p);
         this.queue1Ready = this.gamePlayers.queue1Full();
         this.updateQueueStates();
     }
+    onLeaveQueue1(p: Player){
+        if (this.gamePlayers.queue1.players.includes(p)){
+            this.gamePlayers.moveToLobby(p);
+        }
+        this.updateQueueStates();
+    }
     onJoinQueue2(p: Player){
-        console.log(p.name.get() + " Requested to join queue 2");
         this.gamePlayers.moveToQueue2(p);
         this.queue2Ready = this.gamePlayers.queue2Full();
+        this.updateQueueStates();
+    }
+    onLeaveQueue2(p: Player){
+        if (this.gamePlayers.queue2.players.includes(p)){
+            this.gamePlayers.moveToLobby(p);
+        }
         this.updateQueueStates();
     }
     private playersAssigned = false;

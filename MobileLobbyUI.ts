@@ -10,6 +10,11 @@ class PlayerScreen extends UIComponent {
   panelWidth = 1920;
   panelHeight = 1080;
 
+  private inQueue1 = false;
+  private inQueue2 = false;
+  private queue1Full = false;
+  private queue2Full = false;
+
   private endFloatingViewEvent: EventSubscription|undefined;
   private hideLobbyUIEvent: EventSubscription|undefined;
   private showLobbyUIEvent: EventSubscription|undefined;
@@ -53,12 +58,22 @@ class PlayerScreen extends UIComponent {
           ]}),
           View({children:[
               Pressable({style: {backgroundColor: "#455A64", borderRadius: 12, borderColor: "black", borderWidth: 4, height: 80}, onClick: (player: Player)=>{
-                  this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});
+                  if (!this.inQueue1) {
+                    this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});
+                  }else {
+                    this.sendNetworkEvent(this.props.playerManager!, Events.leaveQueue1, {player: player});
+                  }
                 }, children: [
                   Text({text: this.queue1Binding, style: {color: "#00BCD4", height: "100%", textAlign: "center", textAlignVertical: "center", fontSize: 32, fontWeight: "bold"}},)
                 ]}),
               Pressable({style: {backgroundColor: "#455A64", borderRadius: 12, borderColor: "black", borderWidth: 4, height: 80}, onClick: (player: Player)=>{
-                  this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue2, {player: player});
+                  if (!this.inQueue2) {
+                    this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue2, {player: player});
+                  }else {
+                    this.sendNetworkEvent(this.props.playerManager!, Events.leaveQueue2, {player: player});
+                  }
+
+
                 }, children: [
                   Text({text: this.queue2Binding, style: {color: "#00BCD4", height: "100%", textAlign: "center", textAlignVertical: "center", fontSize: 32, fontWeight: "bold"}},)
                 ]})
@@ -106,10 +121,7 @@ class PlayerScreen extends UIComponent {
       });
     }
   }
-  private inQueue1 = false;
-  private inQueue2 = false;
-  private queue1Full = false;
-  private queue2Full = false;
+
   private updatePlayerStatuses(queue1: Player[], queue2: Player[]): void {
     if(this.wearer){
       this.inQueue1 = queue1.includes(this.wearer);

@@ -46,6 +46,8 @@ export const Events = {
   updatePlayersInQueue: new NetworkEvent<{queue1: Player[], queue2: Player[]}>("updatePlayersInQueue"),
   joinQueue1: new NetworkEvent<{player: Player}>("joinQueue1"),
   joinQueue2: new NetworkEvent<{player: Player}>("joinQueue2"),
+  leaveQueue1: new NetworkEvent<{player: Player}>("leaveQueue1"),
+  leaveQueue2: new NetworkEvent<{player: Player}>("leaveQueue2"),
   makeGhostEdible: new NetworkEvent<{}>("makeGhostEdible"),
   moveToStart: new NetworkEvent<{}>("moveAllToStart"),
   roleAssignmentComplete: new NetworkEvent<{}>("roleAssignmentComplete"),
