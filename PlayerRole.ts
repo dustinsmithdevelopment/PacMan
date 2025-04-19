@@ -51,6 +51,7 @@ export abstract class PlayerRole extends Component {
         this.attachedPlayer = null;
         this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.VisibleTo);
         this.entity.owner.set(this.world.getServerPlayer());
+        this.entity.position.set(new Vec3(0,1000, 0));
     }
     protected getAttachedPlayer(): Player | null {
         return this.attachedPlayer ?? null;

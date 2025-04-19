@@ -1,4 +1,4 @@
-import {Color, Component, Entity, MeshEntity, PropTypes,} from "horizon/core";
+import {Color, Component, Entity, MeshEntity, PropTypes, Vec3,} from "horizon/core";
 import {EDIBLE_SECONDS, Events} from "./GameUtilities";
 import {PlayerRole} from "./PlayerRole";
 enum GhostState{
@@ -26,6 +26,7 @@ class Ghost extends PlayerRole {
   start() {
     const homePositionRef: Entity = this.props.homePositionRef!
     super.SetHomePosition(homePositionRef.position.get());
+    this.entity.position.set(new Vec3(0,1000, 0));
     this.ghostMesh = this.entity.as(MeshEntity);
     super.setRole("a drone");
   }
