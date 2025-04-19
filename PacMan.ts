@@ -37,7 +37,9 @@ class PacMan extends PlayerRole {
   }
   itemTouched(item: Entity){
     if (!this.collectedEntities.includes(item.id)){
-      this.collectedEntities.push(item.id);
+      if(!item.tags.contains("ghost")){
+        this.collectedEntities.push(item.id);
+      }
       this.sendNetworkEvent(item, Events.touchedByPacman, {});
     }
 
