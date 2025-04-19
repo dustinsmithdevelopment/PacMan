@@ -1,19 +1,19 @@
-import {CodeBlockEvents, Component, Entity, PropTypes, SpawnPointGizmo} from "horizon/core";
+import {CodeBlockEvents, Component, Entity, PropTypes, SpawnPointGizmo, Vec3} from "horizon/core";
 import {Events} from "./GameUtilities";
 
 class PacManTeleporter extends Component<typeof PacManTeleporter> {
-  private spawnPoint: SpawnPointGizmo|undefined;
+  private target: Vec3|undefined;
   static propsDefinition = {
-    spawnPoint: {
+    targetRef: {
       type: PropTypes.Entity,
       required: true,
     }
   };
 
   start() {
-    this.spawnPoint = this.props.spawnPoint!.as(SpawnPointGizmo);
+    this.target = this.props.targetRef!.position.get();
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnEntityEnterTrigger, (playerSuit: Entity)=>{
-      this.sendNetworkEvent(playerSuit, Events.teleportPacman, {spawnPoint: this.spawnPoint!});
+      this.sendNetworkEvent(playerSuit, Events.teleportPacman, {location: this.target!});
     })
   }
 }

@@ -6,7 +6,7 @@ import {
   PlayerVisibilityMode,
   PropTypes,
   SerializableState,
-  SpawnPointGizmo,
+  SpawnPointGizmo, Vec3,
 } from "horizon/core";
 import {Events} from "./GameUtilities";
 import {PlayerRole} from "./PlayerRole";
@@ -21,8 +21,8 @@ class PacMan extends PlayerRole {
 
   preStart() {
     super.preStart();
-    this.connectNetworkEvent(this.entity, Events.teleportPacman, (payload: {spawnPoint: SpawnPointGizmo})=>{
-      this.teleportPacman(payload.spawnPoint);
+    this.connectNetworkEvent(this.entity, Events.teleportPacman, (payload: {location: Vec3})=>{
+      this.teleportPacman(payload.location);
     });
     this.connectNetworkEvent(this.entity, Events.respawnPacman, ()=>{this.respawn();})
   }
@@ -42,8 +42,8 @@ class PacMan extends PlayerRole {
     super.moveToStart();
   }
 
-  teleportPacman(spawnPoint: SpawnPointGizmo){
-    spawnPoint.teleportPlayer(super.getAttachedPlayer()!);
+  teleportPacman(location: Vec3){
+    super.getAttachedPlayer()?.position.set(location);
   }
   transferOwnership(_oldOwner: Player, _newOwner: Player): SerializableState {
     if (_oldOwner !== this.world.getServerPlayer()) {
