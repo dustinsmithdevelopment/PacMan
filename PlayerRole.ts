@@ -28,13 +28,17 @@ export abstract class PlayerRole extends Component {
     protected SetHomePosition(position: Vec3): void {
         this.homePosition = position;
     }
+    private attempts = 0;
     protected moveToStart(){
         console.log("Trying to move", this.role, "to start.")
         if (this.attachedPlayer && this.homePosition){
             this.attachedPlayer!.avatarScale.set(GAME_SCALE);
             if(!this.attachedPlayer.name.get().startsWith("NPC"))
                 this.attachedPlayer!.position.set(this.homePosition);
-        } else this.async.setTimeout(this.moveToStart.bind(this), 100);
+        } else {
+            this.attempts += 1;
+            if (this.attempts < 10) this.async.setTimeout(this.moveToStart.bind(this), 100);
+        }
 
 
     }
@@ -51,7 +55,12 @@ export abstract class PlayerRole extends Component {
         this.attachedPlayer = null;
         this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.VisibleTo);
         this.entity.owner.set(this.world.getServerPlayer());
-        this.entity.position.set(new Vec3(0,1000, 0));
+        if (this.role === "a drone"){
+            this.entity.position.set(new Vec3(0,1000, 0));
+        } else {
+            this.entity.position.set(new Vec3(0,500, 0));
+        }
+
     }
     protected getAttachedPlayer(): Player | null {
         return this.attachedPlayer ?? null;

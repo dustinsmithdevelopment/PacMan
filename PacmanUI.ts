@@ -201,6 +201,15 @@ class PacmanUI extends UIComponent {
 
   preStart() {
     this.connectNetworkBroadcastEvent(Events.resetGame, this.showAll.bind(this));
+    this.connectNetworkBroadcastEvent(Events.pacDotCollected, (payload: {pacDot: Entity})=>{
+      this.hidePacDot(payload.pacDot);
+    });
+    this.connectNetworkBroadcastEvent(Events.fruitCollected, (payload: {fruit: Entity})=>{
+      this.hidePacDot(payload.fruit);
+    });
+    this.connectNetworkBroadcastEvent(Events.powerPelletCollected, (payload: {powerPellet: Entity})=>{
+      this.hidePacDot(payload.powerPellet);
+    });
   }
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (p: Player) => {

@@ -34,7 +34,7 @@ class PacMan extends PlayerRole {
     });
     const homePositionRef: Entity = this.props.homePositionRef!
     super.SetHomePosition(homePositionRef.position.get());
-    this.entity.position.set(new Vec3(0,1000, 0));
+    this.entity.position.set(new Vec3(0,500, 0));
     super.setRole("the dragon");
   }
   itemTouched(item: Entity){
