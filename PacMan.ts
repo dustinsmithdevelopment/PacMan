@@ -18,6 +18,7 @@ class PacMan extends PlayerRole {
     manager: {type: PropTypes.Entity, required: true},
     pacmanUI: {type: PropTypes.Entity, required: true},
   };
+  private collectedEntities: bigint[] = [];
 
   preStart() {
     super.preStart();
@@ -25,6 +26,7 @@ class PacMan extends PlayerRole {
       this.teleportPacman(payload.location);
     });
     this.connectNetworkEvent(this.entity, Events.respawnPacman, ()=>{this.respawn();})
+    this.connectNetworkBroadcastEvent(Events.resetGame, ()=>{this.collectedEntities = [];});
   }
   start() {
     this.connectCodeBlockEvent(this.props.collectionTrigger, CodeBlockEvents.OnEntityEnterTrigger, (entity: Entity)=>{
@@ -34,8 +36,11 @@ class PacMan extends PlayerRole {
     super.setRole("PacMan");
   }
   itemTouched(item: Entity){
-    // console.log("itemTouched", item.name.get());
-    this.sendNetworkEvent(item, Events.touchedByPacman, {});
+    if (!this.collectedEntities.includes(item.id)){
+      this.collectedEntities.push(item.id);
+      this.sendNetworkEvent(item, Events.touchedByPacman, {});
+    }
+
   }
   respawn(){
     console.log("Event is being received by pacman to respawn");

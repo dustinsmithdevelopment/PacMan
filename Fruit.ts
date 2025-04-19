@@ -4,7 +4,6 @@ import {Events} from "./GameUtilities";
 class Fruit extends Component<typeof Fruit> {
   private points: number = 40;
   static propsDefinition = {
-    manager: {type: PropTypes.Entity},
     pointValue: { type: PropTypes.Number },
   };
   preStart() {
@@ -16,11 +15,12 @@ class Fruit extends Component<typeof Fruit> {
       this.points = this.props.pointValue.valueOf();
     }
   }
+
   collected() {
     console.log("Fruit Collected");
     this.entity.visible.set(false);
     this.entity.collidable.set(false);
-    this.sendNetworkEvent(this.props.manager!, Events.collectFruit, {});
+    this.sendNetworkBroadcastEvent(Events.fruitCollected, {fruit: this.entity});
   }
 
 }

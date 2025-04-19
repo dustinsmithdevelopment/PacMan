@@ -15,7 +15,7 @@ class PacDot extends Component<typeof PacDot> {
     this.registerComponent();
   }
   registerComponent() {
-    this.sendNetworkBroadcastEvent(Events.registerPacDot, {pacDot: this.entity});
+    this.sendNetworkEvent(this.props.GameManager!, Events.registerPacDot, {pacDot: this.entity});
   }
   collected(){
     console.log("PacDot Collected");

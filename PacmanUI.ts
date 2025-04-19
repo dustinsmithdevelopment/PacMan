@@ -200,12 +200,7 @@ class PacmanUI extends UIComponent {
 
 
   preStart() {
-    this.connectNetworkEvent(this.entity, Events.assignPlayer, (payload: { player: Player }) => {
-      this.assignPlayer(payload.player)
-    });
-    this.connectNetworkEvent(this.entity, Events.unassignPlayer, () => {
-      this.unassignPlayer()
-    });
+    this.connectNetworkBroadcastEvent(Events.resetGame, this.showAll.bind(this));
   }
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (p: Player) => {
@@ -252,15 +247,6 @@ class PacmanUI extends UIComponent {
 
 
   }
-
-
-  assignPlayer(p: Player) {
-
-
-  }
-  unassignPlayer() {
-    this.entity.owner.set(this.world.getServerPlayer());
-  }
   setItemPositions(){
     this.pacDots.forEach((dot: Entity, index: number)=>{
       const currentDotLocation = dot.position.get().sub(this.origin!).mul(MAP_UPSCALE);
@@ -287,6 +273,33 @@ class PacmanUI extends UIComponent {
     });
     this.fruitDisplayLocationsX.set(this.fruitLocationsX);
     this.fruitDisplayLocationsY.set(this.fruitLocationsY);
+  }
+
+  hidePacDot(pacDot: Entity) {
+    const index = this.pacDots.indexOf(pacDot);
+    this.pacDotVisibility[index] = "none";
+    this.pacDotDisplayVisibility.set(this.pacDotVisibility);
+  }
+  hideFruit(fruit: Entity) {
+    const index = this.fruits.indexOf(fruit);
+    this.fruitVisibility[index] = "none";
+    this.fruitDisplayVisibility.set(this.fruitVisibility);
+  }
+  hidePowerPellet(powerPellet: Entity) {
+    const index = this.powerPellets.indexOf(powerPellet);
+    this.powerPelletVisibility[index] = "none";
+    this.powerPelletDisplayVisibility.set(this.powerPelletVisibility);
+  }
+  showAll(){
+    this.pacDotVisibility = Array(this.pacDots.length).fill("flex");
+    this.pacDotDisplayVisibility.set(this.pacDotVisibility);
+
+    this.powerPelletVisibility = Array(this.powerPellets.length).fill("flex");
+    this.powerPelletDisplayVisibility.set(this.powerPelletVisibility);
+
+    this.fruitVisibility = Array(this.fruits.length).fill("flex");
+    this.fruitDisplayVisibility.set(this.fruitVisibility);
+
   }
 
 }
