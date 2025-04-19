@@ -1,4 +1,4 @@
-import {Color, Component, MeshEntity, PropTypes,} from "horizon/core";
+import {Color, Component, Entity, MeshEntity, PropTypes,} from "horizon/core";
 import {EDIBLE_SECONDS, Events} from "./GameUtilities";
 import {PlayerRole} from "./PlayerRole";
 enum GhostState{
@@ -12,7 +12,7 @@ class Ghost extends PlayerRole {
   private edibleCooldown: number|undefined;
   private blueFlash: number|undefined;
   static propsDefinition = {
-    homePositionSpawn: {type: PropTypes.Entity, required: true},
+    homePositionRef: {type: PropTypes.Entity, required: true},
     manager: {type: PropTypes.Entity, required: true},
   };
   private ghostState: GhostState = GhostState.enemy;
@@ -24,9 +24,10 @@ class Ghost extends PlayerRole {
     this.connectNetworkEvent(this.entity, Events.makeGhostEdible, this.becomeEdible.bind(this));
   }
   start() {
-    super.SetSpawnPoint(this.props.homePositionSpawn!);
+    const homePositionRef: Entity = this.props.homePositionRef!
+    super.SetHomePosition(homePositionRef.position.get());
     this.ghostMesh = this.entity.as(MeshEntity);
-    super.setRole("a ghost");
+    super.setRole("a drone");
   }
   touchedByPacman() {
     // console.log("I'm a ghost and pacman touched me.")

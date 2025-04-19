@@ -13,7 +13,7 @@ import {PlayerRole} from "./PlayerRole";
 
 class PacMan extends PlayerRole {
   static propsDefinition = {
-    homePositionSpawn: {type: PropTypes.Entity, required: true},
+    homePositionRef: {type: PropTypes.Entity, required: true},
     collectionTrigger: {type: PropTypes.Entity, required: true},
     manager: {type: PropTypes.Entity, required: true},
     pacmanUI: {type: PropTypes.Entity, required: true},
@@ -32,8 +32,9 @@ class PacMan extends PlayerRole {
     this.connectCodeBlockEvent(this.props.collectionTrigger, CodeBlockEvents.OnEntityEnterTrigger, (entity: Entity)=>{
       this.itemTouched(entity);
     });
-    super.SetSpawnPoint(this.props.homePositionSpawn!);
-    super.setRole("PacMan");
+    const homePositionRef: Entity = this.props.homePositionRef!
+    super.SetHomePosition(homePositionRef.position.get());
+    super.setRole("the dragon");
   }
   itemTouched(item: Entity){
     if (!this.collectedEntities.includes(item.id)){
@@ -59,7 +60,7 @@ class PacMan extends PlayerRole {
     }
     return super.transferOwnership(_oldOwner, _newOwner);
   }
-  receiveOwnership(state: { spawnPointGizmo: SpawnPointGizmo }, _oldOwner: Player, _newOwner: Player) {
+  receiveOwnership(state: { homePosition: Vec3 }, _oldOwner: Player, _newOwner: Player) {
     if (_newOwner !== this.world.getServerPlayer()) {
       const pacmanUI: Entity = this.props.pacmanUI;
       pacmanUI.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.VisibleTo);

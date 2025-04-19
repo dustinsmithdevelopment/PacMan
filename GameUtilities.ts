@@ -44,7 +44,7 @@ export const Events = {
   leaveQueue1: new NetworkEvent<{player: Player}>("leaveQueue1"),
   leaveQueue2: new NetworkEvent<{player: Player}>("leaveQueue2"),
   makeGhostEdible: new NetworkEvent<{}>("makeGhostEdible"),
-  moveToStart: new NetworkEvent<{}>("moveAllToStart"),
+  moveToStart: new NetworkEvent<{}>("moveToStart"),
   roleAssignmentComplete: new NetworkEvent<{}>("roleAssignmentComplete"),
   teleportPacman: new NetworkEvent<{location: Vec3}>("teleportPacman"),
   respawnPacman: new NetworkEvent<{}>("respawnPacman"),

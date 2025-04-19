@@ -34,7 +34,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
     }
     onPlayerEnterWorld(p: Player){
         this.gamePlayers.moveToLobby(p);
-        this.lobbySpawn?.teleportPlayer(p);
+        // TODO ADD THIS BACK
         p.avatarScale.set(LOBBY_SCALE);
     }
     onPlayerExitWorld(p: Player){
@@ -80,7 +80,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
                 this.gamePlayers.queue2.players = []
             }
             this.updateQueueStates();
-            const pacPlayer = Math.floor(Math.random() * playerCount)
+            const pacPlayer = Math.floor(Math.random() * playerCount);
             for (let i = 0; i < playerCount; i++) {
                 if (i === pacPlayer) {
                     this.gamePlayers.makePacman(nextMatchPlayers[i]);
@@ -117,16 +117,32 @@ class PlayerManager extends Component<typeof PlayerManager> {
         // this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});
         this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});},800);
         // this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});
-        this.async.setTimeout(()=>{this.moveGamePlayersToStart()}, 2_000);
+        this.async.setTimeout(()=>{
+            // this.moveGamePlayersToStart()}, 2_000);
+            this.sendNetworkEvent(this.props.gameManager!, Events.roleAssignmentComplete, {});
+    });
     }
-    moveGamePlayersToStart(){
-        this.sendNetworkEvent(this.props.pacman! ,Events.moveToStart, {});
-        this.sendNetworkEvent(this.props.ghost1! ,Events.moveToStart, {});
-        this.sendNetworkEvent(this.props.ghost2! ,Events.moveToStart, {});
-        this.sendNetworkEvent(this.props.ghost3! ,Events.moveToStart, {});
-        this.sendNetworkEvent(this.props.ghost4! ,Events.moveToStart, {});
-        this.sendNetworkEvent(this.props.gameManager!, Events.roleAssignmentComplete, {});
-    }
+    // moveGamePlayersToStart(){
+    //     this.async.setTimeout(()=>{
+    //         this.sendNetworkEvent(this.props.pacman!, Events.moveToStart, {});
+    //     },100);
+    //     this.async.setTimeout(()=>{
+    //         this.sendNetworkEvent(this.props.ghost1!, Events.moveToStart, {});
+    //     },200);
+    //     this.async.setTimeout(()=>{
+    //         this.sendNetworkEvent(this.props.ghost2!, Events.moveToStart, {});
+    //     },300);
+    //     this.async.setTimeout(()=>{
+    //         this.sendNetworkEvent(this.props.ghost3!, Events.moveToStart, {});
+    //     },400);
+    //     this.async.setTimeout(()=>{
+    //         this.sendNetworkEvent(this.props.ghost4!, Events.moveToStart, {});
+    //     },500);
+    //     this.async.setTimeout(()=>{
+    //         this.sendNetworkEvent(this.props.gameManager!, Events.roleAssignmentComplete, {});
+    //     },700);
+    //
+    // }
     returnGamePlayersToLobby (player: Player){
         this.sendNetworkEvent(this.props.pacman!, Events.unassignPlayer, {});
         this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.unassignPlayer, {});},200);

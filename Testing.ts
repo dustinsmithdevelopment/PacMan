@@ -1,7 +1,29 @@
-import {CodeBlockEvents, Component, Entity, PhysicalEntity, Player, PropTypes, Vec3} from "horizon/core";
+import {
+  AttachableEntity,
+  AttachablePlayerAnchor,
+  CodeBlockEvents,
+  Component,
+  Entity,
+  PhysicalEntity,
+  Player,
+  PropTypes
+} from "horizon/core";
 import {Events} from "./GameUtilities";
 
+class AttachSuit extends Component{
+  static propsDefinition = {
+    suit: {type: PropTypes.Entity}
+  };
 
+  start() {
+    this.entity.as(PhysicalEntity).locked.set(true);
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
+      const suit: Entity = this.props.suit;
+      suit.as(AttachableEntity).attachToPlayer(player, AttachablePlayerAnchor.Head);
+    });
+  }
+}
+Component.register(AttachSuit);
 class PlayerJoinEmulation extends Component{
   static propsDefinition = {
     playerManager: {type: PropTypes.Entity}
@@ -109,6 +131,7 @@ Component.register(RemoveGhost);
 
 
 
+
 // class GenericComponent extends Component{
 //     static propsDefinition = {};
 //     preStart() {
@@ -120,3 +143,4 @@ Component.register(RemoveGhost);
 //     }
 // }
 // Component.register(GenericComponent);
+
