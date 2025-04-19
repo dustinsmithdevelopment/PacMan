@@ -60,6 +60,7 @@ class Ghost extends PlayerRole {
   private blue = false;
   flashBlue(){
     if (this.ghostMesh){
+      this.blue = !this.blue;
       if (this.blue) {
         this.ghostMesh.style.tintStrength.set(0);
       } else {
