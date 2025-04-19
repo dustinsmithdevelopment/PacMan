@@ -18,11 +18,6 @@ const ICON_SIZE = 16;
 const MOVE_UP = 0;
 const MOVE_RIGHT = 10;
 
-
-
-
-//TODO GENERATE ARRAY ON EACH CYCLE
-
 class PacmanUI extends UIComponent {
   panelWidth = 1920;
   panelHeight = 1080;
@@ -205,10 +200,10 @@ class PacmanUI extends UIComponent {
       this.hidePacDot(payload.pacDot);
     });
     this.connectNetworkBroadcastEvent(Events.fruitCollected, (payload: {fruit: Entity})=>{
-      this.hidePacDot(payload.fruit);
+      this.hideFruit(payload.fruit);
     });
     this.connectNetworkBroadcastEvent(Events.powerPelletCollected, (payload: {powerPellet: Entity})=>{
-      this.hidePacDot(payload.powerPellet);
+      this.hidePowerPellet(payload.powerPellet);
     });
   }
   start() {
