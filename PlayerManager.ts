@@ -99,6 +99,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
     suitUp() {
         // suit up requested
         this.pacman = this.gamePlayers.pacman!;
+        this.sendNetworkBroadcastEvent(Events.setPacman, {pacMan: this.gamePlayers.pacman!});
         console.log("Pacman",this.pacman.name.get());
         this.ghost1 = this.gamePlayers.ghosts.players[0];
         console.log("Ghost1",this.ghost1.name.get());

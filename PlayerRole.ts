@@ -48,7 +48,7 @@ export abstract class PlayerRole extends Component {
         this.entity.as(AttachableEntity).attachToPlayer(player, anchorBodyPart);
         this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.HiddenFrom);
         this.world.ui.showPopupForPlayer(player, "You are " + this.role, 5);
-        this.moveToStart();
+        this.async.setTimeout(this.moveToStart.bind(this), 100);
     }
     private removeFromPlayer(player: Player) {
         this.entity.as(AttachableEntity).detach();

@@ -65,7 +65,6 @@ class PacMan extends PlayerRole {
     if (_newOwner !== this.world.getServerPlayer()) {
       const pacmanUI: Entity = this.props.pacmanUI;
       pacmanUI.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.VisibleTo);
-      this.sendNetworkBroadcastEvent(Events.setPacman, {pacMan: _newOwner});
     }
     super.receiveOwnership(state, _oldOwner, _newOwner);
   }
