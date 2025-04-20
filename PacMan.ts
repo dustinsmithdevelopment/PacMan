@@ -13,7 +13,7 @@ import {PlayerRole} from "./PlayerRole";
 
 class PacMan extends PlayerRole {
   static propsDefinition = {
-    homePositionRef: {type: PropTypes.Entity, required: true},
+    homePositionSpawn: {type: PropTypes.Entity, required: true},
     collectionTrigger: {type: PropTypes.Entity, required: true},
     manager: {type: PropTypes.Entity, required: true},
     pacmanUI: {type: PropTypes.Entity, required: true},
@@ -32,8 +32,9 @@ class PacMan extends PlayerRole {
     this.connectCodeBlockEvent(this.props.collectionTrigger, CodeBlockEvents.OnEntityEnterTrigger, (entity: Entity)=>{
       this.itemTouched(entity);
     });
-    const homePositionRef: Entity = this.props.homePositionRef!
-    super.SetHomePosition(homePositionRef.position.get());
+    // TODO
+    const homePositionSpawn: Entity = this.props.homePositionSpawn!
+    super.SetHomePosition(homePositionSpawn);
     this.entity.position.set(new Vec3(0,500, 0));
     super.setRole("the dragon");
   }
@@ -61,7 +62,7 @@ class PacMan extends PlayerRole {
     }
     return super.transferOwnership(_oldOwner, _newOwner);
   }
-  receiveOwnership(state: { homePosition: Vec3 }, _oldOwner: Player, _newOwner: Player) {
+  receiveOwnership(state: { homePosition: Entity }, _oldOwner: Player, _newOwner: Player) {
     if (_newOwner !== this.world.getServerPlayer()) {
       const pacmanUI: Entity = this.props.pacmanUI;
       pacmanUI.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.VisibleTo);

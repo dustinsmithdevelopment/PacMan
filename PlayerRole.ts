@@ -12,54 +12,28 @@ import {anchorBodyPart, Events, GAME_SCALE} from "./GameUtilities";
 
 export abstract class PlayerRole extends Component {
     protected attachedPlayer: Player|null = null;
-    private homePosition: Vec3| undefined;
+    private homePosition: SpawnPointGizmo|undefined;
     private role = "";
 
     preStart() {
         super.preStart();
-        this.connectNetworkEvent(this.entity, Events.assignPlayer, (data: {player: Player})=>{this.assignToPlayer(data.player)});
-        this.connectNetworkEvent(this.entity, Events.unassignPlayer, (data: {player: Player})=>{this.removeFromPlayer(data.player)});
-        // this.connectNetworkEvent(this.entity, Events.moveToStart, this.moveToStart.bind(this));
     }
     protected setRole(role: string){
         this.role = role;
     }
 
-    protected SetHomePosition(position: Vec3): void {
-        this.homePosition = position;
+    protected SetHomePosition(position: Entity): void {
+        this.homePosition = position.as(SpawnPointGizmo);
     }
-    private attempts = 0;
     protected moveToStart(){
         console.log("Trying to move", this.role, "to start.")
         if (this.attachedPlayer && this.homePosition){
             this.attachedPlayer!.avatarScale.set(GAME_SCALE);
-            if(!this.attachedPlayer.name.get().startsWith("NPC"))
-                this.attachedPlayer!.position.set(this.homePosition);
-        } else {
-            this.attempts += 1;
-            if (this.attempts < 10) this.async.setTimeout(this.moveToStart.bind(this), 100);
-        }
+            // if(!this.attachedPlayer.name.get().startsWith("NPC")) {
+                console.log("Command sent to send", this.role, "to start for", this.attachedPlayer.name.get());
+                this.homePosition.teleportPlayer(this.attachedPlayer);
+            }
 
-
-    }
-    private assignToPlayer(player: Player) {
-        this.entity.owner.set(player);
-        this.attachedPlayer = player;
-        this.entity.as(AttachableEntity).attachToPlayer(player, anchorBodyPart);
-        this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.HiddenFrom);
-        this.world.ui.showPopupForPlayer(player, "You are " + this.role, 5);
-        this.async.setTimeout(this.moveToStart.bind(this), 100);
-    }
-    private removeFromPlayer(player: Player) {
-        this.entity.as(AttachableEntity).detach();
-        this.attachedPlayer = null;
-        this.entity.setVisibilityForPlayers([player], PlayerVisibilityMode.VisibleTo);
-        this.entity.owner.set(this.world.getServerPlayer());
-        if (this.role === "a drone"){
-            this.entity.position.set(new Vec3(0,1000, 0));
-        } else {
-            this.entity.position.set(new Vec3(0,500, 0));
-        }
 
     }
     protected getAttachedPlayer(): Player | null {
@@ -72,14 +46,28 @@ export abstract class PlayerRole extends Component {
         if (_newOwner !== this.world.getServerPlayer()) {
             this.sendNetworkEvent(_newOwner, Events.hideLobbyUI, {});
         }
+        this.entity.as(AttachableEntity).detach();
+        this.attachedPlayer = null;
+        this.entity.setVisibilityForPlayers([_oldOwner], PlayerVisibilityMode.VisibleTo);
+        if (this.role === "a drone"){
+            this.entity.position.set(new Vec3(0,1000, 0));
+        } else {
+            this.entity.position.set(new Vec3(0,500, 0));
+        }
         return {
-            homePosition: this.homePosition!,
+            homePosition: this.homePosition!.as(Entity),
     }
     }
-    receiveOwnership( state: {
-            homePosition: Vec3}, _oldOwner: Player, _newOwner: Player) {
-        this.homePosition = state?.homePosition;
-        this.attachedPlayer = _newOwner;
+    receiveOwnership( state: { homePosition: Entity}, _oldOwner: Player, _newOwner: Player) {
+        this.homePosition = state?.homePosition.as(SpawnPointGizmo);
+        if (_newOwner !== this.world.getServerPlayer()) {
+            this.attachedPlayer = _newOwner;
+            this.entity.as(AttachableEntity).attachToPlayer(_newOwner, anchorBodyPart);
+            this.entity.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.HiddenFrom);
+            this.world.ui.showPopupForPlayer(_newOwner, "You are " + this.role, 5);
+            this.async.setTimeout(this.moveToStart.bind(this), 100);
+        }
+
     }
 
 }

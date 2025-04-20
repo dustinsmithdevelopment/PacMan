@@ -1,4 +1,12 @@
-import {CodeBlockEvent, CodeBlockEvents, Component, Player, PropTypes, SpawnPointGizmo} from "horizon/core";
+import {
+    AttachableEntity,
+    CodeBlockEvent,
+    CodeBlockEvents,
+    Component,
+    Player,
+    PropTypes,
+    SpawnPointGizmo
+} from "horizon/core";
 import {Events, GamePlayers, playerCount, PlayerList, LOBBY_SCALE, GAME_SCALE} from "./GameUtilities";
 import {Camera} from "horizon/camera";
 
@@ -109,14 +117,19 @@ class PlayerManager extends Component<typeof PlayerManager> {
         console.log("Ghost3",this.ghost3.name.get());
         this.ghost4 = this.gamePlayers.ghosts.players[3];
         console.log("Ghost4",this.ghost4.name.get());
-        this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: this.pacman});
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.assignPlayer, {player: this.ghost1!});},200);
+        // this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: this.pacman});
+        this.props.pacman!.as(AttachableEntity).owner.set(this.pacman);
+        this.props.ghost1!.as(AttachableEntity).owner.set(this.ghost1);
+        this.props.ghost2!.as(AttachableEntity).owner.set(this.ghost2);
+        this.props.ghost3!.as(AttachableEntity).owner.set(this.ghost3);
+        this.props.ghost4!.as(AttachableEntity).owner.set(this.ghost4);
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.assignPlayer, {player: this.ghost1!});},200);
         // this.sendNetworkEvent(this.props.ghost1!, Events.assignPlayer, {player: this.ghost1!});
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.assignPlayer, {player: this.ghost2!});},400);
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.assignPlayer, {player: this.ghost2!});},400);
         // this.sendNetworkEvent(this.props.ghost2!, Events.assignPlayer, {player: this.ghost2!});
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});},600);
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});},600);
         // this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});},800);
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});},800);
         // this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});
         this.async.setTimeout(()=>{
             // this.moveGamePlayersToStart()}, 2_000);
@@ -145,11 +158,16 @@ class PlayerManager extends Component<typeof PlayerManager> {
     //
     // }
     returnGamePlayersToLobby (player: Player){
-        this.sendNetworkEvent(this.props.pacman!, Events.unassignPlayer, {});
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.unassignPlayer, {});},200);
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.unassignPlayer, {});},400);
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.unassignPlayer, {});},600);
-        this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.unassignPlayer, {});},800);
+        this.props.pacman!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
+        this.props.ghost1!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
+        this.props.ghost2!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
+        this.props.ghost3!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
+        this.props.ghost4!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
+        // this.sendNetworkEvent(this.props.pacman!, Events.unassignPlayer, {});
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.unassignPlayer, {});},200);
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.unassignPlayer, {});},400);
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.unassignPlayer, {});},600);
+        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.unassignPlayer, {});},800);
         this.async.setTimeout(()=>{
             this.lobbySpawn?.teleportPlayer(this.pacman!);
             this.pacman!.avatarScale.set(LOBBY_SCALE);

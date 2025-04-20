@@ -8,7 +8,7 @@ export const playerCount = 5;
 export const pacmanInvinsiblityTime = 10;
 export const anchorBodyPart = AttachablePlayerAnchor.Head;
 export const setupDelaySecs = 10;
-export const gameCheckFrequencySecs = 10;
+export const gameCheckFrequencySecs = 1;
 export const EDIBLE_SECONDS = 20;
 
 export const LOBBY_SCALE = 8;
@@ -29,8 +29,6 @@ export const Events = {
   pacmanDead: new NetworkEvent<{}>("pacmanDead"),
   touchedByPacman: new NetworkEvent<{}>("touchedByPacman"),
   startPlayerAssignment: new NetworkEvent<{}>("startPlayerAssignment"),
-  assignPlayer: new NetworkEvent<{ player:Player }>("assignPlayer"),
-  unassignPlayer: new NetworkEvent<{}>("unassignPlayer"),
   fruitCollected: new NetworkEvent<{}>("fruitCollected"),
   fruitCollectable: new NetworkEvent<{}>("fruitCollectable"),
   pacDotCollected: new NetworkEvent<{ pacDot: Entity }>("pacDotCollected"),

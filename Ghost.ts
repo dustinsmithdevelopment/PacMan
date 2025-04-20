@@ -12,7 +12,7 @@ class Ghost extends PlayerRole {
   private edibleCooldown: number|undefined;
   private blueFlash: number|undefined;
   static propsDefinition = {
-    homePositionRef: {type: PropTypes.Entity, required: true},
+    homePositionSpawn: {type: PropTypes.Entity, required: true},
     manager: {type: PropTypes.Entity, required: true},
   };
   private ghostState: GhostState = GhostState.enemy;
@@ -24,8 +24,9 @@ class Ghost extends PlayerRole {
     this.connectNetworkEvent(this.entity, Events.makeGhostEdible, this.becomeEdible.bind(this));
   }
   start() {
-    const homePositionRef: Entity = this.props.homePositionRef!
-    super.SetHomePosition(homePositionRef.position.get());
+    // TODO
+    const homePositionSpawn: Entity = this.props.homePositionSpawn!
+    super.SetHomePosition(homePositionSpawn);
     this.entity.position.set(new Vec3(0,1000, 0));
     this.ghostMesh = this.entity.as(MeshEntity);
     super.setRole("a drone");

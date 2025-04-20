@@ -50,7 +50,7 @@ class ScreenAssignmentEmulation extends Component{
   start() {
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (p: Player) => {
       if (!p.name.get().startsWith("NPC")){
-        this.sendNetworkEvent(this.props.screen!, Events.assignPlayer, {player: p});
+        // this.sendNetworkEvent(this.props.screen!, Events.assignPlayer, {player: p});
       }
 
       
@@ -73,7 +73,7 @@ class SetPacman extends Component{
     this.entity.as(PhysicalEntity).locked.set(true);
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
       console.log("sending assignPacman with ", player);
-      this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: player});
+      // this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: player});
       // this.async.setTimeout(()=>{player.position.set(new Vec3(4,4,6))}, 1000);
     });
   }
@@ -90,7 +90,7 @@ class RemovePacman extends Component{
   start() {
     this.entity.as(PhysicalEntity).locked.set(true);
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
-      this.sendNetworkEvent(this.props.pacman!, Events.unassignPlayer, {player: player});
+      // this.sendNetworkEvent(this.props.pacman!, Events.unassignPlayer, {player: player});
     });
   }
 }
@@ -107,7 +107,7 @@ class SetGhost extends Component{
     this.entity.as(PhysicalEntity).locked.set(true);
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
       console.log("sending assignGhost with ", player);
-      this.sendNetworkEvent(this.props.ghost!, Events.assignPlayer, {player: player});
+      // this.sendNetworkEvent(this.props.ghost!, Events.assignPlayer, {player: player});
     });
   }
 }
@@ -123,7 +123,7 @@ class RemoveGhost extends Component{
   start() {
     this.entity.as(PhysicalEntity).locked.set(true);
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
-      this.sendNetworkEvent(this.props.ghost!, Events.unassignPlayer, {player: player});
+      // this.sendNetworkEvent(this.props.ghost!, Events.unassignPlayer, {player: player});
     });
   }
 }
