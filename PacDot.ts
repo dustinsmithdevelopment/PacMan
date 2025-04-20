@@ -1,18 +1,21 @@
 import {Component, Entity, PropTypes} from "horizon/core";
 import {Events} from "./GameUtilities";
+import {PacmanCollectableItem} from "./PacmanCollectableItem";
 
-class PacDot extends Component<typeof PacDot> {
+class PacDot extends PacmanCollectableItem {
   private gameManager: Entity | undefined;
   static propsDefinition = {
     GameManager: {type: PropTypes.Entity}
   };
   preStart() {
     this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
+    super.preStart();
   }
 
   start() {
     this.gameManager = this.props.GameManager;
     this.registerComponent();
+    super.start();
   }
   registerComponent() {
     this.sendNetworkEvent(this.props.GameManager!, Events.registerPacDot, {pacDot: this.entity});

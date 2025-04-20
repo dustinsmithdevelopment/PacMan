@@ -39,7 +39,7 @@ class PacMan extends PlayerRole {
   }
   itemTouched(item: Entity){
     if (!this.collectedEntities.includes(item.id)){
-      if(!item.tags.contains("ghost")){
+      if(!(item.tags.contains("ghost") || item.tags.contains("fruit"))){
         this.collectedEntities.push(item.id);
       }
       this.sendNetworkEvent(item, Events.touchedByPacman, {});
@@ -65,6 +65,7 @@ class PacMan extends PlayerRole {
     if (_newOwner !== this.world.getServerPlayer()) {
       const pacmanUI: Entity = this.props.pacmanUI;
       pacmanUI.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.VisibleTo);
+      this.sendNetworkBroadcastEvent(Events.setPacman, {pacMan: _newOwner});
     }
     super.receiveOwnership(state, _oldOwner, _newOwner);
   }

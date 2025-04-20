@@ -1,14 +1,4 @@
-import {
-  CodeBlockEvents,
-  Color,
-  Component,
-  Entity,
-  EntityTagMatchOperation,
-  Player,
-  PlayerVisibilityMode,
-  PropTypes,
-  Vec3,
-} from "horizon/core";
+import {Component, Entity, EntityTagMatchOperation, Player, PlayerVisibilityMode, PropTypes, Vec3,} from "horizon/core";
 import {Events} from "./GameUtilities";
 import {Binding, DimensionValue, Image, ImageSource, UIComponent, UINode, View} from "horizon/ui";
 
@@ -195,21 +185,21 @@ class PacmanUI extends UIComponent {
 
 
   preStart() {
-    this.connectNetworkBroadcastEvent(Events.resetGame, this.showAll.bind(this));
+    this.connectNetworkBroadcastEvent(Events.resetGame, this.reset.bind(this));
+    this.connectNetworkBroadcastEvent(Events.setPacman, (payload: {pacMan: Player})=>{
+      this.entity.setVisibilityForPlayers([payload.pacMan],PlayerVisibilityMode.VisibleTo);
+    });
     this.connectNetworkBroadcastEvent(Events.pacDotCollected, (payload: {pacDot: Entity})=>{
       this.hidePacDot(payload.pacDot);
     });
-    this.connectNetworkBroadcastEvent(Events.fruitCollected, (payload: {fruit: Entity})=>{
-      this.hideFruit(payload.fruit);
-    });
+    this.connectNetworkBroadcastEvent(Events.fruitCollected, this.hideFruit.bind(this));
+    this.connectNetworkBroadcastEvent(Events.fruitCollectable, this.showFruit.bind(this));
     this.connectNetworkBroadcastEvent(Events.powerPelletCollected, (payload: {powerPellet: Entity})=>{
       this.hidePowerPellet(payload.powerPellet);
     });
   }
   start() {
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (p: Player) => {
-      this.entity.setVisibilityForPlayers([p], PlayerVisibilityMode.HiddenFrom)
-    });
+    this.entity.visible.set(false);
     this.async.setTimeout(()=>{
       this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
     },3_000)
@@ -284,15 +274,22 @@ class PacmanUI extends UIComponent {
     this.pacDotVisibility[index] = "none";
     this.pacDotDisplayVisibility.set(this.pacDotVisibility);
   }
-  hideFruit(fruit: Entity) {
-    const index = this.fruits.indexOf(fruit);
-    this.fruitVisibility[index] = "none";
+  hideFruit() {
+    this.fruitVisibility[0] = "none";
+    this.fruitDisplayVisibility.set(this.fruitVisibility);
+  }
+  showFruit(){
+    this.fruitVisibility[0] = "flex";
     this.fruitDisplayVisibility.set(this.fruitVisibility);
   }
   hidePowerPellet(powerPellet: Entity) {
     const index = this.powerPellets.indexOf(powerPellet);
     this.powerPelletVisibility[index] = "none";
     this.powerPelletDisplayVisibility.set(this.powerPelletVisibility);
+  }
+  reset(){
+    this.showAll();
+
   }
   showAll(){
     this.pacDotVisibility = Array(this.pacDots.length).fill("flex");
