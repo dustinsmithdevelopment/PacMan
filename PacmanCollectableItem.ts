@@ -8,13 +8,12 @@ export abstract class PacmanCollectableItem extends Component {
         this.connectNetworkBroadcastEvent(Events.resetGame, this.resetState.bind(this));
     }
     start() {
-        this.entity.visible.set(false);
-    }
+        this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);    }
 
     private makeVisibleForPacman(pacMan: Player){
         this.entity.setVisibilityForPlayers([pacMan], PlayerVisibilityMode.VisibleTo);
     }
     private resetState() {
-        this.entity.resetVisibilityForPlayers();
+        this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
     }
 }

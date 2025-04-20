@@ -187,8 +187,7 @@ class PacmanUI extends UIComponent {
   preStart() {
     this.connectNetworkBroadcastEvent(Events.resetGame, this.reset.bind(this));
     this.connectNetworkBroadcastEvent(Events.setPacman, (payload: {pacMan: Player})=>{
-      this.entity.setVisibilityForPlayers([payload.pacMan],PlayerVisibilityMode.VisibleTo);
-    });
+      this.entity.setVisibilityForPlayers([payload.pacMan],PlayerVisibilityMode.VisibleTo);});
     this.connectNetworkBroadcastEvent(Events.pacDotCollected, (payload: {pacDot: Entity})=>{
       this.hidePacDot(payload.pacDot);
     });
@@ -199,10 +198,7 @@ class PacmanUI extends UIComponent {
     });
   }
   start() {
-    this.entity.visible.set(false);
-    this.async.setTimeout(()=>{
-      this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
-    },3_000)
+    this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
 
     const originRef: Entity = this.props.trackingOrigin;
     this.origin = originRef.position.get();
