@@ -1,4 +1,4 @@
-import { UIComponent, Pressable } from "horizon/ui"
+import { UIComponent, UINode, Pressable } from "horizon/ui"
 
 class StartNowButton extends UIComponent<typeof StartNowButton> {
   static propsDefinition = {};
