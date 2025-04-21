@@ -48,7 +48,6 @@ export abstract class PlayerRole extends Component {
         }
         this.entity.as(AttachableEntity).detach();
         this.attachedPlayer = null;
-        this.entity.setVisibilityForPlayers([_oldOwner], PlayerVisibilityMode.VisibleTo);
         if (this.role === "a drone"){
             this.entity.position.set(new Vec3(0,1000, 0));
         } else {
@@ -63,7 +62,6 @@ export abstract class PlayerRole extends Component {
         if (_newOwner !== this.world.getServerPlayer()) {
             this.attachedPlayer = _newOwner;
             this.entity.as(AttachableEntity).attachToPlayer(_newOwner, anchorBodyPart);
-            this.entity.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.HiddenFrom);
             this.world.ui.showPopupForPlayer(_newOwner, "You are " + this.role, 5);
             this.async.setTimeout(this.moveToStart.bind(this), 100);
         }

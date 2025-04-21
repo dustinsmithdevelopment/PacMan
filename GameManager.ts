@@ -75,7 +75,7 @@ class GameManager extends Component<typeof GameManager> {
     this.currentGameState = GameState.Starting;
     this.remainingPacDots = new Map(this.allPacDots);
     this.lives = 3;
-    this.sendNetworkEvent(this.props.playerManager!, Events.startPlayerAssignment, {});
+    this.sendNetworkEvent(this.props.playerManager!, Events.startPlayerAssignment, {force: false});
   }
   startGame() {
     this.pacmanInvincible = false;

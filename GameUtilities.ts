@@ -28,7 +28,7 @@ export const Events = {
   setPacman: new NetworkEvent<{ pacMan: Player }>("SetPacman"),
   pacmanDead: new NetworkEvent<{}>("pacmanDead"),
   touchedByPacman: new NetworkEvent<{}>("touchedByPacman"),
-  startPlayerAssignment: new NetworkEvent<{}>("startPlayerAssignment"),
+  startPlayerAssignment: new NetworkEvent<{force: boolean}>("startPlayerAssignment"),
   fruitCollected: new NetworkEvent<{}>("fruitCollected"),
   fruitCollectable: new NetworkEvent<{}>("fruitCollectable"),
   pacDotCollected: new NetworkEvent<{ pacDot: Entity }>("pacDotCollected"),

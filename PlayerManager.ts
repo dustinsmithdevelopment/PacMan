@@ -8,7 +8,8 @@ import {
     SpawnPointGizmo
 } from "horizon/core";
 import {Events, GamePlayers, playerCount, PlayerList, LOBBY_SCALE, GAME_SCALE} from "./GameUtilities";
-import {Camera} from "horizon/camera";
+import {Camera, CameraMode} from "horizon/camera";
+import {PlayerCameraEvents} from "./PlayerCamera";
 
 class PlayerManager extends Component<typeof PlayerManager> {
     static propsDefinition = {
@@ -31,7 +32,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.connectNetworkEvent(this.entity, Events.joinQueue2, (payload: {player: Player}) => {this.onJoinQueue2(payload.player);});
         this.connectNetworkEvent(this.entity, Events.leaveQueue1, (payload: {player: Player})=> {this.onLeaveQueue1(payload.player);});
         this.connectNetworkEvent(this.entity, Events.leaveQueue2, (payload: {player: Player})=> {this.onLeaveQueue2(payload.player);});
-        this.connectNetworkEvent(this.entity, Events.startPlayerAssignment, this.assignPlayers.bind(this));
+        this.connectNetworkEvent(this.entity, Events.startPlayerAssignment, (payload: {force: boolean})=>{this.assignPlayers(payload.force);});
         this.connectNetworkEvent(this.entity, Events.gameEnding, this.returnGamePlayersToLobby.bind(this));
     }
 
@@ -74,12 +75,12 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.updateQueueStates();
     }
     private playersAssigned = false;
-    assignPlayers(){
+    assignPlayers(force: boolean = false){
         console.log("Assigning Players");
         if (!this.playersAssigned) {
             this.playersAssigned = true;
             let nextMatchPlayers: Player[] = [];
-            if (this.queue1Ready) {
+            if (force || this.queue1Ready) {
                 nextMatchPlayers = [...this.gamePlayers.queue1.players];
                 this.gamePlayers.queue1.players = [...this.gamePlayers.queue2.players];
                 this.gamePlayers.queue2.players = []
@@ -87,9 +88,12 @@ class PlayerManager extends Component<typeof PlayerManager> {
                 nextMatchPlayers = [...this.gamePlayers.queue2.players];
                 this.gamePlayers.queue2.players = []
             }
+            nextMatchPlayers.forEach((p: Player) => {
+                this.sendNetworkEvent(p, PlayerCameraEvents.SetCameraMode, {mode: CameraMode.FirstPerson});
+            });
             this.updateQueueStates();
-            const pacPlayer = Math.floor(Math.random() * playerCount);
-            for (let i = 0; i < playerCount; i++) {
+            const pacPlayer = Math.floor(Math.random() * nextMatchPlayers.length);
+            for (let i = 0; i < nextMatchPlayers.length; i++) {
                 if (i === pacPlayer) {
                     this.gamePlayers.makePacman(nextMatchPlayers[i]);
                 } else {
@@ -108,66 +112,30 @@ class PlayerManager extends Component<typeof PlayerManager> {
         // suit up requested
         this.pacman = this.gamePlayers.pacman!;
         this.sendNetworkBroadcastEvent(Events.setPacman, {pacMan: this.gamePlayers.pacman!});
-        console.log("Pacman",this.pacman.name.get());
+        // console.log("Pacman",this.pacman.name.get());
         this.ghost1 = this.gamePlayers.ghosts.players[0];
-        console.log("Ghost1",this.ghost1.name.get());
-        this.ghost2 = this.gamePlayers.ghosts.players[1];
-        console.log("Ghost2",this.ghost2.name.get());
-        this.ghost3 = this.gamePlayers.ghosts.players[2];
-        console.log("Ghost3",this.ghost3.name.get());
-        this.ghost4 = this.gamePlayers.ghosts.players[3];
-        console.log("Ghost4",this.ghost4.name.get());
-        // this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: this.pacman});
+        // console.log("Ghost1",this.ghost1.name.get());
+        this.ghost2 = this.gamePlayers.ghosts.players[1] ?? undefined;
+        // console.log("Ghost2",this.ghost2.name.get());
+        this.ghost3 = this.gamePlayers.ghosts.players[2] ?? undefined;
+        // console.log("Ghost3",this.ghost3.name.get());
+        this.ghost4 = this.gamePlayers.ghosts.players[3] ?? undefined;
+        // console.log("Ghost4",this.ghost4.name.get());
         this.props.pacman!.as(AttachableEntity).owner.set(this.pacman);
         this.props.ghost1!.as(AttachableEntity).owner.set(this.ghost1);
-        this.props.ghost2!.as(AttachableEntity).owner.set(this.ghost2);
-        this.props.ghost3!.as(AttachableEntity).owner.set(this.ghost3);
-        this.props.ghost4!.as(AttachableEntity).owner.set(this.ghost4);
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.assignPlayer, {player: this.ghost1!});},200);
-        // this.sendNetworkEvent(this.props.ghost1!, Events.assignPlayer, {player: this.ghost1!});
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.assignPlayer, {player: this.ghost2!});},400);
-        // this.sendNetworkEvent(this.props.ghost2!, Events.assignPlayer, {player: this.ghost2!});
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});},600);
-        // this.sendNetworkEvent(this.props.ghost3!, Events.assignPlayer, {player: this.ghost3!});
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});},800);
-        // this.sendNetworkEvent(this.props.ghost4!, Events.assignPlayer, {player: this.ghost4!});
+        this.ghost2 && this.props.ghost2!.as(AttachableEntity).owner.set(this.ghost2);
+        this.ghost2 && this.props.ghost3!.as(AttachableEntity).owner.set(this.ghost3);
+        this.ghost2 && this.props.ghost4!.as(AttachableEntity).owner.set(this.ghost4);
         this.async.setTimeout(()=>{
-            // this.moveGamePlayersToStart()}, 2_000);
             this.sendNetworkEvent(this.props.gameManager!, Events.roleAssignmentComplete, {});
     });
     }
-    // moveGamePlayersToStart(){
-    //     this.async.setTimeout(()=>{
-    //         this.sendNetworkEvent(this.props.pacman!, Events.moveToStart, {});
-    //     },100);
-    //     this.async.setTimeout(()=>{
-    //         this.sendNetworkEvent(this.props.ghost1!, Events.moveToStart, {});
-    //     },200);
-    //     this.async.setTimeout(()=>{
-    //         this.sendNetworkEvent(this.props.ghost2!, Events.moveToStart, {});
-    //     },300);
-    //     this.async.setTimeout(()=>{
-    //         this.sendNetworkEvent(this.props.ghost3!, Events.moveToStart, {});
-    //     },400);
-    //     this.async.setTimeout(()=>{
-    //         this.sendNetworkEvent(this.props.ghost4!, Events.moveToStart, {});
-    //     },500);
-    //     this.async.setTimeout(()=>{
-    //         this.sendNetworkEvent(this.props.gameManager!, Events.roleAssignmentComplete, {});
-    //     },700);
-    //
-    // }
     returnGamePlayersToLobby (player: Player){
         this.props.pacman!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
         this.props.ghost1!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
-        this.props.ghost2!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
-        this.props.ghost3!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
-        this.props.ghost4!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
-        // this.sendNetworkEvent(this.props.pacman!, Events.unassignPlayer, {});
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost1!, Events.unassignPlayer, {});},200);
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost2!, Events.unassignPlayer, {});},400);
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost3!, Events.unassignPlayer, {});},600);
-        // this.async.setTimeout(()=>{this.sendNetworkEvent(this.props.ghost4!, Events.unassignPlayer, {});},800);
+        this.ghost2 && this.props.ghost2!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
+        this.ghost3 && this.props.ghost3!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
+        this.ghost4 && this.props.ghost4!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
         this.async.setTimeout(()=>{
             this.lobbySpawn?.teleportPlayer(this.pacman!);
             this.pacman!.avatarScale.set(LOBBY_SCALE);
@@ -177,16 +145,16 @@ class PlayerManager extends Component<typeof PlayerManager> {
             this.ghost1!.avatarScale.set(LOBBY_SCALE);
             },250);
         this.async.setTimeout(()=>{
-            this.lobbySpawn?.teleportPlayer(this.ghost2!);
-            this.ghost2!.avatarScale.set(LOBBY_SCALE);
+            this.ghost2 && this.lobbySpawn?.teleportPlayer(this.ghost2!);
+            this.ghost2 && this.ghost2!.avatarScale.set(LOBBY_SCALE);
             },350);
         this.async.setTimeout(()=>{
-            this.lobbySpawn?.teleportPlayer(this.ghost3!);
-            this.ghost3!.avatarScale.set(LOBBY_SCALE);
+            this.ghost3 && this.lobbySpawn?.teleportPlayer(this.ghost3!);
+            this.ghost3 && this.ghost3!.avatarScale.set(LOBBY_SCALE);
             },450);
         this.async.setTimeout(()=>{
-            this.lobbySpawn?.teleportPlayer(this.ghost4!);
-            this.ghost4!.avatarScale.set(LOBBY_SCALE);
+            this.ghost4 && this.lobbySpawn?.teleportPlayer(this.ghost4!);
+            this.ghost4 && this.ghost4!.avatarScale.set(LOBBY_SCALE);
             },550);
         this.async.setTimeout(()=>{this.playersAssigned = false;},600);
 
