@@ -16,11 +16,11 @@ class StartNowButton extends UIComponent<typeof StartNowButton> {
   private buttonText: Binding<string> = new Binding<string>("Test Text");
 
   preStart() {
-    this.connectLocalBroadcastEvent(Events.updatePlayersInQueue, (payload: {queue1: Player[], queue2: Player[]})=>{
+    this.connectNetworkBroadcastEvent(Events.updatePlayersInQueue, (payload: {queue1: Player[], queue2: Player[]})=>{
       this.enoughPlayers = (payload.queue1.length >= 2);
       this.updateButtonText();
     });
-    this.connectLocalBroadcastEvent(Events.changeGameState, (payload: {state: GameState})=>{
+    this.connectNetworkBroadcastEvent(Events.changeGameState, (payload: {state: GameState})=>{
       this.gameInProgress = !(payload.state === GameState.Waiting);
       this.updateButtonText();
     });
