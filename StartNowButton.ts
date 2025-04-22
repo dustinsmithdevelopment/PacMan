@@ -25,8 +25,8 @@ class StartNowButton extends UIComponent<typeof StartNowButton> {
   }
   initializeUI(): UINode {
     return Pressable({children: [
-        Text({text: this.buttonText, style: {width: '100%', height: '100%', textAlign: 'center', textAlignVertical: 'center', color: 'white'}},)
-      ], style: {backgroundColor: "black", width: 1000, height: 1000, borderRadius: 250}});
+        Text({text: this.buttonText, style: {width: '100%', height: '100%', textAlign: 'center', textAlignVertical: 'center', color: 'white', fontSize: 128, fontWeight: "bold"}},)
+      ], style: {backgroundColor: "black", width: 1000, height: 1000, borderRadius: 500}});
   }
 
   start() {
