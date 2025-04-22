@@ -66,6 +66,7 @@ class GameManager extends Component<typeof GameManager> {
             this.endGame();
           }
       }
+      this.sendNetworkBroadcastEvent(Events.changeGameState, {state: this.currentGameState});
     }
   }
   // TODO if a ghost leaves the game, mark the slot as empty and offer it to the other players

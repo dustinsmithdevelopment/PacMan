@@ -53,6 +53,7 @@ export const Events = {
   reverse: new LocalEvent<{}>("reverse"),
   hideLobbyUI: new NetworkEvent<{}>('hideLobbyUI'),
   showLobbyUI: new NetworkEvent<{}>("showLobbyUI"),
+  changeGameState: new NetworkEvent<{state: GameState}>("changeGameState"),
 }
 export class PlayerList {
   players: Player[] = [];
