@@ -18,9 +18,11 @@ class StartNowButton extends UIComponent<typeof StartNowButton> {
   preStart() {
     this.connectLocalBroadcastEvent(Events.updatePlayersInQueue, (payload: {queue1: Player[], queue2: Player[]})=>{
       this.enoughPlayers = (payload.queue1.length >= 2);
+      this.updateButtonText();
     });
     this.connectLocalBroadcastEvent(Events.changeGameState, (payload: {state: GameState})=>{
       this.gameInProgress = !(payload.state === GameState.Waiting);
+      this.updateButtonText();
     });
   }
   initializeUI(): UINode {
@@ -29,15 +31,29 @@ class StartNowButton extends UIComponent<typeof StartNowButton> {
       ], style: {backgroundColor: "black", width: 1000, height: 1000, borderRadius: 500}});
   }
 
+  updateButtonText(){
+    let buttonDisplayText: string;
+
+    if (this.gameInProgress) buttonDisplayText = "Game In Progress";
+    else if (!this.enoughPlayers) buttonDisplayText = "Not enough players";
+    else if (this.onCoolDown) buttonDisplayText = "Waiting";
+    else buttonDisplayText = "Start Now";
+
+    this.buttonText.set(buttonDisplayText);
+  }
   start() {
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, this.startCoolDown.bind(this));
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, ()=>{
+      this.startCoolDown();
+    });
     this.startCoolDown();
   }
   startCoolDown() {
     this.coolDownTimeout && this.async.clearTimeout(this.coolDownTimeout);
     this.onCoolDown = true;
+    this.updateButtonText();
     this.coolDownTimeout = this.async.setTimeout(()=>{
       this.onCoolDown = false;
+      this.updateButtonText();
       this.coolDownTimeout = null;
     }, 10_000);
 
