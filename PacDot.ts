@@ -22,8 +22,7 @@ class PacDot extends PacmanCollectableItem {
   }
   collected(){
     console.log("PacDot Collected");
-    this.entity.collidable.set(false);
-    this.entity.visible.set(false);
+    super.hideItem();
     this.sendNetworkBroadcastEvent(Events.pacDotCollected, {pacDot: this.entity});
   }
 }

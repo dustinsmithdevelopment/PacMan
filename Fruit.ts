@@ -31,8 +31,7 @@ class Fruit extends PacmanCollectableItem {
 
   collected() {
     console.log("Fruit Collected");
-    this.entity.visible.set(false);
-    this.entity.collidable.set(false);
+    super.hideItem();
     this.sendNetworkBroadcastEvent(Events.fruitCollected, {});
   }
 

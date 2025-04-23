@@ -14,10 +14,10 @@ class PowerPellet extends PacmanCollectableItem {
   start() {
     super.start();
   }
+
   collected() {
     console.log("PowerPellet Collected");
-    this.entity.collidable.set(false);
-    this.entity.visible.set(false);
+    super.hideItem();
     this.sendNetworkBroadcastEvent(Events.powerPelletCollected, {powerPellet: this.entity});
   }
 }
