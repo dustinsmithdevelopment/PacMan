@@ -43,17 +43,15 @@ export const Events = {
   leaveQueue1: new NetworkEvent<{player: Player}>("leaveQueue1"),
   leaveQueue2: new NetworkEvent<{player: Player}>("leaveQueue2"),
   makeGhostEdible: new NetworkEvent<{}>("makeGhostEdible"),
-  moveToStart: new NetworkEvent<{}>("moveToStart"),
+  // moveToStart: new NetworkEvent<{}>("moveToStart"),
   roleAssignmentComplete: new NetworkEvent<{}>("roleAssignmentComplete"),
   teleportPacman: new NetworkEvent<{location: Vec3}>("teleportPacman"),
   respawnPacman: new NetworkEvent<{}>("respawnPacman"),
   gameEnding: new NetworkEvent<{}>("gameEnding"),
-  turnLeft: new LocalEvent<{}>("turnLeft"),
-  turnRight: new LocalEvent<{}>("turnRight"),
-  reverse: new LocalEvent<{}>("reverse"),
   hideLobbyUI: new NetworkEvent<{}>('hideLobbyUI'),
   showLobbyUI: new NetworkEvent<{}>("showLobbyUI"),
   changeGameState: new NetworkEvent<{state: GameState}>("changeGameState"),
+  startNow: new NetworkEvent<{}>("startNow"),
 }
 export class PlayerList {
   players: Player[] = [];

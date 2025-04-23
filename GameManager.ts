@@ -1,4 +1,4 @@
-import {Component, Entity, PropTypes} from "horizon/core";
+import {Component, Entity, Player, PropTypes} from "horizon/core";
 import {Events, gameCheckFrequencySecs, GameState, pacmanInvinsiblityTime, setupDelaySecs} from "./GameUtilities";
 
 class GameManager extends Component<typeof GameManager> {
@@ -18,6 +18,7 @@ class GameManager extends Component<typeof GameManager> {
   private lives = 3;
   private allPacDots: Map<bigint, Entity> = new Map<bigint, Entity>();
   private remainingPacDots: Map<bigint, Entity> = new Map();
+  private queue1PlayerCount = 0;
   preStart() {
     this.connectNetworkEvent(this.entity ,Events.registerPacDot, (payload: {pacDot: Entity})=>{this.registerPacDot(payload.pacDot);});
     this.connectNetworkBroadcastEvent(Events.pacDotCollected, (payload: {pacDot: Entity})=>{this.eatPacDot(payload.pacDot);});
@@ -25,6 +26,8 @@ class GameManager extends Component<typeof GameManager> {
     this.connectNetworkEvent(this.entity, Events.setQueue2ReadyState, (payload: {ready: boolean})=>{this.updateQueue2ReadyState(payload.ready)});
     this.connectNetworkEvent(this.entity, Events.ghostCaughtPacman, ()=>{this.loseLife();});
     this.connectNetworkBroadcastEvent(Events.powerPelletCollected, ()=>{this.powerPelletCollected()});
+    this.connectNetworkBroadcastEvent(Events.updatePlayersInQueue, (payload: {queue1: Player[], queue2: Player[]})=>{this.queue1PlayerCount = payload.queue1.length;});
+    this.connectNetworkEvent(this.entity, Events.startNow, this.forceStartGame.bind(this));
     this.connectNetworkEvent(this.entity, Events.roleAssignmentComplete, ()=>{this.changeGameState(GameState.Playing);});
   }
 
@@ -39,6 +42,12 @@ class GameManager extends Component<typeof GameManager> {
       if (this.queue1Ready || this.queue2Ready) {
         this.changeGameState(GameState.Starting);
       }
+    }
+  }
+  forceStartGame(){
+    console.log("Attempting to force start the game")
+    if (this.currentGameState === GameState.Waiting && this.queue1PlayerCount >= 2){
+      this.changeGameState(GameState.Starting);
     }
   }
   changeGameState(newGameState: GameState) {
@@ -76,7 +85,7 @@ class GameManager extends Component<typeof GameManager> {
     this.currentGameState = GameState.Starting;
     this.remainingPacDots = new Map(this.allPacDots);
     this.lives = 3;
-    this.sendNetworkEvent(this.props.playerManager!, Events.startPlayerAssignment, {force: false});
+    this.sendNetworkEvent(this.props.playerManager!, Events.startPlayerAssignment, {force: (!(this.queue1PlayerCount >= 5))});
   }
   startGame() {
     this.pacmanInvincible = false;
