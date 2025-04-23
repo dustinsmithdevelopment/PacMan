@@ -69,6 +69,34 @@ class PacmanUI extends UIComponent {
     fruitImage: {type: PropTypes.Asset},
     powerPelletImage: {type: PropTypes.Asset},
   };
+  preStart() {
+    this.connectNetworkBroadcastEvent(Events.resetGame, this.reset.bind(this));
+    this.connectNetworkBroadcastEvent(Events.setPacman, (payload: {pacMan: Player})=>{
+      console.log("Visiblity updated for", payload.pacMan?.name.get());
+      this.entity.setVisibilityForPlayers([payload.pacMan],PlayerVisibilityMode.VisibleTo);});
+    this.connectNetworkBroadcastEvent(Events.pacDotCollected, (payload: {pacDot: Entity})=>{
+      this.hidePacDot(payload.pacDot);
+    });
+    this.connectNetworkBroadcastEvent(Events.fruitCollected, this.hideFruit.bind(this));
+    this.connectNetworkBroadcastEvent(Events.fruitCollectable, this.showFruit.bind(this));
+    this.connectNetworkBroadcastEvent(Events.powerPelletCollected, (payload: {powerPellet: Entity})=>{
+      this.hidePowerPellet(payload.powerPellet);
+    });
+  }
+  start() {
+    this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
+
+    const originRef: Entity = this.props.trackingOrigin;
+    this.origin = originRef.position.get();
+    this.async.setTimeout(()=>{
+      this.setItemPositions();
+      this.async.setInterval(this.updatePlayerPositions.bind(this),100);
+    },10_000)
+
+  }
+
+
+
   initializeUI(): UINode {
     const backgroundImage: ImageSource = ImageSource.fromTextureAsset(this.props.backgroundImage);
     const playerImage: ImageSource = ImageSource.fromTextureAsset(this.props.playerImage);
@@ -79,11 +107,11 @@ class PacmanUI extends UIComponent {
 
 
     this.pacDots = this.world.getEntitiesWithTags(["PacDot"], EntityTagMatchOperation.HasAnyExact);
-    console.log(this.pacDots.length, "PacDots");
+    // console.log(this.pacDots.length, "PacDots");
     this.powerPellets = this.world.getEntitiesWithTags(["PowerPellet"], EntityTagMatchOperation.HasAnyExact);
-    console.log(this.powerPellets.length, "PowerPellets");
+    // console.log(this.powerPellets.length, "PowerPellets");
     this.fruits = this.world.getEntitiesWithTags(["Fruit"], EntityTagMatchOperation.HasAnyExact);
-    console.log(this.fruits.length, "Fruit");
+    // console.log(this.fruits.length, "Fruit");
 
     let displayItems: UINode[] = []
     console.log("Dots found by PacmanUI",this.pacDots.length);
@@ -119,7 +147,9 @@ class PacmanUI extends UIComponent {
             return numberArray[index];
           }), left: this.pacDotDisplayLocationsY.derive((numberArray)=>{
             return numberArray[index];
-          }), position: "absolute", zIndex: 1}}));
+          }), position: "absolute", zIndex: 1, display: this.pacDotDisplayVisibility.derive((numberArray)=>{
+            return numberArray[index];
+          })}}));
     });
 
     this.powerPellets.forEach((_:Entity, index:number) => {
@@ -127,7 +157,9 @@ class PacmanUI extends UIComponent {
             return numberArray[index];
           }), left: this.powerPelletDisplayLocationsY.derive((numberArray)=>{
             return numberArray[index];
-          }), position: "absolute", zIndex: 1}}));
+          }), position: "absolute", zIndex: 1, display: this.powerPelletDisplayVisibility.derive((numberArray)=>{
+            return numberArray[index];
+          })}}));
     });
 
     this.fruits.forEach((_:Entity, index:number) => {
@@ -135,7 +167,9 @@ class PacmanUI extends UIComponent {
             return numberArray[index];
           }), left: this.fruitDisplayLocationsY.derive((numberArray)=>{
             return numberArray[index];
-          }), position: "absolute", zIndex: 1}}));
+          }), position: "absolute", zIndex: 1, display: this.fruitDisplayVisibility.derive((numberArray)=>{
+            return numberArray[index];
+          })}}));
     });
 
 
@@ -184,31 +218,7 @@ class PacmanUI extends UIComponent {
 
 
 
-  preStart() {
-    this.connectNetworkBroadcastEvent(Events.resetGame, this.reset.bind(this));
-    this.connectNetworkBroadcastEvent(Events.setPacman, (payload: {pacMan: Player})=>{
-      console.log("Visiblity updated for", payload.pacMan?.name.get());
-      this.entity.setVisibilityForPlayers([payload.pacMan],PlayerVisibilityMode.VisibleTo);});
-    this.connectNetworkBroadcastEvent(Events.pacDotCollected, (payload: {pacDot: Entity})=>{
-      this.hidePacDot(payload.pacDot);
-    });
-    this.connectNetworkBroadcastEvent(Events.fruitCollected, this.hideFruit.bind(this));
-    this.connectNetworkBroadcastEvent(Events.fruitCollectable, this.showFruit.bind(this));
-    this.connectNetworkBroadcastEvent(Events.powerPelletCollected, (payload: {powerPellet: Entity})=>{
-      this.hidePowerPellet(payload.powerPellet);
-    });
-  }
-  start() {
-    this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
 
-    const originRef: Entity = this.props.trackingOrigin;
-    this.origin = originRef.position.get();
-    this.async.setTimeout(()=>{
-      this.setItemPositions();
-      this.async.setInterval(this.updatePlayerPositions.bind(this),100);
-    },10_000)
-
-  }
   updatePlayerPositions(){
     // @ts-ignore
     const pacPos = this.props.pacmanSuit!.position.get().sub(this.origin!).mul(MAP_UPSCALE);
@@ -239,6 +249,13 @@ class PacmanUI extends UIComponent {
 
   }
   setItemPositions(){
+    this.pacDots = this.world.getEntitiesWithTags(["PacDot"], EntityTagMatchOperation.HasAnyExact);
+    // console.log(this.pacDots.length, "PacDots");
+    this.powerPellets = this.world.getEntitiesWithTags(["PowerPellet"], EntityTagMatchOperation.HasAnyExact);
+    // console.log(this.powerPellets.length, "PowerPellets");
+    this.fruits = this.world.getEntitiesWithTags(["Fruit"], EntityTagMatchOperation.HasAnyExact);
+    // console.log(this.fruits.length, "Fruit");
+
     this.pacDots.forEach((dot: Entity, index: number)=>{
       const currentDotLocation = dot.position.get().sub(this.origin!).mul(MAP_UPSCALE);
       this.pacDotLocationsX[index] = currentDotLocation.z + MOVE_UP;
@@ -268,6 +285,7 @@ class PacmanUI extends UIComponent {
 
   hidePacDot(pacDot: Entity) {
     const index = this.pacDots.indexOf(pacDot);
+    console.log("The pacDot was found at" ,index);
     this.pacDotVisibility[index] = "none";
     this.pacDotDisplayVisibility.set(this.pacDotVisibility);
   }
