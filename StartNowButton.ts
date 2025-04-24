@@ -48,7 +48,7 @@ class StartNowButton extends UIComponent<typeof StartNowButton> {
         Text({
           text: this.buttonText,
           style: {width: '100%', height: '100%', textAlign: 'center', textAlignVertical: 'center', color: 'white', fontSize: 128, fontWeight: "bold"}})
-      ], style: {backgroundColor: "black", width: 1000, height: 1000, borderRadius: 500},
+      ], style: {width: 1000, height: 1000, borderRadius: 500},
          onClick:(p: Player)=>{this.handleButtonPress(p)}});
   }
   moveOverTime(start: Vec3, end: Vec3, duration: number): void {
