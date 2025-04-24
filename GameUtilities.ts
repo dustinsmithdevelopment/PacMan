@@ -3,8 +3,6 @@ import {AttachablePlayerAnchor, Entity, LocalEvent, NetworkEvent, Player, SpawnP
 // TODO
 export const playerCount = 5;
 
-
-
 export const pacmanInvinsiblityTime = 10;
 export const anchorBodyPart = AttachablePlayerAnchor.Head;
 export const setupDelaySecs = 10;
