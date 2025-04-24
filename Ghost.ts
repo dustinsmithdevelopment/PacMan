@@ -22,6 +22,7 @@ class Ghost extends PlayerRole {
     super.preStart();
     this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.touchedByPacman.bind(this));
     this.connectNetworkEvent(this.entity, Events.makeGhostEdible, this.becomeEdible.bind(this));
+    this.connectNetworkBroadcastEvent(Events.resetGame, this.becomeEnemy.bind(this));
   }
   start() {
     // TODO

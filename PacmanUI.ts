@@ -307,6 +307,7 @@ class PacmanUI extends UIComponent {
 
   }
   showAll(){
+    this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
     this.pacDotVisibility = Array(this.pacDots.length).fill("flex");
     this.pacDotDisplayVisibility.set(this.pacDotVisibility);
 
