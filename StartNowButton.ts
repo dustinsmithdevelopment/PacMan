@@ -72,8 +72,8 @@ class StartNowButton extends UIComponent<typeof StartNowButton> {
       const duration = 1_000;
       const targetPosition = this.initialPosition.add(this.props.offset);
       this.moveOverTime(this.initialPosition, targetPosition, duration);
-      this.async.setTimeout(()=>{this.moveOverTime(targetPosition, this.initialPosition, 1)},duration);
-      this.async.setTimeout(()=>{this.showingAnimation = false;},duration * 2);
+      this.async.setTimeout(()=>{this.moveOverTime(targetPosition, this.initialPosition, 1)},duration + 100);
+      this.async.setTimeout(()=>{this.showingAnimation = false;},duration * 2 + 100);
     }
     // TODO END
     if (this.queuePlayers.includes(p)){
