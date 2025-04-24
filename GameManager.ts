@@ -89,20 +89,22 @@ class GameManager extends Component<typeof GameManager> {
   }
   startGame() {
     this.pacmanInvincible = false;
-    console.log("Changing Game State to Playing");
+    // console.log("Changing Game State to Playing");
     this.currentGameState = GameState.Playing;
 
   }
   endGame() {
     this.pacmanInvincible = true;
-    console.log("Changing Game State to Ending");
+    // console.log("Changing Game State to Ending");
     this.currentGameState = GameState.Ending;
     this.sendNetworkEvent(this.props.playerManager!, Events.gameEnding, {});
     this.async.setTimeout(()=>{this.changeGameState(GameState.Waiting)}, 5_000)
   }
   resetGame(){
-    console.log("Changing Game State to Waiting");
+    // console.log("Changing Game State to Waiting");
     this.currentGameState = GameState.Waiting;
+
+    console.log("Sending Game Reset")
     this.sendNetworkBroadcastEvent(Events.resetGame, {});
   }
   private pacmanInvincible = false;
@@ -117,7 +119,7 @@ class GameManager extends Component<typeof GameManager> {
         this.changeGameState(GameState.Ending);
       } else {
         // respawn pacman
-        console.log("Event is being sent to pacman to respawn")
+        // console.log("Event is being sent to pacman to respawn")
         this.sendNetworkEvent(this.props.pacMan!, Events.respawnPacman, {});
       }
     }
@@ -125,7 +127,7 @@ class GameManager extends Component<typeof GameManager> {
 
   registerPacDot(pacDot: Entity) {
     this.allPacDots.set(pacDot.id, pacDot);
-    console.log(this.allPacDots.size + " PacDots registered");
+    // console.log(this.allPacDots.size + " PacDots registered");
   }
   eatPacDot(pacDot: Entity) {
     this.remainingPacDots.delete(pacDot.id);
@@ -133,13 +135,12 @@ class GameManager extends Component<typeof GameManager> {
   }
   checkRemainingPacDots() {
     if (this.remainingPacDots.size === 0) {
-      // TODO PACMAN WINS
       this.world.ui.showPopupForEveryone("Pacman Wins!", 3);
       this.changeGameState(GameState.Ending);
     }
   }
   powerPelletCollected(){
-    console.log('Pacman ate a PowerPellet')
+    // console.log('Pacman ate a PowerPellet')
     this.sendNetworkEvent(this.props.ghost1!, Events.makeGhostEdible, {});
     this.sendNetworkEvent(this.props.ghost2!, Events.makeGhostEdible, {});
     this.sendNetworkEvent(this.props.ghost3!, Events.makeGhostEdible, {});
@@ -156,9 +157,9 @@ class GameManager extends Component<typeof GameManager> {
   updateQueue2ReadyState(isReady: boolean) {
     this.queue2Ready = isReady;
     if (isReady) {
-      console.log("Queue 2 is ready");
+      // console.log("Queue 2 is ready");
     }else {
-      console.log("Queue 2 is not ready");
+      // console.log("Queue 2 is not ready");
     }
   }
 }

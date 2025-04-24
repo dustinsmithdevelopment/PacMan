@@ -15,15 +15,17 @@ export abstract class PacmanCollectableItem extends Component {
 
     protected hideItem(){
         this.entity.visible.set(false);
-        this.entity.collidable.set(false);
+        // this.entity.collidable.set(false);
     }
     private makeVisibleForPacman(pacMan: Player){
-        this.entity.setVisibilityForPlayers([pacMan], PlayerVisibilityMode.VisibleTo);
+        this.async.setTimeout(()=>{this.entity.setVisibilityForPlayers([pacMan], PlayerVisibilityMode.VisibleTo);},100);
     }
     private resetState() {
+        console.log("Resetting an item");
+        this.entity.visible.set(true);
         this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
-        this.pacman && this.entity.setVisibilityForPlayers([this.pacman], PlayerVisibilityMode.VisibleTo);
-        this.entity.collidable.set(true);
+        this.pacman && this.makeVisibleForPacman(this.pacman);
+        // this.entity.collidable.set(true);
 
     }
 }

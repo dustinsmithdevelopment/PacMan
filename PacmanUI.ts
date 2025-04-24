@@ -72,7 +72,7 @@ class PacmanUI extends UIComponent {
   preStart() {
     this.connectNetworkBroadcastEvent(Events.resetGame, this.reset.bind(this));
     this.connectNetworkBroadcastEvent(Events.setPacman, (payload: {pacMan: Player})=>{
-      console.log("Visiblity updated for", payload.pacMan?.name.get());
+      console.log("Visibility updated for", payload.pacMan?.name.get());
       this.entity.setVisibilityForPlayers([payload.pacMan],PlayerVisibilityMode.VisibleTo);});
     this.connectNetworkBroadcastEvent(Events.pacDotCollected, (payload: {pacDot: Entity})=>{
       this.hidePacDot(payload.pacDot);
