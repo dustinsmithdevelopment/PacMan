@@ -7,6 +7,7 @@ class Fruit extends PacmanCollectableItem {
   private points: number = 40;
   static propsDefinition = {
     pointValue: { type: PropTypes.Number },
+    sound: {type: PropTypes.Entity}
   };
   preStart() {
     this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
@@ -17,6 +18,9 @@ class Fruit extends PacmanCollectableItem {
     this.setUncollectable();
     if (this.props.pointValue < 0){
       this.points = this.props.pointValue;
+    }
+    if (this.props.sound){
+      super.setAudioGizmo(this.props.sound);
     }
     super.start();
   }

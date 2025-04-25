@@ -4,7 +4,8 @@ import {PacmanCollectableItem} from "./PacmanCollectableItem";
 
 class PowerPellet extends PacmanCollectableItem {
   static propsDefinition = {
-    GameManager: {type: PropTypes.Entity}
+    GameManager: {type: PropTypes.Entity},
+    sound: {type: PropTypes.Entity}
   };
   preStart() {
     this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
@@ -12,6 +13,9 @@ class PowerPellet extends PacmanCollectableItem {
   }
 
   start() {
+    if (this.props.sound){
+      super.setAudioGizmo(this.props.sound);
+    }
     super.start();
   }
 

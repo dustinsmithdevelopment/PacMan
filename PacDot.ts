@@ -5,7 +5,8 @@ import {PacmanCollectableItem} from "./PacmanCollectableItem";
 class PacDot extends PacmanCollectableItem {
   private gameManager: Entity | undefined;
   static propsDefinition = {
-    GameManager: {type: PropTypes.Entity}
+    GameManager: {type: PropTypes.Entity},
+    sound: {type: PropTypes.Entity}
   };
   preStart() {
     this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
@@ -15,6 +16,9 @@ class PacDot extends PacmanCollectableItem {
   start() {
     this.gameManager = this.props.GameManager;
     this.registerComponent();
+    if (this.props.sound){
+      super.setAudioGizmo(this.props.sound);
+    }
     super.start();
   }
   registerComponent() {

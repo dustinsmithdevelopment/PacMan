@@ -7,7 +7,7 @@ import {
     PropTypes,
     SpawnPointGizmo
 } from "horizon/core";
-import {Events, GamePlayers, playerCount, PlayerList, LOBBY_SCALE, GAME_SCALE} from "./GameUtilities";
+import {Events, GamePlayers, playerCount, PlayerList, LOBBY_SCALE, GAME_SCALE, EDIBLE_SECONDS} from "./GameUtilities";
 import {Camera, CameraMode} from "horizon/camera";
 import {PlayerCameraEvents} from "./PlayerCamera";
 
@@ -22,6 +22,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
         lobbySpawnGizmo: {type: PropTypes.Entity, required: true},
         lobbyAudio: {type: PropTypes.Entity},
         gameAudio: {type: PropTypes.Entity},
+        powerPelletAudio: {type: PropTypes.Entity},
     };
 
     private lobbySpawn: SpawnPointGizmo|undefined;
@@ -29,8 +30,11 @@ class PlayerManager extends Component<typeof PlayerManager> {
     private queue1Ready: boolean = false;
     private queue2Ready: boolean = false;
 
+    private currentGamePlayers: Player[] = [];
+
     private lobbyAudio: AudioGizmo|undefined;
     private gameAudio: AudioGizmo|undefined;
+    private powerPelletAudio: AudioGizmo|undefined;
 
     preStart() {
         this.connectNetworkEvent(this.entity, Events.joinQueue1, (payload: {player: Player}) => {this.onJoinQueue1(payload.player);});
@@ -39,6 +43,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.connectNetworkEvent(this.entity, Events.leaveQueue2, (payload: {player: Player})=> {this.onLeaveQueue2(payload.player);});
         this.connectNetworkEvent(this.entity, Events.startPlayerAssignment, (payload: {force: boolean})=>{this.assignPlayers(payload.force);});
         this.connectNetworkEvent(this.entity, Events.gameEnding, this.returnGamePlayersToLobby.bind(this));
+        this.connectNetworkBroadcastEvent(Events.powerPelletCollected, this.playPowerPelletMusic.bind(this));
     }
 
     start() {
@@ -48,12 +53,16 @@ class PlayerManager extends Component<typeof PlayerManager> {
 
         const lobbyAudioEntity: Entity|undefined = this.props.lobbyAudio;
         const gameAudioEntity: Entity|undefined = this.props.gameAudio;
+        const powerPelletAudioEntity: Entity|undefined = this.props.powerPelletAudio;
 
         if (lobbyAudioEntity) {
-            this.lobbyAudio =  lobbyAudioEntity as AudioGizmo;
+            this.lobbyAudio =  lobbyAudioEntity!.as(AudioGizmo);
         }
         if (gameAudioEntity) {
-            this.gameAudio =  gameAudioEntity as AudioGizmo;
+            this.gameAudio =  gameAudioEntity!.as(AudioGizmo);
+        }
+        if (powerPelletAudioEntity){
+            this.powerPelletAudio =  powerPelletAudioEntity!.as(AudioGizmo);
         }
     }
     onPlayerEnterWorld(p: Player){
@@ -103,6 +112,8 @@ class PlayerManager extends Component<typeof PlayerManager> {
                 nextMatchPlayers = [...this.gamePlayers.queue2.players];
                 this.gamePlayers.queue2.players = []
             }
+            this.currentGamePlayers = nextMatchPlayers;
+            this.sendNetworkBroadcastEvent(Events.updateCurrentGamePlayers, {players: this.currentGamePlayers});
             nextMatchPlayers.forEach((p: Player) => {
                 this.sendNetworkEvent(p, PlayerCameraEvents.SetCameraMode, {mode: CameraMode.FirstPerson});
             });
@@ -149,16 +160,6 @@ class PlayerManager extends Component<typeof PlayerManager> {
     });
     }
     returnGamePlayersToLobby (player: Player){
-        const playersInMatch: Player[] = [];
-        this.pacman && playersInMatch.push(this.pacman);
-        this.ghost1 && playersInMatch.push(this.ghost1);
-        this.ghost2 && playersInMatch.push(this.ghost2);
-        this.ghost3 && playersInMatch.push(this.ghost3);
-        this.ghost4 && playersInMatch.push(this.ghost4);
-
-        this.gameAudio?.pause({players: [...playersInMatch], fade: 0.1});
-        this.lobbyAudio?.play({players: [...playersInMatch], fade: 0.1});
-
 
         this.props.pacman!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
         this.props.ghost1!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
@@ -185,8 +186,25 @@ class PlayerManager extends Component<typeof PlayerManager> {
             this.ghost4 && this.lobbySpawn?.teleportPlayer(this.ghost4!);
             this.ghost4 && this.ghost4!.avatarScale.set(LOBBY_SCALE);
             },550);
-        this.async.setTimeout(()=>{this.playersAssigned = false;},600);
+        this.async.setTimeout(()=>{
+            this.gameAudio?.pause({players: this.currentGamePlayers, fade: 0.1});
+            this.powerPelletAudio?.pause({players: this.currentGamePlayers, fade: 0.1});
+            this.lobbyAudio?.play({players: this.currentGamePlayers, fade: 0.1});
+            this.currentGamePlayers = [];
+            this.playersAssigned = false;
+            },600);
 
+    }
+    playPowerPelletMusic(){
+        this.gameAudio?.pause({players: this.currentGamePlayers, fade: 0.1});
+        this.powerPelletAudio?.play({players: this.currentGamePlayers, fade: 0.1});
+        this.async.setTimeout(()=>{
+            this.powerPelletAudio?.pause({players: this.currentGamePlayers, fade: 0.1});
+            if (this.playersAssigned) {
+                this.gameAudio?.play({players: this.currentGamePlayers, fade: 0.1});
+            }
+
+        }, EDIBLE_SECONDS*1_000);
     }
     updateQueueStates(){
         this.queue1Ready = this.gamePlayers.queue1Full();

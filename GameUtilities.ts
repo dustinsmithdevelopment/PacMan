@@ -7,7 +7,7 @@ export const pacmanInvinsiblityTime = 10;
 export const anchorBodyPart = AttachablePlayerAnchor.Head;
 export const setupDelaySecs = 10;
 export const gameCheckFrequencySecs = 1;
-export const EDIBLE_SECONDS = 20;
+export const EDIBLE_SECONDS = 15;
 
 export const LOBBY_SCALE = 8;
 export const GAME_SCALE = 0.1;
@@ -50,6 +50,7 @@ export const Events = {
   showLobbyUI: new NetworkEvent<{}>("showLobbyUI"),
   changeGameState: new NetworkEvent<{state: GameState}>("changeGameState"),
   startNow: new NetworkEvent<{}>("startNow"),
+  updateCurrentGamePlayers: new NetworkEvent<{players:Player[]}>("updateCurrentGamePlayers"),
 }
 export class PlayerList {
   players: Player[] = [];
