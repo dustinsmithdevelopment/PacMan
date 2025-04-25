@@ -1,8 +1,8 @@
 import {
-    AttachableEntity,
+    AttachableEntity, AudioGizmo,
     CodeBlockEvent,
     CodeBlockEvents,
-    Component,
+    Component, Entity,
     Player,
     PropTypes,
     SpawnPointGizmo
@@ -20,12 +20,17 @@ class PlayerManager extends Component<typeof PlayerManager> {
         ghost3: {type: PropTypes.Entity, required: true},
         ghost4: {type: PropTypes.Entity, required: true},
         lobbySpawnGizmo: {type: PropTypes.Entity, required: true},
+        lobbyAudio: {type: PropTypes.Entity},
+        gameAudio: {type: PropTypes.Entity},
     };
 
     private lobbySpawn: SpawnPointGizmo|undefined;
     private gamePlayers: GamePlayers = new GamePlayers();
     private queue1Ready: boolean = false;
     private queue2Ready: boolean = false;
+
+    private lobbyAudio: AudioGizmo|undefined;
+    private gameAudio: AudioGizmo|undefined;
 
     preStart() {
         this.connectNetworkEvent(this.entity, Events.joinQueue1, (payload: {player: Player}) => {this.onJoinQueue1(payload.player);});
@@ -40,6 +45,16 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.lobbySpawn = this.props.lobbySpawnGizmo!.as(SpawnPointGizmo);
         this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player: Player) => {this.onPlayerEnterWorld(player);});
         this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerExitWorld, (player: Player) => {this.onPlayerExitWorld(player);});
+
+        const lobbyAudioEntity: Entity|undefined = this.props.lobbyAudio;
+        const gameAudioEntity: Entity|undefined = this.props.gameAudio;
+
+        if (lobbyAudioEntity) {
+            this.lobbyAudio =  lobbyAudioEntity as AudioGizmo;
+        }
+        if (gameAudioEntity) {
+            this.gameAudio =  gameAudioEntity as AudioGizmo;
+        }
     }
     onPlayerEnterWorld(p: Player){
         this.gamePlayers.moveToLobby(p);
@@ -91,6 +106,9 @@ class PlayerManager extends Component<typeof PlayerManager> {
             nextMatchPlayers.forEach((p: Player) => {
                 this.sendNetworkEvent(p, PlayerCameraEvents.SetCameraMode, {mode: CameraMode.FirstPerson});
             });
+            this.lobbyAudio?.pause({players: [...nextMatchPlayers], fade: 0.1});
+            this.gameAudio?.play({players: [...nextMatchPlayers], fade: 0.1});
+
             this.updateQueueStates();
             const pacPlayer = Math.floor(Math.random() * nextMatchPlayers.length);
             for (let i = 0; i < nextMatchPlayers.length; i++) {
@@ -131,6 +149,17 @@ class PlayerManager extends Component<typeof PlayerManager> {
     });
     }
     returnGamePlayersToLobby (player: Player){
+        const playersInMatch: Player[] = [];
+        this.pacman && playersInMatch.push(this.pacman);
+        this.ghost1 && playersInMatch.push(this.ghost1);
+        this.ghost2 && playersInMatch.push(this.ghost2);
+        this.ghost3 && playersInMatch.push(this.ghost3);
+        this.ghost4 && playersInMatch.push(this.ghost4);
+
+        this.gameAudio?.pause({players: [...playersInMatch], fade: 0.1});
+        this.lobbyAudio?.play({players: [...playersInMatch], fade: 0.1});
+
+
         this.props.pacman!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
         this.props.ghost1!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
         this.ghost2 && this.props.ghost2!.as(AttachableEntity).owner.set(this.world.getServerPlayer());

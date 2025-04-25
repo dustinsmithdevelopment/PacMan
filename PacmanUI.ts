@@ -1,4 +1,5 @@
 import {
+  AudioGizmo,
   CodeBlockEvents,
   Component,
   Entity,
@@ -66,6 +67,8 @@ class PacmanUI extends UIComponent {
   private life3: Binding<string> = new Binding<string>("flex");
 
 
+
+
   static propsDefinition = {
     trackingOrigin: {type: PropTypes.Entity},
     pacmanSuit: {type: PropTypes.Entity},
@@ -103,13 +106,17 @@ class PacmanUI extends UIComponent {
     this.async.setTimeout(()=>{
       this.setItemPositions();
       this.async.setInterval(this.updatePlayerPositions.bind(this),100);
-    },10_000)
+    },10_000);
+
+
+
 
 
     // TODO TESTING
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (p: Player)=>{
       this.entity.setVisibilityForPlayers([p], PlayerVisibilityMode.HiddenFrom);
-    })
+    });
+
   }
 
 
