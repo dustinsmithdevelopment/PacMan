@@ -1,4 +1,13 @@
-import {Component, Entity, EntityTagMatchOperation, Player, PlayerVisibilityMode, PropTypes, Vec3,} from "horizon/core";
+import {
+  CodeBlockEvents,
+  Component,
+  Entity,
+  EntityTagMatchOperation,
+  Player,
+  PlayerVisibilityMode,
+  PropTypes,
+  Vec3,
+} from "horizon/core";
 import {Events} from "./GameUtilities";
 import {Binding, DimensionValue, Image, ImageSource, UIComponent, UINode, View} from "horizon/ui";
 
@@ -14,6 +23,8 @@ class PacmanUI extends UIComponent {
 
   private origin: Vec3|undefined;
 
+  private lives = 3;
+  private livesBinding = new Binding<string[]>(["flex","flex","flex"])
   private pacDots: Entity[] = [];
   private powerPellets: Entity[] = [];
   private fruits: Entity[] = [];
@@ -71,6 +82,7 @@ class PacmanUI extends UIComponent {
   };
   preStart() {
     this.connectNetworkBroadcastEvent(Events.resetGame, this.reset.bind(this));
+    this.connectNetworkBroadcastEvent(Events.respawnPacman, this.loseLife.bind(this));
     this.connectNetworkBroadcastEvent(Events.setPacman, (payload: {pacMan: Player})=>{
       console.log("Visibility updated for", payload.pacMan?.name.get());
       this.entity.setVisibilityForPlayers([payload.pacMan],PlayerVisibilityMode.VisibleTo);});
@@ -93,6 +105,11 @@ class PacmanUI extends UIComponent {
       this.async.setInterval(this.updatePlayerPositions.bind(this),100);
     },10_000)
 
+
+    // TODO TESTING
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (p: Player)=>{
+      this.entity.setVisibilityForPlayers([p], PlayerVisibilityMode.HiddenFrom);
+    })
   }
 
 
@@ -303,8 +320,30 @@ class PacmanUI extends UIComponent {
     this.powerPelletDisplayVisibility.set(this.powerPelletVisibility);
   }
   reset(){
+    this.lives = 3;
+    this.updateLivesDisplay();
     this.showAll();
 
+  }
+  private loseLife(){
+    this.lives -= 1;
+    this.updateLivesDisplay();
+  }
+  private updateLivesDisplay(){
+    switch (this.lives) {
+      case 3:
+        this.livesBinding.set(["flex", "flex", "flex"]);
+        break;
+      case 2:
+        this.livesBinding.set(["flex", "flex", "none"]);
+        break;
+      case 1:
+        this.livesBinding.set(["flex", "none", "none"]);
+        break;
+        default:
+          this.livesBinding.set(["none", "none", "none"]);
+          break;
+    }
   }
   showAll(){
     this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);

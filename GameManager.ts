@@ -129,7 +129,7 @@ class GameManager extends Component<typeof GameManager> {
       } else {
         // respawn pacman
         // console.log("Event is being sent to pacman to respawn")
-        this.sendNetworkEvent(this.props.pacMan!, Events.respawnPacman, {});
+        this.sendNetworkBroadcastEvent(Events.respawnPacman, {});
       }
     }
   }

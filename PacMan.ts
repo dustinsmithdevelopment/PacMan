@@ -25,7 +25,7 @@ class PacMan extends PlayerRole {
     this.connectNetworkEvent(this.entity, Events.teleportPacman, (payload: {location: Vec3})=>{
       this.teleportPacman(payload.location);
     });
-    this.connectNetworkEvent(this.entity, Events.respawnPacman, ()=>{this.respawn();})
+    this.connectNetworkBroadcastEvent(Events.respawnPacman, ()=>{this.respawn();})
     this.connectNetworkBroadcastEvent(Events.resetGame, ()=>{this.collectedEntities = [];});
   }
   start() {
