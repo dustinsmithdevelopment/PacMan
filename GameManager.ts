@@ -1,4 +1,4 @@
-import {Component, Entity, Player, PropTypes} from "horizon/core";
+import {Component, Entity, Player, PropTypes, Vec3} from "horizon/core";
 import {Events, gameCheckFrequencySecs, GameState, pacmanInvinsiblityTime, setupDelaySecs} from "./GameUtilities";
 
 class GameManager extends Component<typeof GameManager> {
@@ -103,9 +103,18 @@ class GameManager extends Component<typeof GameManager> {
   resetGame(){
     // console.log("Changing Game State to Waiting");
     this.currentGameState = GameState.Waiting;
-
     console.log("Sending Game Reset")
     this.sendNetworkBroadcastEvent(Events.resetGame, {});
+    const pacman: Entity = this.props.pacMan!
+    const ghosts: Entity[] = [];
+    ghosts.push(this.props.ghost1!);
+    ghosts.push(this.props.ghost2!);
+    ghosts.push(this.props.ghost3!);
+    ghosts.push(this.props.ghost4!);
+    pacman.position.set(new Vec3(0, 1000, 0));
+    ghosts.forEach((suit:Entity)=>{
+      suit.position.set(new Vec3(0, 500, 0));
+    });
   }
   private pacmanInvincible = false;
   loseLife(){

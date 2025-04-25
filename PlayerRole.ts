@@ -48,11 +48,6 @@ export abstract class PlayerRole extends Component {
         }
         this.entity.as(AttachableEntity).detach();
         this.attachedPlayer = null;
-        if (this.role === "a drone"){
-            this.entity.position.set(new Vec3(0,1000, 0));
-        } else {
-            this.entity.position.set(new Vec3(0,500, 0));
-        }
         return {
             homePosition: this.homePosition!.as(Entity),
     }
