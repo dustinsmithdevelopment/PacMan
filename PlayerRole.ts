@@ -3,10 +3,8 @@ import {
     Component,
     Entity,
     Player,
-    PlayerVisibilityMode,
     SerializableState,
     SpawnPointGizmo,
-    Vec3
 } from "horizon/core";
 import {anchorBodyPart, Events, GAME_SCALE} from "./GameUtilities";
 
