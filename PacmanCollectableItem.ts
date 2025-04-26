@@ -1,22 +1,22 @@
-import {AudioGizmo, CodeBlockEvents, Component, Entity, Player, PlayerVisibilityMode} from "horizon/core";
+import {AudioGizmo, Component, Entity, Player, PlayerVisibilityMode} from "horizon/core";
 import {Events} from "./GameUtilities";
 
 export abstract class PacmanCollectableItem extends Component {
-    private pacman: Player|undefined;
+    private pacMan: Player|undefined;
     private players: Player[] = [];
     private sound: AudioGizmo|undefined;
     preStart() {
         this.connectNetworkBroadcastEvent(Events.setPacman, (payload:{pacMan: Player})=>{
-            this.pacman = payload.pacMan;
-            this.makeVisibleForPacman(payload.pacMan);
+            this.pacMan = payload.pacMan;
+            this.makeInvisibleForGhosts();
         });
         this.connectNetworkBroadcastEvent(Events.resetGame, this.resetState.bind(this));
         this.connectNetworkBroadcastEvent(Events.updateCurrentGamePlayers, (payload: {players: Player[]})=>{
             this.players = payload.players;
+            this.makeInvisibleForGhosts();
         })
     }
     start() {
-        this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
     }
     protected setAudioGizmo(audioGizmo: Entity) {
         this.sound = audioGizmo.as(AudioGizmo);
@@ -28,14 +28,20 @@ export abstract class PacmanCollectableItem extends Component {
             this.sound?.play({players: this.players, fade: 0});
 
     }
-    private makeVisibleForPacman(pacMan: Player){
-        this.async.setTimeout(()=>{this.entity.setVisibilityForPlayers([pacMan], PlayerVisibilityMode.VisibleTo);},100);
+    private makeInvisibleForGhosts(){
+        if (this.pacMan){
+            const ghosts = [...this.players].splice(this.players.indexOf(this.pacMan), 1);
+            this.async.setTimeout(() => {
+                this.entity.setVisibilityForPlayers(ghosts, PlayerVisibilityMode.HiddenFrom);
+            }, 100);
+        }
     }
     private resetState() {
         console.log("Resetting an item");
         this.entity.visible.set(true);
-        this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
-        this.pacman && this.makeVisibleForPacman(this.pacman);
+        this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.VisibleTo);
+        this.players = [];
+        this.pacMan = undefined;
         // this.entity.collidable.set(true);
 
     }

@@ -66,8 +66,7 @@ class PacmanUI extends UIComponent {
   private life2: Binding<string> = new Binding<string>("flex");
   private life3: Binding<string> = new Binding<string>("flex");
 
-
-
+  private pacman: Player|undefined;
 
   static propsDefinition = {
     trackingOrigin: {type: PropTypes.Entity},
@@ -87,7 +86,7 @@ class PacmanUI extends UIComponent {
     this.connectNetworkBroadcastEvent(Events.resetGame, this.reset.bind(this));
     this.connectNetworkBroadcastEvent(Events.respawnPacman, this.loseLife.bind(this));
     this.connectNetworkBroadcastEvent(Events.setPacman, (payload: {pacMan: Player})=>{
-      console.log("Visibility updated for", payload.pacMan?.name.get());
+      this.pacman = payload.pacMan
       this.entity.setVisibilityForPlayers([payload.pacMan],PlayerVisibilityMode.VisibleTo);});
     this.connectNetworkBroadcastEvent(Events.pacDotCollected, (payload: {pacDot: Entity})=>{
       this.hidePacDot(payload.pacDot);
@@ -114,7 +113,10 @@ class PacmanUI extends UIComponent {
 
     // TODO TESTING
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (p: Player)=>{
-      this.entity.setVisibilityForPlayers([p], PlayerVisibilityMode.HiddenFrom);
+      this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
+      if (this.pacman){
+        this.entity.setVisibilityForPlayers([this.pacman],PlayerVisibilityMode.VisibleTo);
+      }
     });
 
   }
@@ -328,6 +330,7 @@ class PacmanUI extends UIComponent {
   }
   reset(){
     this.lives = 3;
+    this.pacman = undefined;
     this.updateLivesDisplay();
     this.showAll();
 
