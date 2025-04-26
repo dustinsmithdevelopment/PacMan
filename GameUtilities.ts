@@ -8,6 +8,8 @@ export const anchorBodyPart = AttachablePlayerAnchor.Head;
 export const setupDelaySecs = 10;
 export const gameCheckFrequencySecs = 1;
 export const EDIBLE_SECONDS = 20;
+export const DOTS_TO_SHOW_FRUIT = 70;
+export const POINTS_AS_PACMAN_VARIABLE = "";
 
 export const LOBBY_SCALE = 8;
 export const GAME_SCALE = 0.1;
@@ -27,7 +29,7 @@ export const Events = {
   pacmanDead: new NetworkEvent<{}>("pacmanDead"),
   touchedByPacman: new NetworkEvent<{}>("touchedByPacman"),
   startPlayerAssignment: new NetworkEvent<{force: boolean}>("startPlayerAssignment"),
-  fruitCollected: new NetworkEvent<{}>("fruitCollected"),
+  fruitCollected: new NetworkEvent<{points: number}>("fruitCollected"),
   fruitCollectable: new NetworkEvent<{}>("fruitCollectable"),
   pacDotCollected: new NetworkEvent<{ pacDot: Entity }>("pacDotCollected"),
   powerPelletCollected: new NetworkEvent<{powerPellet: Entity}>("powerPelletCollected"),

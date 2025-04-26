@@ -11,6 +11,7 @@ class Fruit extends PacmanCollectableItem {
   };
   preStart() {
     this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
+    this.connectNetworkEvent(this.entity, Events.fruitCollectable, this.setCollectable.bind(this));
     super.preStart();
   }
 
@@ -26,7 +27,7 @@ class Fruit extends PacmanCollectableItem {
   }
   setUncollectable(){
     this.collectable = false;
-    this.entity.visible.set(false);
+    super.hideItem();
   }
   setCollectable(){
     this.collectable = true;
@@ -34,9 +35,11 @@ class Fruit extends PacmanCollectableItem {
   }
 
   collected() {
-    console.log("Fruit Collected");
-    super.hideItem();
-    this.sendNetworkBroadcastEvent(Events.fruitCollected, {});
+    if(this.collectable){
+      console.log("Fruit Collected");
+      this.setUncollectable();
+      this.sendNetworkBroadcastEvent(Events.fruitCollected, {points: this.points});
+    }
   }
 
 }

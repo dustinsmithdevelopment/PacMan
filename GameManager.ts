@@ -1,5 +1,12 @@
 import {Component, Entity, Player, PropTypes, Vec3} from "horizon/core";
-import {Events, gameCheckFrequencySecs, GameState, pacmanInvinsiblityTime, setupDelaySecs} from "./GameUtilities";
+import {
+  DOTS_TO_SHOW_FRUIT,
+  Events,
+  gameCheckFrequencySecs,
+  GameState,
+  pacmanInvinsiblityTime, POINTS_AS_PACMAN_VARIABLE,
+  setupDelaySecs
+} from "./GameUtilities";
 
 class GameManager extends Component<typeof GameManager> {
   static propsDefinition = {
@@ -11,6 +18,7 @@ class GameManager extends Component<typeof GameManager> {
     ghost4: {type: PropTypes.Entity, required: true},
 
   };
+  private currentPacman: Player|undefined;
   private currentGameState: GameState = GameState.Waiting;
   private queue1Ready = false;
   private queue2Ready = false;
@@ -29,6 +37,10 @@ class GameManager extends Component<typeof GameManager> {
     this.connectNetworkBroadcastEvent(Events.updatePlayersInQueue, (payload: {queue1: Player[], queue2: Player[]})=>{this.queue1PlayerCount = payload.queue1.length;});
     this.connectNetworkEvent(this.entity, Events.startNow, this.forceStartGame.bind(this));
     this.connectNetworkEvent(this.entity, Events.roleAssignmentComplete, ()=>{this.changeGameState(GameState.Playing);});
+    this.connectNetworkBroadcastEvent(Events.fruitCollected, (payload: {points: number})=>{
+      this.collectFruit(payload.points);
+    });
+    this.connectNetworkBroadcastEvent(Events.setPacman, (payload: {pacMan: Player})=>{this.currentPacman = payload.pacMan});
   }
 
   start() {
@@ -95,6 +107,11 @@ class GameManager extends Component<typeof GameManager> {
   }
   endGame() {
     this.pacmanInvincible = true;
+    // TODO ADD THE POINTS
+    if (this.currentPacman){
+      const currentPoints = this.world.persistentStorage.getPlayerVariable(this.currentPacman, POINTS_AS_PACMAN_VARIABLE);
+      this.world.persistentStorage.setPlayerVariable(this.currentPacman, POINTS_AS_PACMAN_VARIABLE, currentPoints + this.points);
+    }
     // console.log("Changing Game State to Ending");
     this.currentGameState = GameState.Ending;
     this.sendNetworkEvent(this.props.playerManager!, Events.gameEnding, {});
@@ -102,6 +119,8 @@ class GameManager extends Component<typeof GameManager> {
   }
   resetGame(){
     // console.log("Changing Game State to Waiting");
+    this.currentPacman = undefined;
+    this.points = 0;
     this.currentGameState = GameState.Waiting;
     console.log("Sending Game Reset")
     this.sendNetworkBroadcastEvent(Events.resetGame, {});
@@ -140,7 +159,12 @@ class GameManager extends Component<typeof GameManager> {
   }
   eatPacDot(pacDot: Entity) {
     this.remainingPacDots.delete(pacDot.id);
+    this.points += 1;
     this.checkRemainingPacDots();
+
+    if ((this.allPacDots.size - this.remainingPacDots.size) == DOTS_TO_SHOW_FRUIT){
+      this.sendNetworkBroadcastEvent(Events.fruitCollectable, {});
+    }
   }
   checkRemainingPacDots() {
     if (this.remainingPacDots.size === 0) {
@@ -170,6 +194,9 @@ class GameManager extends Component<typeof GameManager> {
     }else {
       // console.log("Queue 2 is not ready");
     }
+  }
+  collectFruit(points: number){
+    this.points += points;
   }
 }
 Component.register(GameManager);

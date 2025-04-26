@@ -1,5 +1,4 @@
 import {
-  AudioGizmo,
   CodeBlockEvents,
   Component,
   Entity,
@@ -107,12 +106,7 @@ class PacmanUI extends UIComponent {
       this.async.setInterval(this.updatePlayerPositions.bind(this),100);
     },10_000);
 
-
-
-
-
-    // TODO TESTING
-    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (p: Player)=>{
+    this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, ()=>{
       this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
       if (this.pacman){
         this.entity.setVisibilityForPlayers([this.pacman],PlayerVisibilityMode.VisibleTo);
