@@ -30,8 +30,8 @@ export abstract class PacmanCollectableItem extends Component {
     }
     private makeInvisibleForGhosts(){
         if (this.pacMan && this.players.length > 0){
-            const ghosts = this.players.filter((player) => {player !== this.pacMan});
-            console.log("making visible for", this.pacMan, "and invisible for", ghosts.length, "pacman is a ghost:", ghosts.includes(this.pacMan) );
+            const ghosts = this.players.filter((player) => {return player.id !== this.pacMan!.id});
+            console.log("we are starting with", this.players.length,"players and making visible for", this.pacMan, "and invisible for", ghosts.length, "pacman is a ghost:", ghosts.includes(this.pacMan) );
             this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.VisibleTo);
             this.async.setTimeout(() => {
                 this.entity.setVisibilityForPlayers(ghosts, PlayerVisibilityMode.HiddenFrom);
