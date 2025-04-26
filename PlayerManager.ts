@@ -69,6 +69,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.gamePlayers.moveToLobby(p);
         // TODO ADD THIS BACK
         p.avatarScale.set(LOBBY_SCALE);
+        this.lobbyAudio?.play({players: [p], fade:0});
     }
     onPlayerExitWorld(p: Player){
         if (this.gamePlayers.isPacman(p)){
