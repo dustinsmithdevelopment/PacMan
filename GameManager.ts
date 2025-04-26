@@ -41,6 +41,7 @@ class GameManager extends Component<typeof GameManager> {
       this.collectFruit(payload.points);
     });
     this.connectNetworkBroadcastEvent(Events.setPacman, (payload: {pacMan: Player})=>{this.currentPacman = payload.pacMan});
+    this.connectNetworkEvent(this.entity, Events.pacmanDead, this.pacmanInstantLoss.bind(this));
   }
 
   start() {
@@ -142,7 +143,6 @@ class GameManager extends Component<typeof GameManager> {
       this.async.setTimeout((()=>{this.pacmanInvincible = false}), 1000 * pacmanInvinsiblityTime);
       this.lives -= 1;
       if (this.lives === 0) {
-        // TODO GHOSTS WIN!
         this.world.ui.showPopupForEveryone("Ghosts Win!", 3);
         this.changeGameState(GameState.Ending);
       } else {
@@ -151,6 +151,10 @@ class GameManager extends Component<typeof GameManager> {
         this.sendNetworkBroadcastEvent(Events.respawnPacman, {});
       }
     }
+  }
+  pacmanInstantLoss(){
+    this.world.ui.showPopupForEveryone("Ghosts Win!", 3);
+    this.changeGameState(GameState.Ending);
   }
 
   registerPacDot(pacDot: Entity) {

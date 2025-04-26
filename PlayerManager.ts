@@ -7,7 +7,7 @@ import {
     PropTypes,
     SpawnPointGizmo
 } from "horizon/core";
-import {Events, GamePlayers, playerCount, PlayerList, LOBBY_SCALE, GAME_SCALE, EDIBLE_SECONDS} from "./GameUtilities";
+import {Events, GamePlayers, LOBBY_SCALE, EDIBLE_SECONDS} from "./GameUtilities";
 import {Camera, CameraMode} from "horizon/camera";
 import {PlayerCameraEvents} from "./PlayerCamera";
 
@@ -73,7 +73,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
     }
     onPlayerExitWorld(p: Player){
         if (this.gamePlayers.isPacman(p)){
-            this.sendLocalBroadcastEvent(Events.pacmanDead, {});
+            this.sendNetworkEvent(this.props.gameManager!, Events.pacmanDead, {});
         }
         this.gamePlayers.removePlayer(p)
     }

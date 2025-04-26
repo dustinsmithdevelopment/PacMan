@@ -1,7 +1,5 @@
 import {AttachablePlayerAnchor, Entity, LocalEvent, NetworkEvent, Player, SpawnPointGizmo, Vec3} from "horizon/core";
 
-// TODO
-export const playerCount = 5;
 
 export const pacmanInvinsiblityTime = 10;
 export const anchorBodyPart = AttachablePlayerAnchor.Head;
@@ -111,7 +109,7 @@ export class GamePlayers {
     return this.queueIsFull(this.queue2);
   }
   queueIsFull(queue: PlayerList) {
-    return queue.size() == playerCount;
+    return queue.size() == 5;
   }
   isInLobby(player: Player) {
     return this.inLobby.hasPlayer(player);
