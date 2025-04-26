@@ -19,7 +19,8 @@ class AttachSuit extends Component{
     this.entity.as(PhysicalEntity).locked.set(true);
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
       const suit: Entity = this.props.suit;
-      suit.as(AttachableEntity).attachToPlayer(player, AttachablePlayerAnchor.Head);
+      suit.owner.set(player)
+      // suit.as(AttachableEntity).attachToPlayer(player, AttachablePlayerAnchor.Head);
     });
   }
 }
