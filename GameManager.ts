@@ -37,11 +37,11 @@ class GameManager extends Component<typeof GameManager> {
     this.connectNetworkBroadcastEvent(Events.updatePlayersInQueue, (payload: {queue1: Player[], queue2: Player[]})=>{this.queue1PlayerCount = payload.queue1.length;});
     this.connectNetworkEvent(this.entity, Events.startNow, this.forceStartGame.bind(this));
     this.connectNetworkEvent(this.entity, Events.roleAssignmentComplete, ()=>{this.changeGameState(GameState.Playing);});
-    this.connectNetworkBroadcastEvent(Events.fruitCollected, (payload: {points: number})=>{
-      this.collectFruit(payload.points);
-    });
     this.connectNetworkBroadcastEvent(Events.setPacman, (payload: {pacMan: Player})=>{this.currentPacman = payload.pacMan});
     this.connectNetworkEvent(this.entity, Events.pacmanDead, this.pacmanInstantLoss.bind(this));
+    this.connectNetworkEvent(this.entity, Events.addPacmanPoints, (payload: {points: number})=>{
+      this.addPacmanPoints(payload.points);
+    })
   }
 
   start() {
@@ -163,7 +163,7 @@ class GameManager extends Component<typeof GameManager> {
   }
   eatPacDot(pacDot: Entity) {
     this.remainingPacDots.delete(pacDot.id);
-    this.points += 1;
+    this.points += 10;
     this.checkRemainingPacDots();
 
     if ((this.allPacDots.size - this.remainingPacDots.size) == DOTS_TO_SHOW_FRUIT){
@@ -199,8 +199,9 @@ class GameManager extends Component<typeof GameManager> {
       // console.log("Queue 2 is not ready");
     }
   }
-  collectFruit(points: number){
+  addPacmanPoints(points: number){
     this.points += points;
+    console.log(this.points, "Points total");
   }
 }
 Component.register(GameManager);
