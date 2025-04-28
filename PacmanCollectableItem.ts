@@ -14,7 +14,7 @@ export abstract class PacmanCollectableItem extends Component {
         this.connectNetworkBroadcastEvent(Events.updateCurrentGamePlayers, (payload: {players: Player[]})=>{
             this.players = payload.players;
             this.makeInvisibleForGhosts();
-        })
+        });
     }
     start() {
     }

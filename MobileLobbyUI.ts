@@ -21,7 +21,7 @@ class PlayerScreen extends UIComponent {
 
   private wearer: Player|undefined;
 
-  private queue1Binding: Binding<string> = new Binding("Join Queue 1");
+  private queue1Binding: Binding<string> = new Binding("Join Next Game");
   private queue2Binding: Binding<string> = new Binding("Join Queue 2");
 
 
@@ -57,7 +57,7 @@ class PlayerScreen extends UIComponent {
               ]})
           ]}),
           View({children:[
-              Pressable({style: {backgroundColor: "#455A64", borderRadius: 12, borderColor: "black", borderWidth: 4, height: 80}, onClick: (player: Player)=>{
+              Pressable({style: {backgroundColor: "#455A64", borderRadius: 24, borderColor: "black", borderWidth: 4, height: 160}, onClick: (player: Player)=>{
                   if (!this.inQueue1) {
                     this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue1, {player: player});
                   }else {
@@ -65,17 +65,6 @@ class PlayerScreen extends UIComponent {
                   }
                 }, children: [
                   Text({text: this.queue1Binding, style: {color: "#00BCD4", height: "100%", textAlign: "center", textAlignVertical: "center", fontSize: 32, fontWeight: "bold"}},)
-                ]}),
-              Pressable({style: {backgroundColor: "#455A64", borderRadius: 12, borderColor: "black", borderWidth: 4, height: 80}, onClick: (player: Player)=>{
-                  if (!this.inQueue2) {
-                    this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue2, {player: player});
-                  }else {
-                    this.sendNetworkEvent(this.props.playerManager!, Events.leaveQueue2, {player: player});
-                  }
-
-
-                }, children: [
-                  Text({text: this.queue2Binding, style: {color: "#00BCD4", height: "100%", textAlign: "center", textAlignVertical: "center", fontSize: 32, fontWeight: "bold"}},)
                 ]})
             ], style: {position: "absolute",width: 220, height: 180, right: 10, bottom: 10, display: "flex", flexDirection: "column", justifyContent: "space-between"}}),
 
@@ -136,11 +125,11 @@ class PlayerScreen extends UIComponent {
     let queue2text = "";
 
     if (this.inQueue1) {
-      queue1text = "Leave Queue 1";
+      queue1text = "Leave Next Game";
     } else if (this.queue1Full) {
-      queue1text = "Queue 1 Full";
+      queue1text = "Next Game Full";
     } else {
-      queue1text = "Join Queue 1";
+      queue1text = "Join Next Game";
     }
 
     if (this.inQueue2) {

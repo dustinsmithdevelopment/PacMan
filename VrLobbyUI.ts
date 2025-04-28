@@ -5,11 +5,11 @@ import {Binding, Pressable, Text, UIComponent, UINode, View} from "horizon/ui";
 
 class PlayerScreen extends UIComponent {
     panelWidth = 800;
-    panelHeight = 700;
+    panelHeight = 300;
     private queue1: Player[] = [];
     private queue2: Player[] = [];
 
-    private queue1Binding: Binding<string> = new Binding("Join Queue 1");
+    private queue1Binding: Binding<string> = new Binding("Join Next Game");
     private queue2Binding: Binding<string> = new Binding("Join Queue 2");
 
 
@@ -29,17 +29,6 @@ class PlayerScreen extends UIComponent {
                         }
                     }, children: [
                         Text({text: this.queue1Binding, style: {color: "#00BCD4", height: "100%", textAlign: "center", textAlignVertical: "center", fontSize: 100, fontWeight: "bold"}},)
-                    ]}),
-                Pressable({style: {backgroundColor: "#455A64", borderRadius: 12, borderColor: "black", borderWidth: 4, height: 300}, onClick: (player: Player)=>{
-                        if (!this.queue2.includes(player)) {
-                            this.sendNetworkEvent(this.props.playerManager!, Events.joinQueue2, {player: player});
-                        }else {
-                            this.sendNetworkEvent(this.props.playerManager!, Events.leaveQueue2, {player: player});
-                        }
-
-
-                    }, children: [
-                        Text({text: this.queue2Binding, style: {color: "#00BCD4", height: "100%", textAlign: "center", textAlignVertical: "center", fontSize: 100, fontWeight: "bold"}},)
                     ]})
             ], style: {position: "absolute",width: "100%", height: "100%", left: 0, top: 0, display: "flex", flexDirection: "column", justifyContent: "space-between"}});
     }
@@ -60,12 +49,12 @@ class PlayerScreen extends UIComponent {
            let queue1display: string;
             let queue2display: string;
            if (queue1.includes(p)){
-               queue1display = "Leave Queue 1";
+               queue1display = "Leave Next Game";
            }
            else if (queue1.length >= 5){
-               queue1display = "Queue 1 Full";
+               queue1display = "Next Game Full";
            } else {
-               queue1display = "Join Queue 1";
+               queue1display = "Join Next Game";
            }
 
             if (queue2.includes(p)){
