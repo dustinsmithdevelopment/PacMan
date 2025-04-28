@@ -4,7 +4,7 @@ import {PacmanCollectableItem} from "./PacmanCollectableItem";
 
 class Fruit extends PacmanCollectableItem {
   private collectable = false;
-  private points: number = 40;
+  private points: number = 100;
   static propsDefinition = {
     pointValue: { type: PropTypes.Number },
     sound: {type: PropTypes.Entity}
@@ -16,7 +16,6 @@ class Fruit extends PacmanCollectableItem {
   }
 
   start() {
-    this.setUncollectable();
     if (this.props.pointValue < 0){
       this.points = this.props.pointValue;
     }
@@ -24,6 +23,7 @@ class Fruit extends PacmanCollectableItem {
       super.setAudioGizmo(this.props.sound);
     }
     super.start();
+    this.async.setTimeout(this.setUncollectable.bind(this),200);
   }
   setUncollectable(){
     this.collectable = false;

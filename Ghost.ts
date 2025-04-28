@@ -13,8 +13,7 @@ class Ghost extends PlayerRole {
   private blueFlash: number|undefined;
   static propsDefinition = {
     homePositionSpawn: {type: PropTypes.Entity, required: true},
-    gameManager: {type: PropTypes.Entity, required: true},
-    playerManager: {type: PropTypes.Entity, required: true},
+    manager: {type: PropTypes.Entity, required: true},
   };
   private ghostState: GhostState = GhostState.enemy;
   private ghostMesh: MeshEntity|undefined;
@@ -49,7 +48,7 @@ class Ghost extends PlayerRole {
   }
   eatenByPacman(){
     this.respawn();
-    this.sendNetworkEvent(this.props.gameManager!, Events.addPacmanPoints, 200);
+    this.sendNetworkEvent(this.props.manager!, Events.addPacmanPoints, {points: 200});
   }
   respawn(){
     super.moveToStart();

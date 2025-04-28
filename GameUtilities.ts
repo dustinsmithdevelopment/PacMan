@@ -51,6 +51,7 @@ export const Events = {
   changeGameState: new NetworkEvent<{state: GameState}>("changeGameState"),
   startNow: new NetworkEvent<{}>("startNow"),
   updateCurrentGamePlayers: new NetworkEvent<{players:Player[]}>("updateCurrentGamePlayers"),
+  addPacmanPoints: new NetworkEvent<{points: number}>("addPacmanPoints"),
 }
 export class PlayerList {
   players: Player[] = [];
