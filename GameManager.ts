@@ -165,8 +165,11 @@ class GameManager extends Component<typeof GameManager> {
     this.remainingPacDots.delete(pacDot.id);
     this.points += 10;
     this.checkRemainingPacDots();
-
+    console.log((this.allPacDots.size - this.remainingPacDots.size));
+    console.log("Is equal:", (this.allPacDots.size - this.remainingPacDots.size) == DOTS_TO_SHOW_FRUIT);
+    console.log(DOTS_TO_SHOW_FRUIT);
     if ((this.allPacDots.size - this.remainingPacDots.size) == DOTS_TO_SHOW_FRUIT){
+      console.log("Making Fruit Visible")
       this.sendNetworkBroadcastEvent(Events.fruitCollectable, {});
     }
   }

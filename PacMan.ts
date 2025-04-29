@@ -6,7 +6,7 @@ import {
   PlayerVisibilityMode,
   PropTypes,
   SerializableState,
-  SpawnPointGizmo, Vec3,
+  SpawnPointGizmo, TriggerGizmo, Vec3,
 } from "horizon/core";
 import {Events} from "./GameUtilities";
 import {PlayerRole} from "./PlayerRole";
@@ -29,10 +29,13 @@ class PacMan extends PlayerRole {
     this.connectNetworkBroadcastEvent(Events.resetGame, ()=>{this.collectedEntities = [];});
   }
   start() {
+    const triggerEntity: Entity = this.props.collectionTrigger!;
+    triggerEntity.as(TriggerGizmo).enabled.set(false);
+
     this.connectCodeBlockEvent(this.props.collectionTrigger, CodeBlockEvents.OnEntityEnterTrigger, (entity: Entity)=>{
       this.itemTouched(entity);
     });
-    // TODO
+
     const homePositionSpawn: Entity = this.props.homePositionSpawn!
     super.SetHomePosition(homePositionSpawn);
     this.entity.position.set(new Vec3(0,500, 0));
@@ -40,7 +43,7 @@ class PacMan extends PlayerRole {
   }
   itemTouched(item: Entity){
     if (!this.collectedEntities.includes(item.id)){
-      if(!(item.tags.contains("ghost") || item.tags.contains("fruit"))){
+      if(!((item.tags.contains("ghost") || item.tags.contains("fruit")))){
         this.collectedEntities.push(item.id);
       }
       this.sendNetworkEvent(item, Events.touchedByPacman, {});
@@ -63,9 +66,13 @@ class PacMan extends PlayerRole {
     return super.transferOwnership(_oldOwner, _newOwner);
   }
   receiveOwnership(state: { homePosition: Entity }, _oldOwner: Player, _newOwner: Player) {
+    const triggerEntity: Entity = this.props.collectionTrigger!;
     if (_newOwner !== this.world.getServerPlayer()) {
       const pacmanUI: Entity = this.props.pacmanUI;
       pacmanUI.setVisibilityForPlayers([_newOwner], PlayerVisibilityMode.VisibleTo);
+      triggerEntity.as(TriggerGizmo).enabled.set(true);
+    }else {
+      triggerEntity.as(TriggerGizmo).enabled.set(false);
     }
     super.receiveOwnership(state, _oldOwner, _newOwner);
   }

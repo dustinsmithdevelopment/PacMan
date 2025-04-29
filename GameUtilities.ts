@@ -6,7 +6,7 @@ export const anchorBodyPart = AttachablePlayerAnchor.Head;
 export const setupDelaySecs = 10;
 export const gameCheckFrequencySecs = 1;
 export const EDIBLE_SECONDS = 20;
-export const DOTS_TO_SHOW_FRUIT = 70;
+export const DOTS_TO_SHOW_FRUIT = 1;
 export const POINTS_AS_PACMAN_VARIABLE = "";
 
 export const LOBBY_SCALE = 8;

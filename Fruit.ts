@@ -12,6 +12,7 @@ class Fruit extends PacmanCollectableItem {
   preStart() {
     this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
     this.connectNetworkEvent(this.entity, Events.fruitCollectable, this.setCollectable.bind(this));
+    this.connectNetworkBroadcastEvent(Events.fruitCollectable, this.setCollectable.bind(this));
     super.preStart();
   }
 

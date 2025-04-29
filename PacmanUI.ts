@@ -61,9 +61,6 @@ class PacmanUI extends UIComponent {
   private fruitDisplayLocationsY: Binding<number[]> = new Binding<number[]>([]);
   private fruitDisplayVisibility: Binding<string[]> = new Binding<string[]>([]);
 
-  private life1: Binding<string> = new Binding<string>("flex");
-  private life2: Binding<string> = new Binding<string>("flex");
-  private life3: Binding<string> = new Binding<string>("flex");
 
   private pacman: Player|undefined;
 
@@ -130,7 +127,7 @@ class PacmanUI extends UIComponent {
     // console.log(this.pacDots.length, "PacDots");
     this.powerPellets = this.world.getEntitiesWithTags(["PowerPellet"], EntityTagMatchOperation.HasAnyExact);
     // console.log(this.powerPellets.length, "PowerPellets");
-    this.fruits = this.world.getEntitiesWithTags(["Fruit"], EntityTagMatchOperation.HasAnyExact);
+    this.fruits = this.world.getEntitiesWithTags(["fruit"], EntityTagMatchOperation.HasAnyExact);
     // console.log(this.fruits.length, "Fruit");
 
     let displayItems: UINode[] = []
@@ -153,7 +150,7 @@ class PacmanUI extends UIComponent {
 
     this.fruitLocationsX = Array(this.fruits.length).fill(0);
     this.fruitLocationsY = Array(this.fruits.length).fill(0);
-    this.fruitVisibility = Array(this.fruits.length).fill("flex");
+    this.fruitVisibility = Array(this.fruits.length).fill("none");
     this.fruitDisplayLocationsX.set(this.fruitLocationsX)
     this.fruitDisplayLocationsY.set(this.fruitLocationsY);
     this.fruitDisplayVisibility.set(this.fruitVisibility);
@@ -223,13 +220,13 @@ class PacmanUI extends UIComponent {
             style: {width: ICON_SIZE, height: ICON_SIZE, bottom: this.enemy4X, left: this.enemy4Y, position: "absolute", zIndex: 2}
           }),
           ...displayItems
-        ], style: {position: "absolute", width: 384, height: 216, left: 0, top: "10%"}
+        ], style: {position: "absolute", width: 384, height: 216, left: 100, top: "10%"}
       }),
       // life Indicator
           View({children: [
-              Image({source: playerImage, style: {width: 80, height: 80, display: this.life1}}),
-              Image({source: playerImage, style: {width: 80, height: 80, display: this.life2}}),
-              Image({source: playerImage, style: {width: 80, height: 80, display: this.life3}}),
+              Image({source: playerImage, style: {width: 80, height: 80, display: this.livesBinding.derive((value:string[])=>{return value[0]})}}),
+              Image({source: playerImage, style: {width: 80, height: 80, display: this.livesBinding.derive((value:string[])=>{return value[1]})}}),
+              Image({source: playerImage, style: {width: 80, height: 80, display: this.livesBinding.derive((value:string[])=>{return value[2]})}}),
 
             ], style:{width: "30%", height: 80, top: 0, left: "35%", position: "absolute", display: "flex", flexDirection: "row", justifyContent: "space-around", alignItems: "center"}})
       ], style: {width: "100%", height: "100%" ,position: "absolute"}
@@ -269,13 +266,13 @@ class PacmanUI extends UIComponent {
 
   }
   setItemPositions(){
-    this.pacDots = this.world.getEntitiesWithTags(["PacDot"], EntityTagMatchOperation.HasAnyExact);
-    // console.log(this.pacDots.length, "PacDots");
-    this.powerPellets = this.world.getEntitiesWithTags(["PowerPellet"], EntityTagMatchOperation.HasAnyExact);
-    // console.log(this.powerPellets.length, "PowerPellets");
-    this.fruits = this.world.getEntitiesWithTags(["Fruit"], EntityTagMatchOperation.HasAnyExact);
-    // console.log(this.fruits.length, "Fruit");
+    this.setPacDotLocations();
+    this.setPowerPelletLocations();
+    this.setFruitLocations();
 
+  }
+  setPacDotLocations(){
+    this.pacDots = this.world.getEntitiesWithTags(["PacDot"], EntityTagMatchOperation.HasAnyExact);
     this.pacDots.forEach((dot: Entity, index: number)=>{
       const currentDotLocation = dot.position.get().sub(this.origin!).mul(MAP_UPSCALE);
       this.pacDotLocationsX[index] = currentDotLocation.z + MOVE_UP;
@@ -284,6 +281,9 @@ class PacmanUI extends UIComponent {
     this.pacDotDisplayLocationsX.set(this.pacDotLocationsX);
     this.pacDotDisplayLocationsY.set(this.pacDotLocationsY);
 
+  }
+  setPowerPelletLocations(){
+    this.powerPellets = this.world.getEntitiesWithTags(["PowerPellet"], EntityTagMatchOperation.HasAnyExact);
 
     this.powerPellets.forEach((pellet: Entity, index: number)=>{
       const currentPelletLocation = pellet.position.get().sub(this.origin!).mul(MAP_UPSCALE);
@@ -292,6 +292,9 @@ class PacmanUI extends UIComponent {
     });
     this.powerPelletDisplayLocationsX.set(this.powerPelletLocationsX);
     this.powerPelletDisplayLocationsY.set(this.powerPelletLocationsY);
+  }
+  setFruitLocations(){
+    this.fruits = this.world.getEntitiesWithTags(["fruit"], EntityTagMatchOperation.HasAnyExact);
 
 
     this.fruits.forEach((fruit: Entity, index: number)=>{
@@ -331,6 +334,7 @@ class PacmanUI extends UIComponent {
   }
   private loseLife(){
     this.lives -= 1;
+    console.log("The customUI is losing a life. The current lives are", this.lives);
     this.updateLivesDisplay();
   }
   private updateLivesDisplay(){
@@ -357,7 +361,7 @@ class PacmanUI extends UIComponent {
     this.powerPelletVisibility = Array(this.powerPellets.length).fill("flex");
     this.powerPelletDisplayVisibility.set(this.powerPelletVisibility);
 
-    this.fruitVisibility = Array(this.fruits.length).fill("flex");
+    this.fruitVisibility = Array(this.fruits.length).fill("none");
     this.fruitDisplayVisibility.set(this.fruitVisibility);
 
   }
