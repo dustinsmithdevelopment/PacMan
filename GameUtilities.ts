@@ -9,7 +9,7 @@ export const EDIBLE_SECONDS = 20;
 export const DOTS_TO_SHOW_FRUIT = 1;
 export const POINTS_AS_PACMAN_VARIABLE = "";
 
-export const LOBBY_SCALE = 8;
+export const LOBBY_SCALE = 9;
 export const GAME_SCALE = 0.1;
 
 export enum GameState {

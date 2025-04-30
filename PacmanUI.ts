@@ -12,10 +12,10 @@ import {Events} from "./GameUtilities";
 import {Binding, DimensionValue, Image, ImageSource, UIComponent, UINode, View} from "horizon/ui";
 
 
-const MAP_UPSCALE = 32;
+const MAP_UPSCALE = 44;
 const ICON_SIZE = 16;
-const MOVE_UP = 0;
-const MOVE_RIGHT = 10;
+const MOVE_UP = -15;
+const MOVE_RIGHT = -20;
 
 class PacmanUI extends UIComponent {
   panelWidth = 1920;
@@ -197,7 +197,7 @@ class PacmanUI extends UIComponent {
         children: [
           Image({
             source: backgroundImage,
-            style: {width: "100%", height: "100%", top: 0, left: 0, position: "absolute", zIndex: -1, opacity: 0.5}
+            style: {width: "100%", height: "100%", top: 0, left: 0, position: "absolute", zIndex: -1, opacity: 1}
           }),
           Image({
             source: playerImage,
