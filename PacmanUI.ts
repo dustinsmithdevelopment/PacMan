@@ -14,8 +14,8 @@ import {Binding, DimensionValue, Image, ImageSource, UIComponent, UINode, View} 
 
 const MAP_UPSCALE = 44;
 const ICON_SIZE = 16;
-const MOVE_UP = -15;
-const MOVE_RIGHT = -20;
+const MOVE_UP = -16;
+const MOVE_RIGHT = -28;
 
 class PacmanUI extends UIComponent {
   panelWidth = 1920;
@@ -201,7 +201,7 @@ class PacmanUI extends UIComponent {
           }),
           Image({
             source: playerImage,
-            style: {width: ICON_SIZE, height: ICON_SIZE, bottom: this.pacManX, left: this.pacManY, position: "absolute", zIndex: 2}
+            style: {width: ICON_SIZE*2, height: ICON_SIZE*2, bottom: this.pacManX, left: this.pacManY, position: "absolute", zIndex: 2}
           }),
           Image({
             source: enemyImage,
