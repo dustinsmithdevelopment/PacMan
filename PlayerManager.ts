@@ -5,7 +5,7 @@ import {
     Component, Entity,
     Player,
     PropTypes,
-    SpawnPointGizmo
+    SpawnPointGizmo, Vec3
 } from "horizon/core";
 import {Events, GamePlayers, LOBBY_SCALE, EDIBLE_SECONDS} from "./GameUtilities";
 import {Camera, CameraMode} from "horizon/camera";
@@ -151,11 +151,15 @@ class PlayerManager extends Component<typeof PlayerManager> {
         // console.log("Ghost3",this.ghost3.name.get());
         this.ghost4 = this.gamePlayers.ghosts.players[3] ?? undefined;
         // console.log("Ghost4",this.ghost4.name.get());
-        this.props.pacman!.as(AttachableEntity).owner.set(this.pacman);
-        this.props.ghost1!.as(AttachableEntity).owner.set(this.ghost1);
-        this.ghost2 && this.props.ghost2!.as(AttachableEntity).owner.set(this.ghost2);
-        this.ghost2 && this.props.ghost3!.as(AttachableEntity).owner.set(this.ghost3);
-        this.ghost2 && this.props.ghost4!.as(AttachableEntity).owner.set(this.ghost4);
+        this.pacman.position.set(new Vec3(0, -250, 0));
+        this.async.setTimeout(()=>{
+            this.props.pacman!.as(AttachableEntity).owner.set(this.pacman!);
+            this.props.ghost1!.as(AttachableEntity).owner.set(this.ghost1!);
+            this.ghost2 && this.props.ghost2!.as(AttachableEntity).owner.set(this.ghost2!);
+            this.ghost3 && this.props.ghost3!.as(AttachableEntity).owner.set(this.ghost3!);
+            this.ghost4 && this.props.ghost4!.as(AttachableEntity).owner.set(this.ghost4!);
+            },500);
+
         this.async.setTimeout(()=>{
             this.sendNetworkEvent(this.props.gameManager!, Events.roleAssignmentComplete, {});
     });
