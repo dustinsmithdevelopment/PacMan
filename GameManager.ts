@@ -143,7 +143,7 @@ class GameManager extends Component<typeof GameManager> {
       this.async.setTimeout((()=>{this.pacmanInvincible = false}), 1000 * pacmanInvinsiblityTime);
       this.lives -= 1;
       if (this.lives === 0) {
-        this.world.ui.showPopupForEveryone("Ghosts Win!", 3);
+        this.world.ui.showPopupForEveryone("Drones Win!", 3);
         this.changeGameState(GameState.Ending);
       } else {
         // respawn pacman
@@ -153,7 +153,7 @@ class GameManager extends Component<typeof GameManager> {
     }
   }
   pacmanInstantLoss(){
-    this.world.ui.showPopupForEveryone("Ghosts Win!", 3);
+    this.world.ui.showPopupForEveryone("Drones Win!", 3);
     this.changeGameState(GameState.Ending);
   }
 
@@ -175,7 +175,7 @@ class GameManager extends Component<typeof GameManager> {
   }
   checkRemainingPacDots() {
     if (this.remainingPacDots.size === 0) {
-      this.world.ui.showPopupForEveryone("Pacman Wins!", 3);
+      this.world.ui.showPopupForEveryone("The Dragon Wins!", 3);
       this.changeGameState(GameState.Ending);
     }
   }
