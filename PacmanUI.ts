@@ -12,10 +12,10 @@ import {Events} from "./GameUtilities";
 import {Binding, DimensionValue, Image, ImageSource, UIComponent, UINode, View} from "horizon/ui";
 
 
-const MAP_UPSCALE = 44;
+const MAP_UPSCALE = 44.5;
 const ICON_SIZE = 16;
-const MOVE_UP = -16;
-const MOVE_RIGHT = -28;
+const MOVE_UP = -12;
+const MOVE_RIGHT = -20;
 
 class PacmanUI extends UIComponent {
   panelWidth = 1920;
@@ -101,7 +101,7 @@ class PacmanUI extends UIComponent {
     this.async.setTimeout(()=>{
       this.setItemPositions();
       this.async.setInterval(this.updatePlayerPositions.bind(this),100);
-    },10_000);
+    },3_000);
 
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, ()=>{
       this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.HiddenFrom);
@@ -160,7 +160,7 @@ class PacmanUI extends UIComponent {
 
 
     this.pacDots.forEach((_:Entity, index:number) => {
-      displayItems.push(Image({source: pacDotImage, style:{width: ICON_SIZE, height: ICON_SIZE, bottom: this.pacDotDisplayLocationsX.derive((numberArray)=>{
+      displayItems.push(Image({source: pacDotImage, style:{width: 8, height: 8, bottom: this.pacDotDisplayLocationsX.derive((numberArray)=>{
             return numberArray[index];
           }), left: this.pacDotDisplayLocationsY.derive((numberArray)=>{
             return numberArray[index];
