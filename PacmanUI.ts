@@ -11,11 +11,11 @@ import {
 import {Events} from "./GameUtilities";
 import {Binding, DimensionValue, Image, ImageSource, UIComponent, UINode, View} from "horizon/ui";
 
-
-const MAP_UPSCALE = 44.5;
+const UPSCALE_X = 43.5;
+const UPSCALE_Y = 45.75;
 const ICON_SIZE = 16;
 const MOVE_UP = -12;
-const MOVE_RIGHT = -20;
+const MOVE_RIGHT = -19.5;
 
 class PacmanUI extends UIComponent {
   panelWidth = 1920;
@@ -100,7 +100,7 @@ class PacmanUI extends UIComponent {
     this.origin = originRef.position.get();
     this.async.setTimeout(()=>{
       this.setItemPositions();
-      this.async.setInterval(this.updatePlayerPositions.bind(this),100);
+      this.async.setInterval(this.updatePlayerPositions.bind(this),1_000);
     },3_000);
 
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, ()=>{
@@ -237,6 +237,7 @@ class PacmanUI extends UIComponent {
 
 
   updatePlayerPositions(){
+    const MAP_UPSCALE = 42;
     // @ts-ignore
     const pacPos = this.props.pacmanSuit!.position.get().sub(this.origin!).mul(MAP_UPSCALE);
     // console.log("Pacman", pacPos.x, pacPos.y, pacPos.z);
@@ -274,9 +275,9 @@ class PacmanUI extends UIComponent {
   setPacDotLocations(){
     this.pacDots = this.world.getEntitiesWithTags(["PacDot"], EntityTagMatchOperation.HasAnyExact);
     this.pacDots.forEach((dot: Entity, index: number)=>{
-      const currentDotLocation = dot.position.get().sub(this.origin!).mul(MAP_UPSCALE);
-      this.pacDotLocationsX[index] = currentDotLocation.z + MOVE_UP;
-      this.pacDotLocationsY[index] = currentDotLocation.x + MOVE_RIGHT;
+      const currentDotLocation = dot.position.get().sub(this.origin!);
+      this.pacDotLocationsX[index] = (currentDotLocation.z * UPSCALE_Y) + MOVE_UP;
+      this.pacDotLocationsY[index] = (currentDotLocation.x * UPSCALE_X) + MOVE_RIGHT;
     });
     this.pacDotDisplayLocationsX.set(this.pacDotLocationsX);
     this.pacDotDisplayLocationsY.set(this.pacDotLocationsY);
@@ -286,9 +287,9 @@ class PacmanUI extends UIComponent {
     this.powerPellets = this.world.getEntitiesWithTags(["PowerPellet"], EntityTagMatchOperation.HasAnyExact);
 
     this.powerPellets.forEach((pellet: Entity, index: number)=>{
-      const currentPelletLocation = pellet.position.get().sub(this.origin!).mul(MAP_UPSCALE);
-      this.powerPelletLocationsX[index] = currentPelletLocation.z + MOVE_UP;
-      this.powerPelletLocationsY[index] = currentPelletLocation.x + MOVE_RIGHT;
+      const currentPelletLocation = pellet.position.get().sub(this.origin!);
+      this.powerPelletLocationsX[index] = (currentPelletLocation.z * UPSCALE_Y) + MOVE_UP;
+      this.powerPelletLocationsY[index] = (currentPelletLocation.x * UPSCALE_X) + MOVE_RIGHT;
     });
     this.powerPelletDisplayLocationsX.set(this.powerPelletLocationsX);
     this.powerPelletDisplayLocationsY.set(this.powerPelletLocationsY);
@@ -298,9 +299,9 @@ class PacmanUI extends UIComponent {
 
 
     this.fruits.forEach((fruit: Entity, index: number)=>{
-      const currentFruitLocation = fruit.position.get().sub(this.origin!).mul(MAP_UPSCALE);
-      this.fruitLocationsX[index] = currentFruitLocation.z + MOVE_UP;
-      this.fruitLocationsY[index] = currentFruitLocation.x + MOVE_RIGHT;
+      const currentFruitLocation = fruit.position.get().sub(this.origin!);
+      this.fruitLocationsX[index] = (currentFruitLocation.z * UPSCALE_Y) + MOVE_UP;
+      this.fruitLocationsY[index] = (currentFruitLocation.x * UPSCALE_X) + MOVE_RIGHT;
     });
     this.fruitDisplayLocationsX.set(this.fruitLocationsX);
     this.fruitDisplayLocationsY.set(this.fruitLocationsY);
