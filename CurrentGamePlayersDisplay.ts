@@ -39,7 +39,9 @@ class PlayerDisplay extends UIComponent{
     }
     preStart() {
         this.connectNetworkBroadcastEvent(Events.updateCurrentGamePlayers, (payload: {players: Player[]})=>{
+            console.log(payload.players.length, "Players Received for display");
             this.playersInGame = payload.players;
+            this.updateQueueDisplays();
         });
     }
 
