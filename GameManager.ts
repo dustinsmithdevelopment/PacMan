@@ -1,4 +1,4 @@
-import {Color, Component, Entity, ParticleGizmo, Player, PropTypes, Vec3} from "horizon/core";
+import {AudioGizmo, Color, Component, Entity, ParticleGizmo, Player, PropTypes, Vec3} from "horizon/core";
 import {
   DOTS_TO_SHOW_FRUIT,
   Events,
@@ -22,6 +22,7 @@ class GameManager extends Component<typeof GameManager> {
     ghost3: {type: PropTypes.Entity, required: true},
     ghost4: {type: PropTypes.Entity, required: true},
     confetti: {type: PropTypes.Entity, required: true},
+    endGameSound: {type: PropTypes.Entity, required: true},
 
   };
   private confetti!: ParticleGizmo;
@@ -212,8 +213,17 @@ class GameManager extends Component<typeof GameManager> {
   }
 
   announceEndGame(winner: WinnerTypes){
+    switch (winner){
+      case WinnerTypes.Dragon:
+        this.sendNetworkEvent(this.props.playerManager!, Events.dragonWin, {});
+        break;
+      case WinnerTypes.Drones:
+        this.sendNetworkEvent(this.props.playerManager!, Events.ghostWin, {});
+        break;
+    }
     this.world.ui.showPopupForEveryone("Game Over", 3, {backgroundColor: Color.black, fontColor: Color.red, fontSize: 5, showTimer: false, playSound: false});
     this.confetti.play();
+    this.props.endGameSound?.as(AudioGizmo).play();
     this.async.setTimeout(()=>{
       switch (winner){
         case WinnerTypes.Dragon:

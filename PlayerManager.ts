@@ -7,7 +7,7 @@ import {
     PropTypes,
     SpawnPointGizmo, Vec3
 } from "horizon/core";
-import {Events, GamePlayers, LOBBY_SCALE, EDIBLE_SECONDS} from "./GameUtilities";
+import {Events, GamePlayers, LOBBY_SCALE, EDIBLE_SECONDS, MazeRunnerVariable} from "./GameUtilities";
 import {Camera, CameraMode} from "horizon/camera";
 import {PlayerCameraEvents} from "./PlayerCamera";
 
@@ -42,8 +42,10 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.connectNetworkEvent(this.entity, Events.leaveQueue1, (payload: {player: Player})=> {this.onLeaveQueue1(payload.player);});
         this.connectNetworkEvent(this.entity, Events.leaveQueue2, (payload: {player: Player})=> {this.onLeaveQueue2(payload.player);});
         this.connectNetworkEvent(this.entity, Events.startPlayerAssignment, (payload: {force: boolean})=>{this.assignPlayers(payload.force);});
-        this.connectNetworkEvent(this.entity, Events.gameEnding, this.returnGamePlayersToLobby.bind(this));
+        this.connectNetworkEvent(this.entity, Events.gameEnding, this.handleGameEnd.bind(this));
         this.connectNetworkBroadcastEvent(Events.powerPelletCollected, this.playPowerPelletMusic.bind(this));
+        this.connectNetworkEvent(this.entity, Events.ghostWin, this.addGhostWin.bind(this));
+        this.connectNetworkEvent(this.entity, Events.dragonWin, this.addDragonWin.bind(this));
     }
 
     start() {
@@ -64,6 +66,20 @@ class PlayerManager extends Component<typeof PlayerManager> {
         if (powerPelletAudioEntity){
             this.powerPelletAudio =  powerPelletAudioEntity!.as(AudioGizmo);
         }
+        this.async.setInterval(this.updatePlayerTime.bind(this), 1000*60);
+
+    }
+    updatePlayerTime(){
+        const worldVariables = this.world.persistentStorage;
+        const worldLeaderboards = this.world.leaderboards;
+        this.world.getPlayers().forEach(player => {
+            const newVRTime = 1 + worldVariables.getPlayerVariable(player, MazeRunnerVariable("vrtimeSpent"));
+            worldVariables.setPlayerVariable(player,  MazeRunnerVariable("vrtimeSpent"), newVRTime);
+            worldLeaderboards.setScoreForPlayer("TimeSpent", player, newVRTime, true);
+            const newMobileTime = 1 + worldVariables.getPlayerVariable(player, MazeRunnerVariable("mobiletimeSpent"));
+            worldVariables.setPlayerVariable(player,  MazeRunnerVariable("mobiletimeSpent"), newMobileTime);
+            worldLeaderboards.setScoreForPlayer("MobileTimeSpent", player, newMobileTime, true);
+        })
     }
     onPlayerEnterWorld(p: Player){
         this.gamePlayers.moveToLobby(p);
@@ -164,7 +180,19 @@ class PlayerManager extends Component<typeof PlayerManager> {
             this.sendNetworkEvent(this.props.gameManager!, Events.roleAssignmentComplete, {});
     });
     }
-    returnGamePlayersToLobby (player: Player){
+    handleGameEnd (){
+        const playersInLastGame: Player[] = [];
+        this.pacman && playersInLastGame.push(this.pacman);
+        this.ghost1 && playersInLastGame.push(this.ghost1);
+        this.ghost2 && playersInLastGame.push(this.ghost2);
+        this.ghost3 && playersInLastGame.push(this.ghost3);
+        this.ghost4 && playersInLastGame.push(this.ghost4);
+
+        playersInLastGame.forEach((p: Player) => {
+            const newGamesPlayed = 1 + this.world.persistentStorage.getPlayerVariable(p, MazeRunnerVariable("gamesPlayed"));
+            this.world.persistentStorage.setPlayerVariable(p, MazeRunnerVariable("gamesPlayed"), newGamesPlayed);
+        })
+
 
         this.props.pacman!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
         this.props.ghost1!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
@@ -217,6 +245,32 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.sendNetworkBroadcastEvent(Events.updatePlayersInQueue, {queue1: this.gamePlayers.queue1.players, queue2: this.gamePlayers.queue2.players})
         this.sendNetworkEvent(this.props.gameManager!, Events.setQueue1ReadyState, {ready: this.queue1Ready});
         this.sendNetworkEvent(this.props.gameManager!, Events.setQueue2ReadyState, {ready: this.queue2Ready});
+    }
+
+
+
+    addDragonWin(){
+        const dragonPlayer = this.pacman!;
+
+        const newDragonWins = 1 + this.world.persistentStorage.getPlayerVariable(dragonPlayer, MazeRunnerVariable("dragonWins"));
+        this.world.persistentStorage.setPlayerVariable(dragonPlayer, MazeRunnerVariable("dragonWins"), newDragonWins);
+        const newTotalWins = 1 + this.world.persistentStorage.getPlayerVariable(dragonPlayer, MazeRunnerVariable("totalWins"));
+        this.world.persistentStorage.setPlayerVariable(dragonPlayer, MazeRunnerVariable("totalWins"), newTotalWins);
+    }
+    addGhostWin(){
+        const drones: Player[] = [];
+        this.ghost1 && drones.push(this.ghost1);
+        this.ghost2 && drones.push(this.ghost2);
+        this.ghost3 && drones.push(this.ghost3);
+        this.ghost4 && drones.push(this.ghost4);
+
+        drones.forEach(drone => {
+            const newDroneWins = 1 + this.world.persistentStorage.getPlayerVariable(drone, MazeRunnerVariable("droneWins"));
+            this.world.persistentStorage.setPlayerVariable(drone, MazeRunnerVariable("droneWins"), newDroneWins);
+            const newTotalWins = 1 + this.world.persistentStorage.getPlayerVariable(drone, MazeRunnerVariable("totalWins"));
+            this.world.persistentStorage.setPlayerVariable(drone, MazeRunnerVariable("totalWins"), newTotalWins);
+        })
+
     }
 }
 Component.register(PlayerManager);
