@@ -8,6 +8,7 @@ class StartNowButton extends UIComponent<typeof StartNowButton> {
   panelHeight = 1000;
   static propsDefinition = {
     GameManager: {type: PropTypes.Entity},
+    PlayerManager: {type: PropTypes.Entity},
     objectToMove: { type: PropTypes.Entity },
     offset: { type: PropTypes.Vec3 },
   };
@@ -19,7 +20,7 @@ class StartNowButton extends UIComponent<typeof StartNowButton> {
 
   private coolDownTimeout: number|null = null;
 
-  private buttonDisplayText: "Waiting"|"Not Enough Players"|"Game In Progress"|"Start Now" = "Waiting";
+  private buttonDisplayText: "Waiting"|"2 players required"|"Game In Progress"|"Start Now" = "Waiting";
   private buttonText: Binding<string> = new Binding<string>(this.buttonDisplayText);
   private objectToMove!: Entity;
 
@@ -81,7 +82,7 @@ class StartNowButton extends UIComponent<typeof StartNowButton> {
         case "Waiting":
           this.world.ui.showPopupForPlayer(p, "Please give other players time to join", 3, {...textFormatting});
           break;
-        case "Not Enough Players":
+        case "2 players required":
           this.world.ui.showPopupForPlayer(p, "At least 2 players are required to start", 3, {...textFormatting});
           break;
         case "Game In Progress":
@@ -92,14 +93,20 @@ class StartNowButton extends UIComponent<typeof StartNowButton> {
           break;
       }
     }else{
-      this.world.ui.showPopupForPlayer(p, "You are not in the next game", 3, {...textFormatting});
+      if (this.queuePlayers.length < 5){
+        this.sendNetworkEvent(this.props.PlayerManager!, Events.joinQueue1, {player: p});
+        this.world.ui.showPopupForPlayer(p, "Joining Next Game", 3, {...textFormatting});
+      }else{
+        this.world.ui.showPopupForPlayer(p, "The Next Game is full", 3, {...textFormatting});
+      }
+
     }
   }
 
   updateButtonStatus(){
 
     if (this.gameInProgress) this.buttonDisplayText = "Game In Progress";
-    else if (!this.enoughPlayers) this.buttonDisplayText = "Not Enough Players";
+    else if (!this.enoughPlayers) this.buttonDisplayText = "2 players required";
     else if (this.onCoolDown) this.buttonDisplayText = "Waiting";
     else this.buttonDisplayText = "Start Now";
 
