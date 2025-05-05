@@ -19,6 +19,10 @@ export enum GameState {
   'Ending'
 }
 
+export function MazeRunnerVariable(shortVariable: string){
+  return "MazeRunner: " + shortVariable;
+}
+
 
 export const Events = {
 

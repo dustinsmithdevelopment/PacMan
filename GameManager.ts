@@ -1,4 +1,4 @@
-import {Component, Entity, Player, PropTypes, Vec3} from "horizon/core";
+import {Color, Component, Entity, ParticleGizmo, Player, PropTypes, Vec3} from "horizon/core";
 import {
   DOTS_TO_SHOW_FRUIT,
   Events,
@@ -8,6 +8,11 @@ import {
   setupDelaySecs
 } from "./GameUtilities";
 
+enum WinnerTypes {
+  "Dragon",
+  "Drones"
+}
+
 class GameManager extends Component<typeof GameManager> {
   static propsDefinition = {
     playerManager : {type: PropTypes.Entity, required: true},
@@ -16,8 +21,10 @@ class GameManager extends Component<typeof GameManager> {
     ghost2: {type: PropTypes.Entity, required: true},
     ghost3: {type: PropTypes.Entity, required: true},
     ghost4: {type: PropTypes.Entity, required: true},
+    confetti: {type: PropTypes.Entity, required: true},
 
   };
+  private confetti!: ParticleGizmo;
   private currentPacman: Player|undefined;
   private currentGameState: GameState = GameState.Waiting;
   private queue1Ready = false;
@@ -48,6 +55,7 @@ class GameManager extends Component<typeof GameManager> {
     this.async.setTimeout(()=>{
       this.async.setInterval(this.checkIfReadyToStart.bind(this), 1000*gameCheckFrequencySecs)
     }, 1000*setupDelaySecs);
+    this.confetti = this.props.confetti!.as(ParticleGizmo);
   }
   checkIfReadyToStart() {
     if (this.currentGameState === GameState.Waiting){
@@ -143,8 +151,7 @@ class GameManager extends Component<typeof GameManager> {
       this.async.setTimeout((()=>{this.pacmanInvincible = false}), 1000 * pacmanInvinsiblityTime);
       this.lives -= 1;
       if (this.lives === 0) {
-        this.world.ui.showPopupForEveryone("Drones Win!", 3);
-        this.changeGameState(GameState.Ending);
+        this.announceEndGame(WinnerTypes.Drones);
       } else {
         // respawn pacman
         // console.log("Event is being sent to pacman to respawn")
@@ -153,8 +160,7 @@ class GameManager extends Component<typeof GameManager> {
     }
   }
   pacmanInstantLoss(){
-    this.world.ui.showPopupForEveryone("Drones Win!", 3);
-    this.changeGameState(GameState.Ending);
+    this.announceEndGame(WinnerTypes.Drones);
   }
 
   registerPacDot(pacDot: Entity) {
@@ -175,8 +181,7 @@ class GameManager extends Component<typeof GameManager> {
   }
   checkRemainingPacDots() {
     if (this.remainingPacDots.size === 0) {
-      this.world.ui.showPopupForEveryone("The Dragon Wins!", 3);
-      this.changeGameState(GameState.Ending);
+      this.announceEndGame(WinnerTypes.Dragon);
     }
   }
   powerPelletCollected(){
@@ -204,6 +209,23 @@ class GameManager extends Component<typeof GameManager> {
   }
   collectFruit(points: number){
     this.points += points;
+  }
+
+  announceEndGame(winner: WinnerTypes){
+    this.world.ui.showPopupForEveryone("Game Over", 3, {backgroundColor: Color.black, fontColor: Color.red, fontSize: 5, showTimer: false, playSound: false});
+    this.confetti.play();
+    this.async.setTimeout(()=>{
+      switch (winner){
+        case WinnerTypes.Dragon:
+          this.world.ui.showPopupForEveryone("The Dragon Wins!", 3);
+          break;
+        case WinnerTypes.Drones:
+          this.world.ui.showPopupForEveryone("Drones Win!", 3);
+          break;
+      }
+      this.changeGameState(GameState.Ending);
+    }, 3_000);
+
   }
 }
 Component.register(GameManager);
