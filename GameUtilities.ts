@@ -1,5 +1,5 @@
 import {AttachablePlayerAnchor, Entity, LocalEvent, NetworkEvent, Player, SpawnPointGizmo, Vec3} from "horizon/core";
-
+import {minifyNode} from "HorizonUIUtils";
 
 export const pacmanInvinsiblityTime = 10;
 export const anchorBodyPart = AttachablePlayerAnchor.Head;
@@ -7,10 +7,21 @@ export const setupDelaySecs = 10;
 export const gameCheckFrequencySecs = 1;
 export const EDIBLE_SECONDS = 20;
 export const DOTS_TO_SHOW_FRUIT = 70;
-export const POINTS_AS_PACMAN_VARIABLE = "";
+export const POINTS_VARIABLE = "MazeRunner:Points";
+export const GAME_MINUTES = 20
 
 export const LOBBY_SCALE = 9;
 export const GAME_SCALE = 0.1;
+
+export enum PlayerRoles {
+  "Dragon",
+  "Drone"
+}
+
+export interface PlayerAssignment{
+  name: string;
+  role: PlayerRoles;
+}
 
 export enum GameState {
   'Waiting',
@@ -20,7 +31,7 @@ export enum GameState {
 }
 
 export function MazeRunnerVariable(shortVariable: string){
-  return "MazeRunner: " + shortVariable;
+  return "MazeRunner:" + shortVariable;
 }
 
 
@@ -45,7 +56,6 @@ export const Events = {
   leaveQueue1: new NetworkEvent<{player: Player}>("leaveQueue1"),
   leaveQueue2: new NetworkEvent<{player: Player}>("leaveQueue2"),
   makeGhostEdible: new NetworkEvent<{}>("makeGhostEdible"),
-  // moveToStart: new NetworkEvent<{}>("moveToStart"),
   roleAssignmentComplete: new NetworkEvent<{}>("roleAssignmentComplete"),
   teleportPacman: new NetworkEvent<{location: Vec3}>("teleportPacman"),
   respawnPacman: new NetworkEvent<{}>("respawnPacman"),
@@ -56,8 +66,10 @@ export const Events = {
   startNow: new NetworkEvent<{}>("startNow"),
   updateCurrentGamePlayers: new NetworkEvent<{players:Player[]}>("updateCurrentGamePlayers"),
   addPacmanPoints: new NetworkEvent<{points: number}>("addPacmanPoints"),
-  dragonWin: new NetworkEvent<{}>("dragonWin"),
-  ghostWin: new NetworkEvent<{}>("ghostWin"),
+  dragonWin: new LocalEvent<{}>("dragonWin"),
+  ghostWin: new LocalEvent<{}>("ghostWin"),
+  notifyCurrentGamePlayers: new LocalEvent<{currentGamePlayers: PlayerAssignment[]}>("notifyCurrentGamePlayers"),
+  addPointsToPlayer: new NetworkEvent<{player: Player,points: number}>("addPointsToPlayers"),
 }
 export class PlayerList {
   players: Player[] = [];

@@ -25,7 +25,7 @@ class PacDot extends PacmanCollectableItem {
     this.sendNetworkEvent(this.props.GameManager!, Events.registerPacDot, {pacDot: this.entity});
   }
   collected(){
-    console.log("PacDot Collected");
+    // console.log("PacDot Collected");
     super.hideItem();
     this.sendNetworkBroadcastEvent(Events.pacDotCollected, {pacDot: this.entity});
   }

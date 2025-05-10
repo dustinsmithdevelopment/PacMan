@@ -100,7 +100,7 @@ class PacmanUI extends UIComponent {
     this.origin = originRef.position.get();
     this.async.setTimeout(()=>{
       this.setItemPositions();
-      this.async.setInterval(this.updatePlayerPositions.bind(this),1_000);
+      this.async.setInterval(this.updatePlayerPositions.bind(this),500);
     },3_000);
 
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, ()=>{
@@ -131,7 +131,7 @@ class PacmanUI extends UIComponent {
     // console.log(this.fruits.length, "Fruit");
 
     let displayItems: UINode[] = []
-    console.log("Dots found by PacmanUI",this.pacDots.length);
+    // console.log("Dots found by PacmanUI",this.pacDots.length);
 
 
     this.pacDotLocationsX = Array(this.pacDots.length).fill(0);
@@ -205,19 +205,19 @@ class PacmanUI extends UIComponent {
           }),
           Image({
             source: enemyImage,
-            style: {width: ICON_SIZE, height: ICON_SIZE, bottom: this.enemy1X, left: this.enemy1Y, position: "absolute", zIndex: 2}
+            style: {width: ICON_SIZE*1.5, height: ICON_SIZE*1.5, bottom: this.enemy1X, left: this.enemy1Y, position: "absolute", zIndex: 2}
           }),
           Image({
             source: enemyImage,
-            style: {width: ICON_SIZE, height: ICON_SIZE, bottom: this.enemy2X, left: this.enemy2Y, position: "absolute", zIndex: 2}
+            style: {width: ICON_SIZE*1.5, height: ICON_SIZE*1.5, bottom: this.enemy2X, left: this.enemy2Y, position: "absolute", zIndex: 2}
           }),
           Image({
             source: enemyImage,
-            style: {width: ICON_SIZE, height: ICON_SIZE, bottom: this.enemy3X, left: this.enemy3Y, position: "absolute", zIndex: 2}
+            style: {width: ICON_SIZE*1.5, height: ICON_SIZE*1.5, bottom: this.enemy3X, left: this.enemy3Y, position: "absolute", zIndex: 2}
           }),
           Image({
             source: enemyImage,
-            style: {width: ICON_SIZE, height: ICON_SIZE, bottom: this.enemy4X, left: this.enemy4Y, position: "absolute", zIndex: 2}
+            style: {width: ICON_SIZE*1.5, height: ICON_SIZE*1.5, bottom: this.enemy4X, left: this.enemy4Y, position: "absolute", zIndex: 2}
           }),
           ...displayItems
         ], style: {position: "absolute", width: 384, height: 216, left: 100, top: "10%"}
@@ -309,7 +309,7 @@ class PacmanUI extends UIComponent {
 
   hidePacDot(pacDot: Entity) {
     const index = this.pacDots.indexOf(pacDot);
-    console.log("The pacDot was found at" ,index);
+    // console.log("The pacDot was found at" ,index);
     this.pacDotVisibility[index] = "none";
     this.pacDotDisplayVisibility.set(this.pacDotVisibility);
   }
@@ -335,7 +335,7 @@ class PacmanUI extends UIComponent {
   }
   private loseLife(){
     this.lives -= 1;
-    console.log("The customUI is losing a life. The current lives are", this.lives);
+    // console.log("The customUI is losing a life. The current lives are", this.lives);
     this.updateLivesDisplay();
   }
   private updateLivesDisplay(){

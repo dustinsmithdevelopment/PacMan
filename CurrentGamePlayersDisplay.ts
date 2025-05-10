@@ -1,6 +1,12 @@
-import {Color, Component, Player} from "horizon/core";
-import {Bindable, Binding, Text, UIComponent, UINode, View} from "horizon/ui";
-import {Events} from "./GameUtilities";
+import {Component, PropTypes} from "horizon/core";
+import {Bindable, Binding, ImageSource, Text, UIComponent, UINode, View} from "horizon/ui";
+import {Events, PlayerAssignment, PlayerRoles} from "./GameUtilities";
+
+enum RoleValues {
+    Dragon,
+    Drone,
+    None
+}
 
 const textProperties = {
     fontSize:64,
@@ -13,46 +19,57 @@ const textProperties = {
 class PlayerDisplay extends UIComponent{
     panelWidth = 800;
     panelHeight= 1200;
-    private playersInGame: Player[] = [];
 
     private playersInGameNames: string[] = new Array(5).fill("- - - -");
-
     private playersInGameDisplayValues: Binding<string[]> = new Binding(this.playersInGameNames);
+    private playerColorBinding: Binding<string[]> = new Binding(new Array(5).fill("white"));
 
     static propsDefinition = {};
 
     initializeUI(): UINode {
-        this.playersInGameDisplayValues.set(this.playersInGameNames);
         return View({
             children: [
                 View({children: [
                         Text({text: "Players in current game:", style: {...textProperties}}),
                         View({style : {height: 40}}),
-                        Text({text: this.playersInGameDisplayValues.derive((value)=>{return value[0]}), style: {...textProperties}}),
-                        Text({text: this.playersInGameDisplayValues.derive((value)=>{return value[1]}), style: {...textProperties}}),
-                        Text({text: this.playersInGameDisplayValues.derive((value)=>{return value[2]}), style: {...textProperties}}),
-                        Text({text: this.playersInGameDisplayValues.derive((value)=>{return value[3]}), style: {...textProperties}}),
-                        Text({text: this.playersInGameDisplayValues.derive((value)=>{return value[4]}), style: {...textProperties}}),
+                        this.displayNode(0),
+                        this.displayNode(1),
+                        this.displayNode(2),
+                        this.displayNode(3),
+                        this.displayNode(4),
                     ], style: {display: "flex", flexDirection: "column", width: "100%"}}),
             ], style:{display: "flex", flexDirection: "row", backgroundColor: "black", width:"100%"}
         });
     }
     preStart() {
-        this.connectNetworkBroadcastEvent(Events.updateCurrentGamePlayers, (payload: {players: Player[]})=>{
-            console.log(payload.players.length, "Players Received for display");
-            this.playersInGame = payload.players;
-            this.updateQueueDisplays();
+        this.connectLocalEvent(this.entity, Events.notifyCurrentGamePlayers, (payload: {currentGamePlayers: PlayerAssignment[]})=>{
+            this.updateQueueDisplays(payload.currentGamePlayers);
+        });
+        this.connectNetworkBroadcastEvent(Events.resetGame, ()=>{
+            this.updateQueueDisplays([]);
         });
     }
 
     start() {
 
     }
-    private updateQueueDisplays() {
-        for (let i = 0; i <= 4; i++) {
-            this.playersInGameNames[i] = this.playersInGame[i]?.name.get() ?? "- - - -";
+    private updateQueueDisplays(currentGamePlayers: PlayerAssignment[]) {
+        const newColors = new Array(5).fill("white");
+        for (let i = 0; i < 5; i++) {
+            this.playersInGameNames[i] = currentGamePlayers[i]?.name ?? "- - - -";
+            if (currentGamePlayers[i]?.role === PlayerRoles.Dragon) {newColors[i] = "blue";}
+            if (currentGamePlayers[i]?.role === PlayerRoles.Drone) {newColors[i] = "red";}
         }
         this.playersInGameDisplayValues.set(this.playersInGameNames);
+        this.playerColorBinding.set(newColors);
+
+    }
+    private displayNode(position: number): UINode{
+
+        return View({children: [
+                Text({text: this.playersInGameDisplayValues.derive((value)=>{return value[position]}), style: {...textProperties, color: this.playerColorBinding.derive((value)=>{return value[position]})}}),
+            ], style: {flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}});
+
 
     }
 

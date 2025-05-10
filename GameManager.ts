@@ -1,10 +1,22 @@
-import {AudioGizmo, Color, Component, Entity, ParticleGizmo, Player, PropTypes, Vec3} from "horizon/core";
+import {
+  AudioGizmo,
+  Color,
+  Component,
+  DynamicLightGizmo,
+  Entity,
+  ParticleGizmo,
+  Player,
+  PropTypes,
+  Vec3
+} from "horizon/core";
 import {
   DOTS_TO_SHOW_FRUIT,
+  EDIBLE_SECONDS,
   Events,
+  GAME_MINUTES,
   gameCheckFrequencySecs,
-  GameState,
-  pacmanInvinsiblityTime, POINTS_AS_PACMAN_VARIABLE,
+  GameState, MazeRunnerVariable,
+  pacmanInvinsiblityTime,
   setupDelaySecs
 } from "./GameUtilities";
 
@@ -15,7 +27,7 @@ enum WinnerTypes {
 
 class GameManager extends Component<typeof GameManager> {
   static propsDefinition = {
-    playerManager : {type: PropTypes.Entity, required: true},
+    PlayerManager : {type: PropTypes.Entity, required: true},
     pacMan: {type: PropTypes.Entity, required: true},
     ghost1: {type: PropTypes.Entity, required: true},
     ghost2: {type: PropTypes.Entity, required: true},
@@ -23,6 +35,7 @@ class GameManager extends Component<typeof GameManager> {
     ghost4: {type: PropTypes.Entity, required: true},
     confetti: {type: PropTypes.Entity, required: true},
     endGameSound: {type: PropTypes.Entity, required: true},
+    flashingLight: {type: PropTypes.Entity, required: true},
 
   };
   private confetti!: ParticleGizmo;
@@ -35,6 +48,7 @@ class GameManager extends Component<typeof GameManager> {
   private allPacDots: Map<bigint, Entity> = new Map<bigint, Entity>();
   private remainingPacDots: Map<bigint, Entity> = new Map();
   private queue1PlayerCount = 0;
+  private gameTimer = -1;
   preStart() {
     this.connectNetworkEvent(this.entity ,Events.registerPacDot, (payload: {pacDot: Entity})=>{this.registerPacDot(payload.pacDot);});
     this.connectNetworkBroadcastEvent(Events.pacDotCollected, (payload: {pacDot: Entity})=>{this.eatPacDot(payload.pacDot);});
@@ -50,6 +64,9 @@ class GameManager extends Component<typeof GameManager> {
     });
     this.connectNetworkBroadcastEvent(Events.setPacman, (payload: {pacMan: Player})=>{this.currentPacman = payload.pacMan});
     this.connectNetworkEvent(this.entity, Events.pacmanDead, this.pacmanInstantLoss.bind(this));
+    this.connectNetworkEvent(this.entity, Events.addPointsToPlayer, (payload: {player: Player, points: number})=>{
+      this.addPointsToPlayer(payload.player, payload.points);
+    });
   }
 
   start() {
@@ -67,7 +84,7 @@ class GameManager extends Component<typeof GameManager> {
     }
   }
   forceStartGame(){
-    console.log("Attempting to force start the game")
+    // console.log("Attempting to force start the game")
     if (this.currentGameState === GameState.Waiting && this.queue1PlayerCount >= 2){
       this.changeGameState(GameState.Starting);
     }
@@ -79,20 +96,16 @@ class GameManager extends Component<typeof GameManager> {
           this.resetGame();
           break;
         case GameState.Starting:
-            console.log("Requested to change game state to waiting");
           if (this.currentGameState === GameState.Waiting){
-            console.log("Changing Game State to Starting");
             this.prepareGame();
           }
           break;
         case GameState.Playing:
-          console.log("Requested to change game state to playing")
         if (this.currentGameState === GameState.Starting){
           this.startGame();
         }
           break;
         case GameState.Ending:
-          console.log("Requested to change game state to ending")
           if (this.currentGameState === GameState.Playing){
             this.endGame();
           }
@@ -100,31 +113,37 @@ class GameManager extends Component<typeof GameManager> {
       this.sendNetworkBroadcastEvent(Events.changeGameState, {state: this.currentGameState});
     }
   }
-  // TODO if a ghost leaves the game, mark the slot as empty and offer it to the other players
 
   prepareGame() {
     this.pacmanInvincible = true;
     this.currentGameState = GameState.Starting;
     this.remainingPacDots = new Map(this.allPacDots);
     this.lives = 3;
-    this.sendNetworkEvent(this.props.playerManager!, Events.startPlayerAssignment, {force: (!(this.queue1PlayerCount >= 5))});
+    this.sendNetworkEvent(this.props.PlayerManager!, Events.startPlayerAssignment, {force: (!(this.queue1PlayerCount >= 5))});
   }
   startGame() {
     this.pacmanInvincible = false;
     // console.log("Changing Game State to Playing");
     this.currentGameState = GameState.Playing;
+    this.gameTimer = this.async.setTimeout(()=>{
+      this.announceEndGame(WinnerTypes.Drones);
+    },GAME_MINUTES*60*1000);
 
   }
   endGame() {
     this.pacmanInvincible = true;
-    // TODO ADD THE POINTS
     if (this.currentPacman){
-      const currentPoints = this.world.persistentStorage.getPlayerVariable(this.currentPacman, POINTS_AS_PACMAN_VARIABLE);
-      this.world.persistentStorage.setPlayerVariable(this.currentPacman, POINTS_AS_PACMAN_VARIABLE, currentPoints + this.points);
+      const worldVariables = this.world.persistentStorage;
+      const worldLeaderboards = this.world.leaderboards;
+      const newScore = this.points + worldVariables.getPlayerVariable(this.currentPacman, MazeRunnerVariable("Points"));
+      worldVariables.setPlayerVariable(this.currentPacman,  MazeRunnerVariable("Points"), newScore);
+      worldLeaderboards.setScoreForPlayer("Points", this.currentPacman, newScore, true);
     }
+    this.points = 0;
     // console.log("Changing Game State to Ending");
     this.currentGameState = GameState.Ending;
-    this.sendNetworkEvent(this.props.playerManager!, Events.gameEnding, {});
+    this.sendNetworkEvent(this.props.PlayerManager!, Events.gameEnding, {});
+    this.async.clearTimeout(this.gameTimer);
     this.async.setTimeout(()=>{this.changeGameState(GameState.Waiting)}, 5_000)
   }
   resetGame(){
@@ -132,7 +151,7 @@ class GameManager extends Component<typeof GameManager> {
     this.currentPacman = undefined;
     this.points = 0;
     this.currentGameState = GameState.Waiting;
-    console.log("Sending Game Reset")
+    // console.log("Sending Game Reset")
     this.sendNetworkBroadcastEvent(Events.resetGame, {});
     const pacman: Entity = this.props.pacMan!
     const ghosts: Entity[] = [];
@@ -161,7 +180,7 @@ class GameManager extends Component<typeof GameManager> {
     }
   }
   pacmanInstantLoss(){
-    this.announceEndGame(WinnerTypes.Drones);
+    if(this.currentGameState === GameState.Playing)this.announceEndGame(WinnerTypes.Drones);
   }
 
   registerPacDot(pacDot: Entity) {
@@ -172,11 +191,11 @@ class GameManager extends Component<typeof GameManager> {
     this.remainingPacDots.delete(pacDot.id);
     this.points += 10;
     this.checkRemainingPacDots();
-    console.log((this.allPacDots.size - this.remainingPacDots.size));
-    console.log("Is equal:", (this.allPacDots.size - this.remainingPacDots.size) == DOTS_TO_SHOW_FRUIT);
-    console.log(DOTS_TO_SHOW_FRUIT);
+    // console.log((this.allPacDots.size - this.remainingPacDots.size));
+    // console.log("Is equal:", (this.allPacDots.size - this.remainingPacDots.size) == DOTS_TO_SHOW_FRUIT);
+    // console.log(DOTS_TO_SHOW_FRUIT);
     if ((this.allPacDots.size - this.remainingPacDots.size) == DOTS_TO_SHOW_FRUIT){
-      console.log("Making Fruit Visible")
+      // console.log("Making Fruit Visible")
       this.sendNetworkBroadcastEvent(Events.fruitCollectable, {});
     }
   }
@@ -191,6 +210,19 @@ class GameManager extends Component<typeof GameManager> {
     this.sendNetworkEvent(this.props.ghost2!, Events.makeGhostEdible, {});
     this.sendNetworkEvent(this.props.ghost3!, Events.makeGhostEdible, {});
     this.sendNetworkEvent(this.props.ghost4!, Events.makeGhostEdible, {});
+    this.flashBlueLight();
+  }
+  flashBlueLight(){
+    let on = false;
+    const flashValue = this.async.setInterval(()=>{
+      on = !on;
+      this.props.flashingLight?.as(DynamicLightGizmo).enabled.set(on);
+    },250);
+    this.async.setTimeout(()=>{
+      this.async.clearInterval(flashValue);
+      this.props.flashingLight?.as(DynamicLightGizmo).enabled.set(false);
+    },1000*EDIBLE_SECONDS);
+
   }
   updateQueue1ReadyState(isReady: boolean) {
     this.queue1Ready = isReady;
@@ -215,10 +247,10 @@ class GameManager extends Component<typeof GameManager> {
   announceEndGame(winner: WinnerTypes){
     switch (winner){
       case WinnerTypes.Dragon:
-        this.sendNetworkEvent(this.props.playerManager!, Events.dragonWin, {});
+        this.sendLocalEvent(this.props.PlayerManager!, Events.dragonWin, {});
         break;
       case WinnerTypes.Drones:
-        this.sendNetworkEvent(this.props.playerManager!, Events.ghostWin, {});
+        this.sendLocalEvent(this.props.PlayerManager!, Events.ghostWin, {});
         break;
     }
     this.world.ui.showPopupForEveryone("Game Over", 3, {backgroundColor: Color.black, fontColor: Color.red, fontSize: 5, showTimer: false, playSound: false});
@@ -236,6 +268,13 @@ class GameManager extends Component<typeof GameManager> {
       this.changeGameState(GameState.Ending);
     }, 3_000);
 
+  }
+  addPointsToPlayer(p: Player,pointsToAdd: number){
+    const worldVariables = this.world.persistentStorage;
+    const worldLeaderboards = this.world.leaderboards;
+    const newScore = pointsToAdd + worldVariables.getPlayerVariable(p, MazeRunnerVariable("Points"));
+    worldVariables.setPlayerVariable(p,  MazeRunnerVariable("Points"), newScore);
+    worldLeaderboards.setScoreForPlayer("Points", p, newScore, true);
   }
 }
 Component.register(GameManager);

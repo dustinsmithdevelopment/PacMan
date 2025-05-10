@@ -24,11 +24,11 @@ export abstract class PlayerRole extends Component {
         this.homePosition = position.as(SpawnPointGizmo);
     }
     protected moveToStart(){
-        console.log("Trying to move", this.role, "to start.")
+        // console.log("Trying to move", this.role, "to start.")
         if (this.attachedPlayer && this.homePosition){
             this.attachedPlayer!.avatarScale.set(GAME_SCALE);
             // if(!this.attachedPlayer.name.get().startsWith("NPC")) {
-                console.log("Command sent to send", this.role, "to start for", this.attachedPlayer.name.get());
+            //     console.log("Command sent to send", this.role, "to start for", this.attachedPlayer.name.get());
                 this.homePosition.teleportPlayer(this.attachedPlayer);
             }
 

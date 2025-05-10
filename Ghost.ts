@@ -1,4 +1,4 @@
-import {Color, Component, Entity, MeshEntity, PropTypes, Vec3,} from "horizon/core";
+import {AudioGizmo, Color, Component, Entity, MeshEntity, PropTypes, Vec3,} from "horizon/core";
 import {EDIBLE_SECONDS, Events} from "./GameUtilities";
 import {PlayerRole} from "./PlayerRole";
 enum GhostState{
@@ -13,7 +13,8 @@ class Ghost extends PlayerRole {
   private blueFlash: number|undefined;
   static propsDefinition = {
     homePositionSpawn: {type: PropTypes.Entity, required: true},
-    manager: {type: PropTypes.Entity, required: true},
+    GameManager: {type: PropTypes.Entity, required: true},
+    eatSound: {type: PropTypes.Entity},
   };
   private ghostState: GhostState = GhostState.enemy;
   private ghostMesh: MeshEntity|undefined;
@@ -25,7 +26,6 @@ class Ghost extends PlayerRole {
     this.connectNetworkBroadcastEvent(Events.resetGame, this.becomeEnemy.bind(this));
   }
   start() {
-    // TODO
     const homePositionSpawn: Entity = this.props.homePositionSpawn!
     super.SetHomePosition(homePositionSpawn);
     this.entity.position.set(new Vec3(0,1000, 0));
@@ -44,17 +44,27 @@ class Ghost extends PlayerRole {
     }
   }
   attackPacman(){
-    this.sendNetworkEvent(this.props.manager!, Events.ghostCaughtPacman, {});
+    if (this.props.eatSound){
+      const soundEntity: Entity = this.props.eatSound!;
+      soundEntity.as(AudioGizmo).play();
+    }
+    this.sendNetworkEvent(this.props.GameManager!, Events.ghostCaughtPacman, {});
+    this.sendNetworkEvent(this.props.GameManager!, Events.addPointsToPlayer, {player: this.entity.owner.get(), points: 200});
   }
   eatenByPacman(){
+    if (this.props.eatSound){
+      const soundEntity: Entity = this.props.eatSound!;
+      soundEntity.as(AudioGizmo).play();
+    }
     this.respawn();
-    this.sendNetworkEvent(this.props.manager!, Events.addPacmanPoints, {points: 200});
+    this.sendNetworkEvent(this.props.GameManager!, Events.addPacmanPoints, {points: 200});
   }
   respawn(){
     super.moveToStart();
     this.becomeEnemy();
   }
   becomeEdible(){
+
     this.ghostState = GhostState.edible;
     this.edibleCooldown = this.async.setTimeout(this.becomeEnemy.bind(this), EDIBLE_SECONDS*1000);
     this.ghostMesh && this.ghostMesh.style.tintColor.set(Color.blue);

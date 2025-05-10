@@ -1,8 +1,11 @@
-import {Component, PropTypes} from "horizon/core";
 import {Events} from "./GameUtilities";
 import {PacmanCollectableItem} from "./PacmanCollectableItem";
+import {AudioGizmo, Component, Entity, Player, PlayerVisibilityMode, PropTypes} from "horizon/core";
 
-class Fruit extends PacmanCollectableItem {
+class Fruit extends Component<typeof Fruit> {
+  private pacMan: Player|undefined;
+  private players: Player[] = [];
+  private sound: AudioGizmo|undefined;
   private collectable = false;
   private points: number = 100;
   static propsDefinition = {
@@ -13,7 +16,15 @@ class Fruit extends PacmanCollectableItem {
     this.connectNetworkEvent(this.entity, Events.touchedByPacman, this.collected.bind(this));
     this.connectNetworkEvent(this.entity, Events.fruitCollectable, this.setCollectable.bind(this));
     this.connectNetworkBroadcastEvent(Events.fruitCollectable, this.setCollectable.bind(this));
-    super.preStart();
+    this.connectNetworkBroadcastEvent(Events.setPacman, (payload:{pacMan: Player})=>{
+      this.pacMan = payload.pacMan;
+      this.makeInvisibleForGhosts();
+    });
+    this.connectNetworkBroadcastEvent(Events.resetGame, this.resetState.bind(this));
+    this.connectNetworkBroadcastEvent(Events.updateCurrentGamePlayers, (payload: {players: Player[]})=>{
+      this.players = payload.players;
+      this.makeInvisibleForGhosts();
+    });
   }
 
   start() {
@@ -21,14 +32,13 @@ class Fruit extends PacmanCollectableItem {
       this.points = this.props.pointValue;
     }
     if (this.props.sound){
-      super.setAudioGizmo(this.props.sound);
+      this.sound = this.props.sound!.as(AudioGizmo);
     }
-    super.start();
     this.async.setTimeout(this.setUncollectable.bind(this),200);
   }
   setUncollectable(){
     this.collectable = false;
-    super.hideItem();
+    this.hideItem();
   }
   setCollectable(){
     this.collectable = true;
@@ -37,11 +47,32 @@ class Fruit extends PacmanCollectableItem {
 
   collected() {
     if(this.collectable){
-      console.log("Fruit Collected");
+      // console.log("Fruit Collected");
       this.setUncollectable();
       this.sendNetworkBroadcastEvent(Events.fruitCollected, {points: this.points});
     }
   }
 
+  private makeInvisibleForGhosts(){
+    if (this.pacMan && this.players.length > 0){
+      const ghosts = this.players.filter((player) => {return player.id !== this.pacMan!.id});
+      // console.log("we are starting with", this.players.length,"players and making visible for", this.pacMan, "and invisible for", ghosts.length, "pacman is a ghost:", ghosts.includes(this.pacMan) );
+      this.entity.setVisibilityForPlayers(this.world.getPlayers(), PlayerVisibilityMode.VisibleTo);
+      this.async.setTimeout(() => {
+        this.entity.setVisibilityForPlayers(ghosts, PlayerVisibilityMode.HiddenFrom);
+      }, 100);
+    }
+  }
+  private resetState() {
+    this.setUncollectable();
+    this.players = [];
+    this.pacMan = undefined;
+
+  }
+  protected hideItem(){
+    this.entity.visible.set(false);
+    this.sound?.play({players: this.players, fade: 0});
+
+  }
 }
 Component.register(Fruit);

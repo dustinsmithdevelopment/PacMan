@@ -73,7 +73,7 @@ class SetPacman extends Component{
   start() {
     this.entity.as(PhysicalEntity).locked.set(true);
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
-      console.log("sending assignPacman with ", player);
+      // console.log("sending assignPacman with ", player);
       // this.sendNetworkEvent(this.props.pacman!, Events.assignPlayer, {player: player});
       // this.async.setTimeout(()=>{player.position.set(new Vec3(4,4,6))}, 1000);
     });
@@ -107,7 +107,7 @@ class SetGhost extends Component{
   start() {
     this.entity.as(PhysicalEntity).locked.set(true);
     this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnGrabStart, (_,player: Player)=>{
-      console.log("sending assignGhost with ", player);
+      // console.log("sending assignGhost with ", player);
       // this.sendNetworkEvent(this.props.ghost!, Events.assignPlayer, {player: player});
     });
   }

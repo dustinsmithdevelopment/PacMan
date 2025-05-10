@@ -51,7 +51,7 @@ class PacMan extends PlayerRole {
 
   }
   respawn(){
-    console.log("Event is being received by pacman to respawn");
+    // console.log("Event is being received by pacman to respawn");
     super.moveToStart();
   }
 

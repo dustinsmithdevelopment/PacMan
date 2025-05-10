@@ -1,19 +1,31 @@
 import {
-    AttachableEntity, AudioGizmo,
-    CodeBlockEvent,
+    AttachableEntity,
+    AudioGizmo,
     CodeBlockEvents,
-    Component, Entity,
+    Component,
+    Entity,
     Player,
+    PlayerDeviceType,
     PropTypes,
-    SpawnPointGizmo, Vec3
+    SpawnPointGizmo,
+    Vec3
 } from "horizon/core";
-import {Events, GamePlayers, LOBBY_SCALE, EDIBLE_SECONDS, MazeRunnerVariable} from "./GameUtilities";
-import {Camera, CameraMode} from "horizon/camera";
+import {
+    EDIBLE_SECONDS,
+    Events,
+    GamePlayers,
+    LOBBY_SCALE,
+    MazeRunnerVariable,
+    PlayerAssignment,
+    PlayerRoles
+} from "./GameUtilities";
+import {CameraMode} from "horizon/camera";
 import {PlayerCameraEvents} from "./PlayerCamera";
 
 class PlayerManager extends Component<typeof PlayerManager> {
     static propsDefinition = {
         gameManager: {type: PropTypes.Entity, required: true},
+        currentGamePlayersDisplay: {type: PropTypes.Entity, required: true},
         pacman: {type: PropTypes.Entity, required: true},
         ghost1: {type: PropTypes.Entity, required: true},
         ghost2: {type: PropTypes.Entity, required: true},
@@ -44,14 +56,16 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.connectNetworkEvent(this.entity, Events.startPlayerAssignment, (payload: {force: boolean})=>{this.assignPlayers(payload.force);});
         this.connectNetworkEvent(this.entity, Events.gameEnding, this.handleGameEnd.bind(this));
         this.connectNetworkBroadcastEvent(Events.powerPelletCollected, this.playPowerPelletMusic.bind(this));
-        this.connectNetworkEvent(this.entity, Events.ghostWin, this.addGhostWin.bind(this));
-        this.connectNetworkEvent(this.entity, Events.dragonWin, this.addDragonWin.bind(this));
+        this.connectLocalEvent(this.entity, Events.ghostWin, this.addGhostWin.bind(this));
+        this.connectLocalEvent(this.entity, Events.dragonWin, this.addDragonWin.bind(this));
+        this.connectNetworkBroadcastEvent(Events.resetGame, this.resetGame.bind(this));
     }
 
     start() {
         this.lobbySpawn = this.props.lobbySpawnGizmo!.as(SpawnPointGizmo);
         this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterWorld, (player: Player) => {this.onPlayerEnterWorld(player);});
         this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerExitWorld, (player: Player) => {this.onPlayerExitWorld(player);});
+        this.connectCodeBlockEvent(this.entity, CodeBlockEvents.OnPlayerEnterAFK, (player: Player) => {this.onPlayerExitWorld(player, true);});
 
         const lobbyAudioEntity: Entity|undefined = this.props.lobbyAudio;
         const gameAudioEntity: Entity|undefined = this.props.gameAudio;
@@ -73,25 +87,59 @@ class PlayerManager extends Component<typeof PlayerManager> {
         const worldVariables = this.world.persistentStorage;
         const worldLeaderboards = this.world.leaderboards;
         this.world.getPlayers().forEach(player => {
-            const newVRTime = 1 + worldVariables.getPlayerVariable(player, MazeRunnerVariable("vrtimeSpent"));
-            worldVariables.setPlayerVariable(player,  MazeRunnerVariable("vrtimeSpent"), newVRTime);
-            worldLeaderboards.setScoreForPlayer("TimeSpent", player, newVRTime, true);
-            const newMobileTime = 1 + worldVariables.getPlayerVariable(player, MazeRunnerVariable("mobiletimeSpent"));
-            worldVariables.setPlayerVariable(player,  MazeRunnerVariable("mobiletimeSpent"), newMobileTime);
-            worldLeaderboards.setScoreForPlayer("MobileTimeSpent", player, newMobileTime, true);
-        })
+            if (player.deviceType.get() === PlayerDeviceType.VR){
+                const newVRTime = 1 + worldVariables.getPlayerVariable(player, MazeRunnerVariable("vrtimeSpent"));
+                worldVariables.setPlayerVariable(player,  MazeRunnerVariable("vrtimeSpent"), newVRTime);
+                worldLeaderboards.setScoreForPlayer("TimeSpent", player, newVRTime, true);
+            }
+
+            if (player.deviceType.get() === PlayerDeviceType.Mobile){
+                const newMobileTime = 1 + worldVariables.getPlayerVariable(player, MazeRunnerVariable("mobiletimeSpent"));
+                worldVariables.setPlayerVariable(player,  MazeRunnerVariable("mobiletimeSpent"), newMobileTime);
+                worldLeaderboards.setScoreForPlayer("MobileTimeSpent", player, newMobileTime, true);
+            }
+
+        });
     }
     onPlayerEnterWorld(p: Player){
         this.gamePlayers.moveToLobby(p);
-        // TODO ADD THIS BACK
         p.avatarScale.set(LOBBY_SCALE);
         this.lobbyAudio?.play({players: [p], fade:0});
     }
-    onPlayerExitWorld(p: Player){
-        if (this.gamePlayers.isPacman(p)){
+    onPlayerExitWorld(p: Player, afk:Boolean = false){
+        if (p.id === this.pacman?.id){
+            this.pacman = undefined;
+            this.props.pacman!.owner.set(this.world.getServerPlayer());
+            this.props.pacman!.position.set(new Vec3(1000,0,0));
             this.sendNetworkEvent(this.props.gameManager!, Events.pacmanDead, {});
         }
-        this.gamePlayers.removePlayer(p)
+        if (p.id === this.ghost1?.id){
+            this.ghost1 = undefined;
+            this.props.ghost1!.owner.set(this.world.getServerPlayer());
+            this.props.ghost1!.position.set(new Vec3(500,0,0));
+        }
+        if (p.id === this.ghost2?.id){
+            this.ghost2 = undefined;
+            this.props.ghost2!.owner.set(this.world.getServerPlayer());
+            this.props.ghost2!.position.set(new Vec3(500,0,0));
+
+        }
+        if (p.id === this.ghost3?.id){
+            this.ghost3 = undefined;
+            this.props.ghost3!.owner.set(this.world.getServerPlayer());
+            this.props.ghost3!.position.set(new Vec3(500,0,0));
+        }
+        if (p.id === this.ghost4?.id){
+            this.ghost4 = undefined;
+            this.props.ghost4!.owner.set(this.world.getServerPlayer());
+            this.props.ghost4!.position.set(new Vec3(500,0,0));
+        }
+        this.gamePlayers.removePlayer(p);
+        if (afk){
+            p.avatarScale.set(LOBBY_SCALE);
+            p.gravity.set(9.81);
+            this.gamePlayers.moveToLobby(p);
+        }
     }
     onJoinQueue1(p: Player){
         this.gamePlayers.moveToQueue1(p);
@@ -117,7 +165,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
     }
     private playersAssigned = false;
     assignPlayers(force: boolean = false){
-        console.log("Assigning Players");
+        // console.log("Assigning Players");
         if (!this.playersAssigned) {
             this.playersAssigned = true;
             let nextMatchPlayers: Player[] = [];
@@ -134,7 +182,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
             nextMatchPlayers.forEach((p: Player) => {
                 this.sendNetworkEvent(p, PlayerCameraEvents.SetCameraMode, {mode: CameraMode.FirstPerson});
             });
-            this.lobbyAudio?.pause({players: [...nextMatchPlayers], fade: 0.1});
+            this.lobbyAudio?.stop({players: [...nextMatchPlayers], fade: 0.1});
             this.gameAudio?.play({players: [...nextMatchPlayers], fade: 0.1});
 
             this.updateQueueStates();
@@ -157,7 +205,7 @@ class PlayerManager extends Component<typeof PlayerManager> {
     suitUp() {
         // suit up requested
         this.pacman = this.gamePlayers.pacman!;
-        this.sendNetworkBroadcastEvent(Events.setPacman, {pacMan: this.gamePlayers.pacman!});
+        this.sendNetworkBroadcastEvent(Events.setPacman, {pacMan: this.pacman});
         // console.log("Pacman",this.pacman.name.get());
         this.ghost1 = this.gamePlayers.ghosts.players[0];
         // console.log("Ghost1",this.ghost1.name.get());
@@ -166,6 +214,20 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.ghost3 = this.gamePlayers.ghosts.players[2] ?? undefined;
         // console.log("Ghost3",this.ghost3.name.get());
         this.ghost4 = this.gamePlayers.ghosts.players[3] ?? undefined;
+
+        const DisplayGamePlayers: PlayerAssignment[] = [];
+        DisplayGamePlayers.push({name: this.pacman.name.get(), role: PlayerRoles.Dragon});
+        DisplayGamePlayers.push({name: this.ghost1.name.get(), role: PlayerRoles.Drone});
+        if (this.ghost2) DisplayGamePlayers.push({name: this.ghost2.name.get(), role: PlayerRoles.Drone});
+        if (this.ghost3) DisplayGamePlayers.push({name: this.ghost3.name.get(), role: PlayerRoles.Drone});
+        if (this.ghost4) DisplayGamePlayers.push({name: this.ghost4.name.get(), role: PlayerRoles.Drone});
+
+        this.sendLocalEvent(this.props.currentGamePlayersDisplay!, Events.notifyCurrentGamePlayers, {currentGamePlayers: DisplayGamePlayers});
+
+
+
+
+
         // console.log("Ghost4",this.ghost4.name.get());
         this.pacman.position.set(new Vec3(0, -250, 0));
         this.async.setTimeout(()=>{
@@ -188,9 +250,13 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.ghost3 && playersInLastGame.push(this.ghost3);
         this.ghost4 && playersInLastGame.push(this.ghost4);
 
+        const worldVariables = this.world.persistentStorage;
+        const worldLeaderboards = this.world.leaderboards;
         playersInLastGame.forEach((p: Player) => {
-            const newGamesPlayed = 1 + this.world.persistentStorage.getPlayerVariable(p, MazeRunnerVariable("gamesPlayed"));
-            this.world.persistentStorage.setPlayerVariable(p, MazeRunnerVariable("gamesPlayed"), newGamesPlayed);
+
+            const newDragonWins = 1 + worldVariables.getPlayerVariable(p, MazeRunnerVariable("gamesPlayed"));
+            worldVariables.setPlayerVariable(p,  MazeRunnerVariable("gamesPlayed"), newDragonWins);
+            worldLeaderboards.setScoreForPlayer("GamesPlayed", p, newDragonWins, true);
         })
 
 
@@ -200,28 +266,48 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.ghost3 && this.props.ghost3!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
         this.ghost4 && this.props.ghost4!.as(AttachableEntity).owner.set(this.world.getServerPlayer());
         this.async.setTimeout(()=>{
-            this.lobbySpawn?.teleportPlayer(this.pacman!);
-            this.pacman!.avatarScale.set(LOBBY_SCALE);
+            if (this.pacman){
+                this.lobbySpawn?.teleportPlayer(this.pacman!);
+                this.pacman!.avatarScale.set(LOBBY_SCALE);
+                this.pacman!.gravity.set(9.81);
+                this.gamePlayers.moveToLobby(this.pacman!);
+            }
         },150);
         this.async.setTimeout(()=>{
-            this.lobbySpawn?.teleportPlayer(this.ghost1!);
-            this.ghost1!.avatarScale.set(LOBBY_SCALE);
+            if (this.ghost1){
+                this.lobbySpawn?.teleportPlayer(this.ghost1!);
+                this.ghost1!.avatarScale.set(LOBBY_SCALE);
+                this.ghost1!.gravity.set(9.81);
+                this.gamePlayers.moveToLobby(this.ghost1!);
+            }
             },250);
         this.async.setTimeout(()=>{
-            this.ghost2 && this.lobbySpawn?.teleportPlayer(this.ghost2!);
-            this.ghost2 && this.ghost2!.avatarScale.set(LOBBY_SCALE);
+            if (this.ghost2) {
+                this.lobbySpawn?.teleportPlayer(this.ghost2!);
+                this.ghost2!.avatarScale.set(LOBBY_SCALE);
+                this.ghost2!.gravity.set(9.81);
+                this.gamePlayers.moveToLobby(this.ghost2!);
+            }
             },350);
         this.async.setTimeout(()=>{
-            this.ghost3 && this.lobbySpawn?.teleportPlayer(this.ghost3!);
-            this.ghost3 && this.ghost3!.avatarScale.set(LOBBY_SCALE);
+            if (this.ghost3) {
+                this.lobbySpawn?.teleportPlayer(this.ghost3!);
+                this.ghost3!.avatarScale.set(LOBBY_SCALE);
+                this.ghost3!.gravity.set(9.81);
+                this.gamePlayers.moveToLobby(this.ghost3!);
+            }
             },450);
         this.async.setTimeout(()=>{
-            this.ghost4 && this.lobbySpawn?.teleportPlayer(this.ghost4!);
-            this.ghost4 && this.ghost4!.avatarScale.set(LOBBY_SCALE);
+            if (this.ghost4) {
+                this.lobbySpawn?.teleportPlayer(this.ghost4!);
+                this.ghost4!.avatarScale.set(LOBBY_SCALE);
+                this.ghost4!.gravity.set(9.81);
+                this.gamePlayers.moveToLobby(this.ghost4!);
+            }
             },550);
         this.async.setTimeout(()=>{
-            this.gameAudio?.pause({players: this.currentGamePlayers, fade: 0.1});
-            this.powerPelletAudio?.pause({players: this.currentGamePlayers, fade: 0.1});
+            this.gameAudio?.stop({players: this.currentGamePlayers, fade: 0.1});
+            this.powerPelletAudio?.stop({players: this.currentGamePlayers, fade: 0.1});
             this.lobbyAudio?.play({players: this.currentGamePlayers, fade: 0.1});
             this.currentGamePlayers = [];
             this.playersAssigned = false;
@@ -229,10 +315,10 @@ class PlayerManager extends Component<typeof PlayerManager> {
 
     }
     playPowerPelletMusic(){
-        this.gameAudio?.pause({players: this.currentGamePlayers, fade: 0.1});
+        this.gameAudio?.stop({players: this.currentGamePlayers, fade: 0.1});
         this.powerPelletAudio?.play({players: this.currentGamePlayers, fade: 0.1});
         this.async.setTimeout(()=>{
-            this.powerPelletAudio?.pause({players: this.currentGamePlayers, fade: 0.1});
+            this.powerPelletAudio?.stop({players: this.currentGamePlayers, fade: 0.1});
             if (this.playersAssigned) {
                 this.gameAudio?.play({players: this.currentGamePlayers, fade: 0.1});
             }
@@ -251,11 +337,18 @@ class PlayerManager extends Component<typeof PlayerManager> {
 
     addDragonWin(){
         const dragonPlayer = this.pacman!;
+        // console.log("adding a win for", dragonPlayer.name.get());
 
-        const newDragonWins = 1 + this.world.persistentStorage.getPlayerVariable(dragonPlayer, MazeRunnerVariable("dragonWins"));
-        this.world.persistentStorage.setPlayerVariable(dragonPlayer, MazeRunnerVariable("dragonWins"), newDragonWins);
-        const newTotalWins = 1 + this.world.persistentStorage.getPlayerVariable(dragonPlayer, MazeRunnerVariable("totalWins"));
-        this.world.persistentStorage.setPlayerVariable(dragonPlayer, MazeRunnerVariable("totalWins"), newTotalWins);
+        const worldVariables = this.world.persistentStorage;
+        const worldLeaderboards = this.world.leaderboards;
+        const newDragonWins = 1 + worldVariables.getPlayerVariable(dragonPlayer, MazeRunnerVariable("dragonWins"));
+        worldVariables.setPlayerVariable(dragonPlayer,  MazeRunnerVariable("dragonWins"), newDragonWins);
+        worldLeaderboards.setScoreForPlayer("DragonWins", dragonPlayer, newDragonWins, true);
+
+
+        const newTotalWins = 1 + worldVariables.getPlayerVariable(dragonPlayer, MazeRunnerVariable("totalWins"));
+        worldVariables.setPlayerVariable(dragonPlayer,  MazeRunnerVariable("totalWins"), newTotalWins);
+        worldLeaderboards.setScoreForPlayer("TotalWins", dragonPlayer, newTotalWins, true);
     }
     addGhostWin(){
         const drones: Player[] = [];
@@ -264,13 +357,28 @@ class PlayerManager extends Component<typeof PlayerManager> {
         this.ghost3 && drones.push(this.ghost3);
         this.ghost4 && drones.push(this.ghost4);
 
+        // console.log("adding a win for", drones.length, "drones");
+            const worldVariables = this.world.persistentStorage;
+            const worldLeaderboards = this.world.leaderboards;
         drones.forEach(drone => {
-            const newDroneWins = 1 + this.world.persistentStorage.getPlayerVariable(drone, MazeRunnerVariable("droneWins"));
-            this.world.persistentStorage.setPlayerVariable(drone, MazeRunnerVariable("droneWins"), newDroneWins);
-            const newTotalWins = 1 + this.world.persistentStorage.getPlayerVariable(drone, MazeRunnerVariable("totalWins"));
-            this.world.persistentStorage.setPlayerVariable(drone, MazeRunnerVariable("totalWins"), newTotalWins);
+            const newDroneWins = 1 + worldVariables.getPlayerVariable(drone, MazeRunnerVariable("droneWins"));
+            worldVariables.setPlayerVariable(drone,  MazeRunnerVariable("droneWins"), newDroneWins);
+            worldLeaderboards.setScoreForPlayer("DroneWin", drone, newDroneWins, true);
+
+            const newTotalWins = 1 + worldVariables.getPlayerVariable(drone, MazeRunnerVariable("totalWins"));
+            worldVariables.setPlayerVariable(drone,  MazeRunnerVariable("totalWins"), newTotalWins);
+            worldLeaderboards.setScoreForPlayer("TotalWins", drone, newTotalWins, true);
+
+
         })
 
+    }
+    resetGame(){
+        this.pacman = undefined;
+        this.ghost1 = undefined;
+        this.ghost2 = undefined;
+        this.ghost3 = undefined;
+        this.ghost4 = undefined;
     }
 }
 Component.register(PlayerManager);
